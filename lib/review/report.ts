@@ -67,9 +67,12 @@ export async function reportPdf(report: ReviewReport) {
       line = '';
     };
     for (const word of text.split(/\s+/)) {
-      if (line && font.widthOfTextAtSize(line + ' ' + word, size) > width)
-        flush();
-      for (const character of (line ? ' ' : '') + word) {
+      if (line && font.widthOfTextAtSize(line + ' ' + word, size) > width) flush();
+      if (font.widthOfTextAtSize(word, size) <= width) {
+        line += (line ? ' ' : '') + word;
+        continue;
+      }
+      for (const character of word) {
         if (font.widthOfTextAtSize(line + character, size) > width) flush();
         line += character;
       }

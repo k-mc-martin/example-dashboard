@@ -26,7 +26,51 @@ export async function finishCase(passed, note) {
     current.verdict = 'failed';
     current.note = 'No network evidence was captured.';
   }
+  current.records.sort((a, b) => a.at.localeCompare(b.at));
   publish();
+}
+// Reconcile the independent browser trace with the receipts accessible to this
+// identity. This also captures the backend's preflight denial hidden by CORS.
+export async function collectReceipts(page, n) {
+  const home = new URL(page.url()).origin;
+  const report = await page.request.get(home + '/api/demo/report?format=json');
+  if (!report.ok())
+    throw Error('Receipt export returned HTTP ' + report.status());
+  const data = await report.json();
+  if (data.exercise !== n || !data.receipts?.length)
+    throw Error('Missing backend receipts for exercise ' + n);
+  if (!output) return;
+  await Promise.all([...pending]);
+  for (const r of data.receipts) {
+    const existing = current.records.find((entry) => entry.receipt === r.id);
+    const outside = r.role.startsWith('Outside origin');
+    const identity = outside ? r.role : r.actor + ' / ' + r.role;
+    if (existing) {
+      if (existing.status !== r.http)
+        throw Error('Receipt status differs from the observed HTTP response.');
+      existing.identity = identity;
+      existing.facts = [
+        ...new Set([
+          ...r.facts,
+          ...existing.facts.filter(
+            (f) => !f.startsWith('Backend ledger after request:'),
+          ),
+        ]),
+      ];
+    } else {
+      const [method, path, ...op] = r.operation.split(' ');
+      current.records.push({
+        at: r.at,
+        method,
+        path,
+        operation: op.join(' '),
+        identity,
+        status: r.http,
+        receipt: r.id,
+        facts: r.facts,
+      });
+    }
+  }
 }
 export function observeContext(context) {
   if (!output || seen.has(context)) return;
@@ -109,6 +153,7 @@ export function observeContext(context) {
       );
     const principal = response.headers()['x-secdash-principal'];
     if (principal) actor = principal;
+    else if (path.endsWith('/enter')) actor = 'Member session handoff';
     else if (
       request.headers().origin &&
       request.headers().origin !== url.origin
@@ -159,7 +204,12 @@ export function observeContext(context) {
         method: r.method(),
         path: url.pathname,
         operation: '',
-        identity: owners.get(url.host) || 'Outside origin',
+        identity: r
+          .frame()
+          .url()
+          .startsWith(url.origin + '/')
+          ? owners.get(url.host) || 'Visitor'
+          : 'Outside origin',
         status: null,
         facts: [
           'Browser transport: ' + (r.failure()?.errorText || 'request failed'),

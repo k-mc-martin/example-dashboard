@@ -1,4 +1,9 @@
-import {beginCase,finishCase,observeContext} from './suite-observer.mjs';
+import {
+  beginCase,
+  finishCase,
+  observeContext,
+  collectReceipts,
+} from './suite-observer.mjs';
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { chromium } from 'playwright-core';
@@ -15,7 +20,11 @@ const hosted = new URL(origin).protocol === 'https:';
 const diagnostics = new WeakMap();
 let browser;
 before(async () => {
-  browser = await chromium.launch(process.env.SECDASH_CHROME_PATH ? {executablePath:process.env.SECDASH_CHROME_PATH} : {channel:'chrome'});
+  browser = await chromium.launch(
+    process.env.SECDASH_CHROME_PATH
+      ? { executablePath: process.env.SECDASH_CHROME_PATH }
+      : { channel: 'chrome' },
+  );
 });
 after(async () => {
   await browser?.close();
@@ -169,8 +178,8 @@ function scenario(n, role, description, perform) {
       ' — ' +
       description,
     async (t) => {
-      beginCase(n,exercise.title,description);
-      let passed=false;
+      beginCase(n, exercise.title, description);
+      let passed = false;
       const page = await browser.newPage({
         viewport:
           n === 19 ? { width: 390, height: 844 } : { width: 980, height: 850 },
@@ -200,9 +209,24 @@ function scenario(n, role, description, perform) {
         }
         await openScreen(page, workspaceScreens[screens[0]].title);
         await perform(page);
-        passed=true;
+        const exportLink = page.getByRole('link', {
+          name: 'Download exercise report (PDF)',
+        });
+        await exportLink.waitFor();
+        const pdf = await page.request.get(
+          new URL(await exportLink.getAttribute('href'), page.url()).href,
+        );
+        assert.match(pdf.headers()['content-type'], /application\/pdf/);
+        assert.equal((await pdf.body()).subarray(0, 5).toString(), '%PDF-');
+        await collectReceipts(page, n);
+        passed = true;
       } finally {
-        await finishCase(passed,passed?undefined:"An assertion or browser step did not complete. Inspect the preceding responses and retry.");
+        await finishCase(
+          passed,
+          passed
+            ? undefined
+            : 'An assertion or browser step did not complete. Inspect the preceding responses and retry.',
+        );
         await page.close();
       }
     },
@@ -524,6 +548,7 @@ scenario(
         'Fictional workspace',
       );
     } finally {
+      await collectReceipts(other, 14);
       await other.close();
     }
   },
@@ -602,7 +627,8 @@ scenario(
         'response',
         (r) =>
           r.request().method() === 'POST' &&
-          new URL(r.url()).origin === origin && new URL(r.url()).pathname === '/api/demo/lab',
+          new URL(r.url()).origin === origin &&
+          new URL(r.url()).pathname === '/api/demo/lab',
       );
     await outside
       .getByRole('button', { name: 'Send a cross-site form' })

@@ -1,4 +1,4 @@
-import {recordOutsideDenial} from './lib/review/manual';
+import {recordOutsideDenial,launchHeaderReceipt} from './lib/review/manual';
 import { randomBytes } from 'node:crypto';
 import { demoEnabled, demoOriginAllowed, primaryHost, attackHost, memberHost, demoCookie, newDemoCookie, workspaceId, lifetimeSeconds } from './lib/demo-session';
 import { currentAccount, retiredWorkspace, hasActiveLogin } from "./lib/demo-login";
@@ -20,12 +20,14 @@ export function proxy(request: NextRequest) {
     // Commit a first-party page before reading Strict cookies. Returning visitors
     // retain their existing workspace when they follow an external link.
     const nonce = randomBytes(16).toString('base64');
-    return new NextResponse(request.method === 'HEAD' ? null : `<!doctype html><html lang="en"><meta charset="utf-8"><title>Launch SecDash</title>
+    const launchResponse=new NextResponse(request.method === 'HEAD' ? null : `<!doctype html><html lang="en"><meta charset="utf-8"><title>Launch SecDash</title>
       <a href="/">Open SecDash</a><script nonce="${nonce}">location.replace('/')</script></html>`, {headers: {
       'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store',
       'Content-Security-Policy': `default-src 'none'; script-src 'nonce-${nonce}'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'`,
       'Referrer-Policy': 'no-referrer', 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY',
     }});
+    if(request.method==='HEAD')launchHeaderReceipt(request,launchResponse);
+    return launchResponse;
   }
   const role = ["/api/n8n/messages", "/api/n8n/provider-connections", "/api/n8n/drive-storage", "/api/n8n/operations"].includes(request.nextUrl.pathname) ? "ingest" : "operator";
   const localDemo = demoEnabled() && demoOriginAllowed(request);

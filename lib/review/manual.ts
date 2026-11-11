@@ -2,6 +2,7 @@ import { randomUUID, randomBytes } from 'node:crypto';
 import { labDb, runFor, hash } from '@/lib/security-lab/store';
 import { demoAccounts } from '@/lib/demo-permissions';
 import {
+  demoEnabled,
   workspaceId,
   demoOriginAllowed,
   demoScheme,
@@ -48,6 +49,7 @@ export async function observed(
   req: Request,
   handler: (req: Request) => Response | Promise<Response>,
 ) {
+  if (!demoEnabled()) return handler(req);
   const path = new URL(req.url).pathname;
   let w = demoOriginAllowed(req) && workspaceId(req);
   let actor = w ? currentAccount(req) : undefined;
@@ -193,7 +195,13 @@ export function recordOutsideDenial(req: Request, response: Response) {
   if (
     !key ||
     !/^[a-f0-9]{40}$/.test(key) ||
-    req.headers.get('origin') !== demoScheme() + attackHost() ||
+    (req.headers.get('origin') !== demoScheme() + attackHost() &&
+      !(
+        req.headers.get('origin') === 'null' &&
+        ['same-site', 'cross-site'].includes(
+          req.headers.get('sec-fetch-site') || '',
+        )
+      )) ||
     !['POST', 'OPTIONS'].includes(req.method)
   )
     return;
@@ -238,6 +246,36 @@ export function memberEnded(w: string, response: Response) {
     operation: 'GET /api/demo/session',
     http: response.status,
     facts: ['account=null; memberTab=true; sign-in choices=0'],
+  };
+  storeReceipt(w, receipt);
+  response.headers.set('X-SecDash-Receipt', receipt.id);
+  return response;
+}
+export function launchHeaderReceipt(req: Request, response: Response) {
+  const w = demoOriginAllowed(req) && workspaceId(req);
+  if (!w || runFor(w)?.n !== 8) return response;
+  const names = [
+    'content-security-policy',
+    'referrer-policy',
+    'x-content-type-options',
+    'x-frame-options',
+  ];
+  const receipt: Receipt = {
+    id: randomUUID(),
+    at: new Date().toISOString(),
+    actor: 'reviewer',
+    role: 'Evidence viewer',
+    operation: 'HEAD /launch',
+    http: response.status,
+    facts: names.map(
+      (name) =>
+        name +
+        ' = ' +
+        (response.headers.get(name) || 'absent').replace(
+          /'nonce-[^']+'/g,
+          "'nonce-[redacted]'",
+        ),
+    ),
   };
   storeReceipt(w, receipt);
   response.headers.set('X-SecDash-Receipt', receipt.id);
