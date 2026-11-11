@@ -9,6 +9,8 @@ These issues were identified while adapting the single-operator duplicate to mul
 
 ## Sample release pages and sign-out
 
-**Open on the reviewed build.** On the hosted `80eebbd` build, the authenticated public and beta sample release pages linked to download manifests and offered no visible path to sign out. The main dashboard toolbar provided sign-out. This qualifies the project owner’s reported pass for ASVS 7.4.4 on that revision. [Reviewed page handler](https://github.com/k-mc-martin/example-dashboard/blob/80eebbd9f628c1f5760d2506d42b3e4c3f7c5845/app/api/demo/site/route.ts)
+On the hosted `80eebbd` build, the authenticated public and beta sample release pages linked to download manifests and offered no visible path to sign out. The main dashboard toolbar provided sign-out. This qualifies the project owner’s reported pass for ASVS 7.4.4 on that revision. [Reviewed page handler](https://github.com/k-mc-martin/example-dashboard/blob/80eebbd9f628c1f5760d2506d42b3e4c3f7c5845/app/api/demo/site/route.ts)
+
+The current dashboard links directly to the Scalæon homepage and beta site. The old authenticated URLs redirect to those same destinations. The account suite checks both redirects for all three roles.
 
 [Role policy](accounts.md) · [Generated account report](evidence/accounts/report.md)

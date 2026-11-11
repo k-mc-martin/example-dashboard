@@ -23,8 +23,13 @@ test(cases.roles.test, async () => {
     assert.ok(dashboard.messages.length);
     if (messages) assert.deepEqual(dashboard.messages, messages);
     messages = dashboard.messages;
-    for (const path of ['/api/releases','/api/feedback', '/api/demo/site?channel=beta', '/api/demo/artifact?platform=Mac', '/api/messages/' + messages[0].id])
+    for (const path of ['/api/releases','/api/feedback', '/api/demo/artifact?platform=Mac', '/api/messages/' + messages[0].id])
       await status(cookie, path, 200);
+    for (const [channel, destination] of [['public', 'https://scalaeon.com/'], ['beta', 'https://beta.scalaeon.com/']]) {
+      const link = await request(cookie, '/api/demo/site?channel=' + channel, { redirect: 'manual' });
+      assert.equal(link.status, 302);
+      assert.equal(link.headers.get('location'), destination);
+    }
     for (const path of ['/api/drive-storage', '/api/backup-catalog', '/api/backups', '/api/operations?surface=cloudflare', '/api/operations?surface=recovery'])
       await status(cookie, path, storage ? 200 : 403);
     for (const path of ['/api/health', '/api/attention-dismissals','/api/operations','/api/operations?surface=azure','/api/operations?surface=lemonsqueezy','/api/operations?surface=godaddy'])
