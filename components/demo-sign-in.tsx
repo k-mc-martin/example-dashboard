@@ -89,7 +89,7 @@ export function DemoSignIn() {
   </main>;
   return <main className="demo-entry">
     <header>
-      <p className="eyebrow">DUPDASH / EXAMPLE DASHBOARD</p>
+      <p className="eyebrow">SecDash / SECURITY DASHBOARD</p>
       <h1>Choose a demo account</h1>
       <p>Sign in to explore a role. Sign out to try another role with the same fictional data.</p>
     </header>

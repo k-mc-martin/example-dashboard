@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the campaign tools against a disposable, fictional Dupdash target."""
+"""Run the campaign tools against a disposable, fictional SecDash target."""
 import hashlib
 import json
 import os
@@ -369,7 +369,7 @@ def main():
         destination.write_text(json.dumps(saved, indent=2) + "\n")
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as report:
-            report.write("## Dupdash security tool results\n\n")
+            report.write("## SecDash security tool results\n\n")
             for name, row in checks.items():
                 report.write(f"- **{name}** · {row['status']} · {row['detail']}\n")
     return int(any(c["status"] != "passed" for c in checks.values()))

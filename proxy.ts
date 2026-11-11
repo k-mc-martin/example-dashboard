@@ -19,8 +19,8 @@ export function proxy(request: NextRequest) {
     // Commit a first-party page before reading Strict cookies. Returning visitors
     // retain their existing workspace when they follow an external link.
     const nonce = randomBytes(16).toString('base64');
-    return new NextResponse(request.method === 'HEAD' ? null : `<!doctype html><html lang="en"><meta charset="utf-8"><title>Launch Dupdash</title>
-      <a href="/">Open Dupdash</a><script nonce="${nonce}">location.replace('/')</script></html>`, {headers: {
+    return new NextResponse(request.method === 'HEAD' ? null : `<!doctype html><html lang="en"><meta charset="utf-8"><title>Launch SecDash</title>
+      <a href="/">Open SecDash</a><script nonce="${nonce}">location.replace('/')</script></html>`, {headers: {
       'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store',
       'Content-Security-Policy': `default-src 'none'; script-src 'nonce-${nonce}'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'`,
       'Referrer-Policy': 'no-referrer', 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY',

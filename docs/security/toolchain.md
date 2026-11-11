@@ -1,4 +1,4 @@
-# Dupdash security verification
+# SecDash security verification
 
 From the demo checkout, run `npm run verify:tools`. You need Docker with Compose v2.24.4 or newer, Git, curl, Python 3.9+ and npm. The Python entry point also works directly. On GitHub, open **Actions → Security tools** to inspect a run or run the suite in your fork. Each run records the commit when available, a digest of the checkout it scanned, tool image digests and the outcome of each check.
 

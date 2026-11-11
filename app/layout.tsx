@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: "Dupdash Example Dashboard",
-  description: "Example workspace for communications, sales, releases and operations.",
+  title: "SecDash",
+  description: "An interactive security dashboard with demo accounts and fictional business activity.",
   robots: { index: false, follow: false },
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
 };
