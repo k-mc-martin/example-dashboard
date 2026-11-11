@@ -1,0 +1,185 @@
+{
+  "id": "DupdashGoDaddyOperational",
+  "name": "Dupdash — GoDaddy operations (15 min)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -900,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://domains.dupdash.invalid/v3/domains/domain-names/example.invalid",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": false,
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "read-domain",
+      "name": "Read example.invalid domain",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -620,
+        40
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashGoDaddyRead",
+          "name": "Dupdash GoDaddy read"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function unwrapResponse(value) {\n  if (value && typeof value === \"object\" && \"statusCode\" in value) {\n    const statusCode = Number(value.statusCode);\n    if (!Number.isInteger(statusCode) || statusCode < 200 || statusCode >= 300) return { ok: false, statusCode, raw: value };\n    return { ok: true, statusCode, body: value.body };\n  }\n  if (value?.error) {\n    const error = value.error;\n    const candidates = [error?.statusCode, error?.httpCode, error?.cause?.statusCode, error?.response?.statusCode, error?.response?.status];\n    let statusCode = candidates.map(Number).find(Number.isInteger);\n    if (!statusCode) {\n      const match = String(error?.message ?? \"\").match(/(?:status(?: code)?|response code)\\D{0,8}(\\d{3})/i);\n      if (match) statusCode = Number(match[1]);\n    }\n    return { ok: false, statusCode, raw: value };\n  }\n  return { ok: true, statusCode: 200, body: value };\n}\nfunction safeUpstreamError(responses) {\n  const failed = responses.map(unwrapResponse).find(result => !result.ok);\n  if (!failed) return null;\n  if (failed.statusCode === 401 || failed.statusCode === 403) return \"authorization_required\";\n  if (failed.statusCode === 429) return \"rate_limited\";\n  if (!Number.isInteger(failed.statusCode) || failed.statusCode >= 500) return \"provider_unavailable\";\n  return \"invalid_response\";\n}\nfunction projectGoDaddy(body, observedAt = new Date().toISOString()) {\n  const domain = String(body?.domainName ?? body?.domain ?? \"\").toLowerCase();\n  if (domain !== \"example.invalid\") throw new Error(\"invalid_response\");\n  const data = { domain, status: String(body.status ?? \"\") };\n  if (!/^[A-Z][A-Z0-9_]*$/.test(data.status)) throw new Error(\"invalid_response\");\n  for (const [source, target] of [[\"expiresAt\", \"expiresAt\"], [\"renewBy\", \"renewBy\"], [\"createdAt\", \"createdAt\"], [\"updatedAt\", \"updatedAt\"]]) {\n    if (body[source] != null) data[target] = new Date(body[source]).toISOString();\n  }\n  for (const key of [\"autoRenew\", \"privacy\", \"transferLock\"]) if (typeof body[key] === \"boolean\") data[key] = body[key];\n  data.nameServers = Array.isArray(body.nameServers) ? body.nameServers.map(value => String(value).toLowerCase()).slice(0, 13) : [];\n  return { surface: \"godaddy\", observedAt: new Date(observedAt).toISOString(), status: \"ok\", data };\n}\nfunction projectGoDaddyResponse(response, observedAt = new Date().toISOString()) {\n  const errorCode = safeUpstreamError([response]);\n  if (errorCode) return { surface: \"godaddy\", observedAt: new Date(observedAt).toISOString(), status: \"error\", errorCode, data: { domain: \"example.invalid\", status: \"UNAVAILABLE\", nameServers: [] } };\n  try { return projectGoDaddy(unwrapResponse(response).body, observedAt); }\n  catch { return { surface: \"godaddy\", observedAt: new Date(observedAt).toISOString(), status: \"error\", errorCode: \"invalid_response\", data: { domain: \"example.invalid\", status: \"UNAVAILABLE\", nameServers: [] } }; }\n}\nreturn [{json: projectGoDaddyResponse($json)}];"
+      },
+      "id": "project",
+      "name": "Whitelist domain telemetry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dashboard:3000/api/n8n/operations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "id": "deliver",
+      "name": "Deliver operation observation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -40,
+        40
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashDashboardIngest",
+          "name": "Dupdash dashboard intake"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    }
+  ],
+  "connections": {
+    "Every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "Read example.invalid domain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Read example.invalid domain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read example.invalid domain": {
+      "main": [
+        [
+          {
+            "node": "Whitelist domain telemetry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Whitelist domain telemetry": {
+      "main": [
+        [
+          {
+            "node": "Deliver operation observation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "executionTimeout": 300
+  },
+  "pinData": {},
+  "tags": []
+}

@@ -1,0 +1,322 @@
+{
+  "id": "DupdashMailBudgetBootstrap",
+  "name": "Dupdash — routing budget bootstrap (one-time, inactive)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Run bootstrap once manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "dupdash_mail_routing_budget",
+        "columns": {
+          "column": [
+            {
+              "name": "budgetKey",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "number"
+            },
+            {
+              "name": "dayKey",
+              "type": "string"
+            },
+            {
+              "name": "dayCalls",
+              "type": "number"
+            },
+            {
+              "name": "dayInputTokens",
+              "type": "number"
+            },
+            {
+              "name": "dayOutputTokens",
+              "type": "number"
+            },
+            {
+              "name": "dayCostUsd",
+              "type": "number"
+            },
+            {
+              "name": "monthKey",
+              "type": "string"
+            },
+            {
+              "name": "monthCostUsd",
+              "type": "number"
+            },
+            {
+              "name": "budgetUpdatedAt",
+              "type": "string"
+            },
+            {
+              "name": "reservationId",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "table",
+      "name": "Create or reuse routing budget table",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "dupdash_mail_routing_budget"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "budgetKey",
+              "condition": "eq",
+              "keyValue": "mail-routing"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1,
+        "orderBy": false
+      },
+      "id": "get",
+      "name": "Check budget singleton absent",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const row=$input.first()?.json;if(row?.budgetKey)throw Error('Routing budget singleton already exists; bootstrap is one-time only');return [{json:{budgetKey:'mail-routing',version:0,dayKey:'',dayCalls:0,dayInputTokens:0,dayOutputTokens:0,dayCostUsd:0,monthKey:'',monthCostUsd:0,budgetUpdatedAt:new Date().toISOString(),reservationId:''}}];"
+      },
+      "id": "guard",
+      "name": "Refuse duplicate bootstrap",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "dupdash_mail_routing_budget"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "budgetKey": "={{ $json.budgetKey }}",
+            "version": "={{ $json.version }}",
+            "dayKey": "={{ $json.dayKey }}",
+            "dayCalls": "={{ $json.dayCalls }}",
+            "dayInputTokens": "={{ $json.dayInputTokens }}",
+            "dayOutputTokens": "={{ $json.dayOutputTokens }}",
+            "dayCostUsd": "={{ $json.dayCostUsd }}",
+            "monthKey": "={{ $json.monthKey }}",
+            "monthCostUsd": "={{ $json.monthCostUsd }}",
+            "budgetUpdatedAt": "={{ $json.budgetUpdatedAt }}",
+            "reservationId": "={{ $json.reservationId }}"
+          },
+          "schema": [
+            {
+              "id": "budgetKey",
+              "displayName": "budgetKey",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "version",
+              "displayName": "version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dayKey",
+              "displayName": "dayKey",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dayCalls",
+              "displayName": "dayCalls",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dayInputTokens",
+              "displayName": "dayInputTokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dayOutputTokens",
+              "displayName": "dayOutputTokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dayCostUsd",
+              "displayName": "dayCostUsd",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "monthKey",
+              "displayName": "monthKey",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "monthCostUsd",
+              "displayName": "monthCostUsd",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "budgetUpdatedAt",
+              "displayName": "budgetUpdatedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reservationId",
+              "displayName": "reservationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "insert",
+      "name": "Insert budget singleton once",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Run bootstrap once manually": {
+      "main": [
+        [
+          {
+            "node": "Create or reuse routing budget table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or reuse routing budget table": {
+      "main": [
+        [
+          {
+            "node": "Check budget singleton absent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check budget singleton absent": {
+      "main": [
+        [
+          {
+            "node": "Refuse duplicate bootstrap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refuse duplicate bootstrap": {
+      "main": [
+        [
+          {
+            "node": "Insert budget singleton once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 60,
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false
+  },
+  "pinData": {},
+  "tags": []
+}

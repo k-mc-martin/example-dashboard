@@ -1,0 +1,527 @@
+{
+  "id": "DupdashCloudflareOperational",
+  "name": "Dupdash — Cloudflare operations (15 min)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -900,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://edge.dupdash.invalid/client/v4/accounts/00000000000000000000000000000001/pages/projects/dupdash-public/deployments",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "env",
+              "value": "production"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "page",
+                    "value": "={{ $pageCount + 2 }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ Number($response.body.result_info.page) >= Number($response.body.result_info.total_pages) }}",
+              "limitPagesFetched": true,
+              "maxRequests": 100
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "dupdash-public-production",
+      "name": "Read dupdash-public production",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -680,
+        40
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashCloudflareRead",
+          "name": "Dupdash Cloudflare read"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://edge.dupdash.invalid/client/v4/accounts/00000000000000000000000000000001/pages/projects/dupdash-public/deployments",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "env",
+              "value": "preview"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "page",
+                    "value": "={{ $pageCount + 2 }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ Number($response.body.result_info.page) >= Number($response.body.result_info.total_pages) }}",
+              "limitPagesFetched": true,
+              "maxRequests": 100
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "dupdash-public-preview",
+      "name": "Read dupdash-public preview",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -440,
+        40
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashCloudflareRead",
+          "name": "Dupdash Cloudflare read"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://edge.dupdash.invalid/client/v4/accounts/00000000000000000000000000000001/pages/projects/dupdash-beta/deployments",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "env",
+              "value": "production"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "page",
+                    "value": "={{ $pageCount + 2 }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ Number($response.body.result_info.page) >= Number($response.body.result_info.total_pages) }}",
+              "limitPagesFetched": true,
+              "maxRequests": 100
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "dupdash-beta-production",
+      "name": "Read dupdash-beta production",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -200,
+        40
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashCloudflareRead",
+          "name": "Dupdash Cloudflare read"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://edge.dupdash.invalid/client/v4/accounts/00000000000000000000000000000001/pages/projects/dupdash-beta/deployments",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "env",
+              "value": "preview"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "page",
+                    "value": "={{ $pageCount + 2 }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ Number($response.body.result_info.page) >= Number($response.body.result_info.total_pages) }}",
+              "limitPagesFetched": true,
+              "maxRequests": 100
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "dupdash-beta-preview",
+      "name": "Read dupdash-beta preview",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        40,
+        40
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashCloudflareRead",
+          "name": "Dupdash Cloudflare read"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://edge.dupdash.invalid/client/v4/accounts/00000000000000000000000000000001/r2/buckets/dupdash-downloads/objects",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "per_page",
+              "value": "1000"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "cursor",
+                    "value": "={{ $response.body.result_info.cursor }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ $response.body.result_info.is_truncated !== true }}",
+              "limitPagesFetched": true,
+              "maxRequests": 100
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "r2",
+      "name": "Read complete R2 inventory",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        40
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashCloudflareRead",
+          "name": "Dupdash Cloudflare read"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const accountId = \"00000000000000000000000000000001\";\nfunction unwrapResponse(value) {\n  if (value && typeof value === \"object\" && \"statusCode\" in value) {\n    const statusCode = Number(value.statusCode);\n    if (!Number.isInteger(statusCode) || statusCode < 200 || statusCode >= 300) return { ok: false, statusCode, raw: value };\n    return { ok: true, statusCode, body: value.body };\n  }\n  if (value?.error) {\n    const error = value.error;\n    const candidates = [error?.statusCode, error?.httpCode, error?.cause?.statusCode, error?.response?.statusCode, error?.response?.status];\n    let statusCode = candidates.map(Number).find(Number.isInteger);\n    if (!statusCode) {\n      const match = String(error?.message ?? \"\").match(/(?:status(?: code)?|response code)\\D{0,8}(\\d{3})/i);\n      if (match) statusCode = Number(match[1]);\n    }\n    return { ok: false, statusCode, raw: value };\n  }\n  return { ok: true, statusCode: 200, body: value };\n}\nfunction safeUpstreamError(responses) {\n  const failed = responses.map(unwrapResponse).find(result => !result.ok);\n  if (!failed) return null;\n  if (failed.statusCode === 401 || failed.statusCode === 403) return \"authorization_required\";\n  if (failed.statusCode === 429) return \"rate_limited\";\n  if (!Number.isInteger(failed.statusCode) || failed.statusCode >= 500) return \"provider_unavailable\";\n  return \"invalid_response\";\n}\nfunction aggregateCloudflare(input, observedAt = new Date().toISOString()) {\n  const deployments = [];\n  const pages = [];\n  for (const projectName of [\"dupdash-public\", \"dupdash-beta\"]) {\n    const bodies = [[\"production\", input[`${projectName}:production`]], [\"preview\", input[`${projectName}:preview`]]];\n    let complete = true;\n    for (const [requestedEnvironment, body] of bodies) {\n      if (body?.success !== true || !Array.isArray(body.result)) throw new Error(\"invalid_response\");\n      complete &&= Number(body.result_info?.total_pages ?? 1) <= 1;\n      for (const item of body.result) {\n        if (item?.project_name != null && item.project_name !== projectName) throw new Error(\"invalid_response\");\n        if (item?.environment != null && item.environment !== requestedEnvironment) throw new Error(\"invalid_response\");\n        const stage = item.latest_stage;\n        const row = {\n          id: String(item.id), environment: requestedEnvironment, url: String(item.url), createdAt: new Date(item.created_on).toISOString(),\n          stage: stage?.name, status: stage?.status, skipped: item.is_skipped === true,\n        };\n        if (item.modified_on) row.modifiedAt = new Date(item.modified_on).toISOString();\n        if (stage?.started_on) row.stageStartedAt = new Date(stage.started_on).toISOString();\n        if (stage?.ended_on) row.stageEndedAt = new Date(stage.ended_on).toISOString();\n        const metadata = item.deployment_trigger?.metadata;\n        if (metadata?.branch) row.branch = String(metadata.branch).slice(0, 280);\n        if (/^[a-fA-F0-9]+$/.test(String(metadata?.commit_hash ?? \"\"))) row.commitHash = String(metadata.commit_hash);\n        if ([\"github:push\", \"ad_hoc\", \"deploy_hook\"].includes(item.deployment_trigger?.type)) row.triggerType = item.deployment_trigger.type;\n        if (item.skip_reason) row.skipReason = item.skip_reason;\n        if (typeof item.uses_functions === \"boolean\") row.usesFunctions = item.uses_functions;\n        deployments.push({ projectName, row });\n      }\n    }\n    const projectDeployments = deployments.filter(value => value.projectName === projectName).map(value => value.row).sort((a, b) => b.createdAt.localeCompare(a.createdAt));\n    pages.push({ projectName, complete, deploymentsTruncated: projectDeployments.length > 30, deployments: projectDeployments.slice(0, 30) });\n  }\n  const r2Pages = input.r2;\n  if (!Array.isArray(r2Pages) || !r2Pages.length || r2Pages.some(page => page?.success !== true || !Array.isArray(page.result))) throw new Error(\"invalid_response\");\n  const allObjects = r2Pages.flatMap(page => page.result);\n  const last = r2Pages.at(-1);\n  const r2Complete = last?.result_info?.is_truncated !== true;\n  const prefix = new Map(), extension = new Map(); let totalBytes = 0, oldestModifiedAt, newestModifiedAt;\n  const objects = [];\n  for (const item of allObjects) {\n    const key = String(item?.key ?? \"\"), sizeBytes = Number(item?.size), lastModifiedAt = new Date(item?.last_modified).toISOString();\n    if (!key || !Number.isSafeInteger(sizeBytes) || sizeBytes < 0 || (item.storage_class != null && ![\"Standard\", \"InfrequentAccess\"].includes(item.storage_class))) throw new Error(\"invalid_response\");\n    totalBytes += sizeBytes; if (!Number.isSafeInteger(totalBytes)) throw new Error(\"invalid_response\");\n    oldestModifiedAt = !oldestModifiedAt || lastModifiedAt < oldestModifiedAt ? lastModifiedAt : oldestModifiedAt;\n    newestModifiedAt = !newestModifiedAt || lastModifiedAt > newestModifiedAt ? lastModifiedAt : newestModifiedAt;\n    const prefixKey = key.includes(\"/\") ? key.split(\"/\", 1)[0] : \"(root)\";\n    const leaf = key.split(\"/\").at(-1); const match = leaf.match(/\\.([A-Za-z0-9]{1,16})$/); const extensionKey = match ? `.${match[1].toLowerCase()}` : \"(none)\";\n    for (const [map, group] of [[prefix, prefixKey], [extension, extensionKey]]) { const value = map.get(group) ?? { key: group, count: 0, bytes: 0 }; value.count += 1; value.bytes += sizeBytes; map.set(group, value); }\n    objects.push({ key, sizeBytes, lastModifiedAt, ...(item.storage_class ? { storageClass: item.storage_class } : {}) });\n  }\n  const toGroups = map => [...map.values()].sort((a, b) => b.bytes - a.bytes).slice(0, 100);\n  const complete = pages.every(page => page.complete) && r2Complete;\n  return {\n    surface: \"cloudflare\", observedAt: new Date(observedAt).toISOString(), status: complete ? \"ok\" : \"partial\", ...(complete ? {} : { errorCode: \"incomplete_collection\" }),\n    data: { accountId, pages, r2: { bucketName: \"dupdash-downloads\", complete: r2Complete, objectsTruncated: objects.length > 75, pageCount: r2Pages.length, objectCount: allObjects.length, totalBytes, ...(oldestModifiedAt ? { oldestModifiedAt, newestModifiedAt } : {}), byPrefix: toGroups(prefix), byExtension: toGroups(extension), objects: objects.sort((a, b) => b.lastModifiedAt.localeCompare(a.lastModifiedAt)).slice(0, 75) } },\n  };\n}\nfunction aggregateCloudflareResponses(input, observedAt = new Date().toISOString()) {\n  const groups = [input[\"dupdash-public:production\"], input[\"dupdash-public:preview\"], input[\"dupdash-beta:production\"], input[\"dupdash-beta:preview\"]].map(value => Array.isArray(value) ? value : [value]);\n  const named = groups.flat();\n  const r2Responses = Array.isArray(input.r2) ? input.r2 : [];\n  const pagesError = safeUpstreamError(named);\n  const r2Error = safeUpstreamError(r2Responses);\n  const empty = { accountId, pages: [{ projectName: \"dupdash-public\", complete: false, deploymentsTruncated: false, deployments: [] }, { projectName: \"dupdash-beta\", complete: false, deploymentsTruncated: false, deployments: [] }], r2: { bucketName: \"dupdash-downloads\", complete: false, objectsTruncated: false, pageCount: 0, objectCount: 0, totalBytes: 0, byPrefix: [], byExtension: [], objects: [] } };\n  const bodies = groups.map(group => {\n    const pages = group.map(response => unwrapResponse(response).body);\n    if (!pages.length || pages.some(page => page?.success !== true || !Array.isArray(page.result))) return null;\n    return { success: true, result: pages.flatMap(page => page.result), result_info: { total_pages: 1 } };\n  });\n  const blankPage = { success: true, result: [], result_info: { total_pages: 1 } };\n  const blankR2 = { success: true, result: [], result_info: { is_truncated: false } };\n  let pages = empty.pages, r2 = empty.r2, pagesParsed = false, r2Parsed = false;\n  try { if (pagesError) throw new Error(\"pages_unavailable\");\n    pages = aggregateCloudflare({\n      \"dupdash-public:production\": bodies[0], \"dupdash-public:preview\": bodies[1],\n      \"dupdash-beta:production\": bodies[2], \"dupdash-beta:preview\": bodies[3], r2: [blankR2],\n    }, observedAt).data.pages; pagesParsed = true;\n  } catch { /* preserve explicit incomplete pages */ }\n  try { if (r2Error) throw new Error(\"r2_unavailable\");\n    r2 = aggregateCloudflare({\n      \"dupdash-public:production\": blankPage, \"dupdash-public:preview\": blankPage,\n      \"dupdash-beta:production\": blankPage, \"dupdash-beta:preview\": blankPage,\n      r2: r2Responses.map(response => unwrapResponse(response).body),\n    }, observedAt).data.r2; r2Parsed = true;\n  } catch { /* preserve explicit incomplete inventory */ }\n  if (pagesError || r2Error || !pagesParsed || !r2Parsed) return { surface: \"cloudflare\", observedAt: new Date(observedAt).toISOString(), status: \"error\", errorCode: pagesError ?? r2Error ?? \"invalid_response\", data: empty };\n  const complete = pages.every(page => page.complete) && r2.complete;\n  return { surface: \"cloudflare\", observedAt: new Date(observedAt).toISOString(), status: complete ? \"ok\" : \"partial\", ...(complete ? {} : { errorCode: \"incomplete_collection\" }), data: { accountId, pages, r2 } };\n}\nconst many = name => $(name).all().map(item => item.json);\nreturn [{json: aggregateCloudflareResponses({\n  'dupdash-public:production': many('Read dupdash-public production'),\n  'dupdash-public:preview': many('Read dupdash-public preview'),\n  'dupdash-beta:production': many('Read dupdash-beta production'),\n  'dupdash-beta:preview': many('Read dupdash-beta preview'),\n  r2: $input.all().map(item => item.json),\n})}];"
+      },
+      "id": "project",
+      "name": "Whitelist Cloudflare telemetry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dashboard:3000/api/n8n/operations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "id": "deliver",
+      "name": "Deliver operation observation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        40
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashDashboardIngest",
+          "name": "Dupdash dashboard intake"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    }
+  ],
+  "connections": {
+    "Every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "Read dupdash-public production",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Read dupdash-public production",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read dupdash-public production": {
+      "main": [
+        [
+          {
+            "node": "Read dupdash-public preview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read dupdash-public preview": {
+      "main": [
+        [
+          {
+            "node": "Read dupdash-beta production",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read dupdash-beta production": {
+      "main": [
+        [
+          {
+            "node": "Read dupdash-beta preview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read dupdash-beta preview": {
+      "main": [
+        [
+          {
+            "node": "Read complete R2 inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read complete R2 inventory": {
+      "main": [
+        [
+          {
+            "node": "Whitelist Cloudflare telemetry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Whitelist Cloudflare telemetry": {
+      "main": [
+        [
+          {
+            "node": "Deliver operation observation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "executionTimeout": 300
+  },
+  "pinData": {},
+  "tags": []
+}

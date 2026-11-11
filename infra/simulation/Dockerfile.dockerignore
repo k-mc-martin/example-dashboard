@@ -1,0 +1,9 @@
+**
+!infra/
+!infra/simulation/
+!infra/simulation/server.mjs
+!infra/simulation/providers.mjs
+!infra/n8n/
+!infra/n8n/workflows/
+!infra/n8n/workflows/providers/
+!infra/n8n/workflows/providers/operational-*.mjs

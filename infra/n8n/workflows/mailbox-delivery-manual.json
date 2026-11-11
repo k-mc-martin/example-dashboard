@@ -1,0 +1,280 @@
+{
+  "id": "DupdashMailDelivery",
+  "name": "Dupdash — mailbox delivery test (manual)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "44c31396-31c8-45f7-ac90-5445dd5a2659",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://mail.dupdash.invalid/v1.0/me/messages",
+        "authentication": "genericCredentialType",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "$top",
+              "value": "1"
+            },
+            {
+              "name": "$orderby",
+              "value": "receivedDateTime desc"
+            },
+            {
+              "name": "$select",
+              "value": "id,internetMessageId,from,subject,body,receivedDateTime,webLink"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "outlook.body-content-type=\"text\""
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {},
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "6da8d345-cb97-46d6-830c-d4ca8b88c3b1",
+      "name": "Read one message as plain text",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -520,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashMailRead",
+          "name": "Demo mailbox"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "da4d46bb-0140-471a-a421-c70c513f3eb0",
+              "name": "source",
+              "value": "dupdash-mail",
+              "type": "string"
+            },
+            {
+              "id": "d2673ddc-ca62-47f7-8bc7-64327c963f5e",
+              "name": "messageId",
+              "value": "={{ $json.value[0].internetMessageId || $json.value[0].id }}",
+              "type": "string"
+            },
+            {
+              "id": "04788a51-aec4-4824-b72c-79b17ff91069",
+              "name": "sender",
+              "value": "={{ $json.value[0].from.emailAddress.address }}",
+              "type": "string"
+            },
+            {
+              "id": "fd78b659-fbfb-45b6-b0e1-8fa8a504238e",
+              "name": "subject",
+              "value": "={{ $json.value[0].subject }}",
+              "type": "string"
+            },
+            {
+              "id": "9a365547-4ad9-461b-a220-ed5e7c8d451a",
+              "name": "body",
+              "value": "={{ $json.value[0].body.content }}",
+              "type": "string"
+            },
+            {
+              "id": "928a001a-1c51-4d6d-9980-c36816a032f7",
+              "name": "receivedAt",
+              "value": "={{ $json.value[0].receivedDateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "15073b62-5bc4-4d86-ac92-b8cf39018f5c",
+              "name": "category",
+              "value": "unsorted",
+              "type": "string"
+            },
+            {
+              "id": "93ae2c8c-a0c0-4795-888e-0fd2beaa5d95",
+              "name": "sourceUrl",
+              "value": "={{ $json.value[0].webLink }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7b514ad1-f769-4815-a2a2-e56c5a5d8644",
+      "name": "Map delivery payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dashboard:3000/api/n8n/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Map delivery payload').item.json }}",
+        "options": {}
+      },
+      "id": "e4953813-c90a-463a-aea5-513a44ed1eb6",
+      "name": "Deliver message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -40,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashDashboardIngest",
+          "name": "Dupdash dashboard intake"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dashboard:3000/api/n8n/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Map delivery payload').item.json }}",
+        "options": {}
+      },
+      "id": "6e6ea2bb-a178-4de9-beca-cb34755317f3",
+      "name": "Repeat identical delivery",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashDashboardIngest",
+          "name": "Dupdash dashboard intake"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "61b407e0-c783-4ec8-aa49-4f0cd34c09a1",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "0066080a-f533-4dfe-ab51-5909a10ead17",
+              "name": "stored",
+              "value": "={{ $json.stored }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "673125ba-c837-4fbf-88c5-09051f2d6df7",
+      "name": "Delivery result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Read one message as plain text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read one message as plain text": {
+      "main": [
+        [
+          {
+            "node": "Map delivery payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map delivery payload": {
+      "main": [
+        [
+          {
+            "node": "Deliver message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deliver message": {
+      "main": [
+        [
+          {
+            "node": "Repeat identical delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Repeat identical delivery": {
+      "main": [
+        [
+          {
+            "node": "Delivery result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "tags": []
+}

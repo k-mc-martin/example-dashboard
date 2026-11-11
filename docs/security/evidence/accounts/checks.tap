@@ -1,0 +1,60 @@
+TAP version 13
+# Subtest: Allowed reads and backup writes for three roles · v5.0.0-8.2.1 · v5.0.0-8.3.1
+ok 1 - Allowed reads and backup writes for three roles · v5.0.0-8.2.1 · v5.0.0-8.3.1
+  ---
+  duration_ms: 348.720917
+  type: 'test'
+  ...
+# Subtest: Reject forged identity, stale login and cross-origin logout · v5.0.0-7.2.1 · v5.0.0-7.2.2 · v5.0.0-7.2.4 · v5.0.0-7.4.1
+ok 2 - Reject forged identity, stale login and cross-origin logout · v5.0.0-7.2.1 · v5.0.0-7.2.2 · v5.0.0-7.2.4 · v5.0.0-7.4.1
+  ---
+  duration_ms: 104.947459
+  type: 'test'
+  ...
+# Subtest: Fields returned by the inbox, deployment and storage feeds · v5.0.0-8.2.3
+ok 3 - Fields returned by the inbox, deployment and storage feeds · v5.0.0-8.2.3
+  ---
+  duration_ms: 67.945959
+  type: 'test'
+  ...
+# Subtest: Objects and sessions stay within the visitor workspace · v5.0.0-8.2.2 · v5.0.0-8.4.1
+ok 4 - Objects and sessions stay within the visitor workspace · v5.0.0-8.2.2 · v5.0.0-8.4.1
+  ---
+  duration_ms: 69.545541
+  type: 'test'
+  ...
+# Subtest: Host-only Secure, HttpOnly and SameSite cookies · v5.0.0-3.3.1 · v5.0.0-3.3.2 · v5.0.0-3.3.3
+ok 5 - Host-only Secure, HttpOnly and SameSite cookies · v5.0.0-3.3.1 · v5.0.0-3.3.2 · v5.0.0-3.3.3
+  ---
+  duration_ms: 20.25975
+  type: 'test'
+  ...
+# Subtest: Detect an injected owner-only field in an employee response
+ok 6 - Detect an injected owner-only field in an employee response
+  ---
+  duration_ms: 15.016084
+  type: 'test'
+  ...
+# Subtest: Independent member session enforces live grants and revocations · v5.0.0-8.2.1 · v5.0.0-8.3.1 · v5.0.0-8.3.2 · v5.0.0-8.4.1
+ok 7 - Independent member session enforces live grants and revocations · v5.0.0-8.2.1 · v5.0.0-8.3.1 · v5.0.0-8.3.2 · v5.0.0-8.4.1
+  ---
+  duration_ms: 148.39975
+  type: 'test'
+  ...
+# (node:79036) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: A login created just before workspace expiry also expires · v5.0.0-7.3.2 · v5.0.0-7.4.1
+ok 8 - A login created just before workspace expiry also expires · v5.0.0-7.3.2 · v5.0.0-7.4.1
+  ---
+  duration_ms: 22.810042
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 867.725459

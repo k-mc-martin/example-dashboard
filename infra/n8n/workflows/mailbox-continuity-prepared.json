@@ -1,0 +1,1039 @@
+{
+  "id": "DupdashMailboxContinuityPrepared",
+  "name": "Dupdash — mailbox continuity (authorized, 15 minutes)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1500,
+        -120
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{\"classificationMode\":\"disabled\",\"approvedMaxCalls\":0,\"approvedMaxInputTokens\":0,\"approvedMaxOutputTokens\":0,\"approvedMaxCostUsd\":0,\"overlapMinutes\":10,\"pageSize\":25,\"maxPages\":100}}];"
+      },
+      "id": "config",
+      "name": "Fail-closed run configuration",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1300,
+        0
+      ],
+      "notes": "Model routing is disabled. All approved model ceilings are zero."
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "dupdash_mail_continuity_ledger",
+        "columns": {
+          "column": [
+            {
+              "name": "recordId",
+              "type": "string"
+            },
+            {
+              "name": "messageId",
+              "type": "string"
+            },
+            {
+              "name": "sender",
+              "type": "string"
+            },
+            {
+              "name": "subject",
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "type": "string"
+            },
+            {
+              "name": "receivedAt",
+              "type": "string"
+            },
+            {
+              "name": "sourceUrl",
+              "type": "string"
+            },
+            {
+              "name": "contentDigest",
+              "type": "string"
+            },
+            {
+              "name": "state",
+              "type": "string"
+            },
+            {
+              "name": "category",
+              "type": "string"
+            },
+            {
+              "name": "routingMethod",
+              "type": "string"
+            },
+            {
+              "name": "reasonCode",
+              "type": "string"
+            },
+            {
+              "name": "confidence",
+              "type": "number"
+            },
+            {
+              "name": "model",
+              "type": "string"
+            },
+            {
+              "name": "routedAt",
+              "type": "string"
+            },
+            {
+              "name": "dashboardRecordId",
+              "type": "string"
+            },
+            {
+              "name": "attemptCount",
+              "type": "number"
+            },
+            {
+              "name": "lastErrorClass",
+              "type": "string"
+            },
+            {
+              "name": "lastErrorAt",
+              "type": "string"
+            },
+            {
+              "name": "routingRunId",
+              "type": "string"
+            },
+            {
+              "name": "reservedAt",
+              "type": "string"
+            },
+            {
+              "name": "modelInputTokens",
+              "type": "number"
+            },
+            {
+              "name": "modelOutputTokens",
+              "type": "number"
+            },
+            {
+              "name": "modelCostUsd",
+              "type": "number"
+            },
+            {
+              "name": "feedbackEnvironment",
+              "type": "string"
+            },
+            {
+              "name": "feedbackInterpretation",
+              "type": "string"
+            },
+            {
+              "name": "feedbackEvidenceQuotes",
+              "type": "string"
+            },
+            {
+              "name": "feedbackRationale",
+              "type": "string"
+            },
+            {
+              "name": "feedbackContext",
+              "type": "string"
+            },
+            {
+              "name": "intendedExperienceReference",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "create-ledger",
+      "name": "Create or reuse continuity ledger",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "dupdash_mail_continuity_state",
+        "columns": {
+          "column": [
+            {
+              "name": "mailbox",
+              "type": "string"
+            },
+            {
+              "name": "watermark",
+              "type": "string"
+            },
+            {
+              "name": "checkpointUpdatedAt",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "create-state",
+      "name": "Create or reuse continuity state",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -300,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "dupdash_mail_continuity_state"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "mailbox",
+              "condition": "eq",
+              "keyValue": "inbox"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1,
+        "orderBy": false
+      },
+      "id": "get-state",
+      "name": "Read Inbox checkpoint",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -100,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const row=$input.first()?.json??{};return [{json:{mailbox:'inbox',watermark:row.watermark??null}}];"
+      },
+      "id": "normalize-state",
+      "name": "Normalize checkpoint",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const base='https://mail.dupdash.invalid/v1.0/me/mailFolders/inbox/messages';const parts=['%24top=25','%24orderby='+encodeURIComponent('receivedDateTime asc'),'%24select='+encodeURIComponent('id,internetMessageId,from,subject,body,receivedDateTime,webLink')];if($json.watermark){const t=Date.parse($json.watermark);if(!Number.isFinite(t))throw Error('Invalid checkpoint watermark');parts.push('%24filter='+encodeURIComponent('receivedDateTime ge '+new Date(t-600000).toISOString()));}return [{json:{...$json,startUrl:base+'?'+parts.join('&')}}];"
+      },
+      "id": "start-url",
+      "name": "Build overlapped Inbox URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.startUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "outlook.body-content-type=\"text\", IdType=\"ImmutableId\""
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "pagination": {
+            "pagination": {
+              "paginationMode": "responseContainsNextURL",
+              "nextURL": "={{ (() => { const raw = $response.body?.['@odata.nextLink']; const initial = $('Build overlapped Inbox URL').first().json.startUrl; const inbox = RegExp(\"^https://mail[.]dupdash[.]invalid(?::443)?/v1[.]0/me/mailFolders(?:/inbox|[(]'inbox'[)]|%28%27inbox%27%29)/messages(?:[?]|$)\", \"i\"); if (!raw) return initial; if (typeof raw !== 'string' || !inbox.test(raw)) throw Error('Microsoft Graph returned an unexpected pagination URL'); return raw; })() }}",
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body?.['@odata.nextLink'] }}",
+              "limitPagesFetched": true,
+              "maxRequests": 100,
+              "requestInterval": 200
+            }
+          },
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "read-pages",
+      "name": "Read complete overlapped Inbox pages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashMailRead",
+          "name": "Demo mailbox"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const pages = $input.all().map(item => item.json);\nconst graphInboxUrl = RegExp(\"^https://mail[.]dupdash[.]invalid(?::443)?/v1[.]0/me/mailFolders(?:/inbox|[(]'inbox'[)]|%28%27inbox%27%29)/messages(?:[?]|$)\", \"i\");\nconst outlookMessageUrl = RegExp(\"^https://inbox[.]dupdash[.]invalid(?::443)?(?:/|$)\", \"i\");\nconst seen = new Set();\nconst output = [];\nfunction checkedNextLink(raw) {\n  if (raw === undefined || raw === null || raw === '') return null;\n  if (typeof raw !== 'string') throw new Error('Microsoft Graph pagination URL is not a string');\n  if (!graphInboxUrl.test(raw)) throw new Error('Microsoft Graph returned an unexpected pagination URL');\n  return raw;\n}\nfor (const page of pages) {\n  if (!page || !Array.isArray(page.value)) throw new Error('Microsoft Graph returned an invalid message page');\n  checkedNextLink(page['@odata.nextLink']);\n  for (const message of page.value) {\n    const providerId = typeof message?.internetMessageId === 'string' && message.internetMessageId.trim() ? message.internetMessageId.trim() : (typeof message?.id === 'string' ? message.id.trim() : '');\n    if (!providerId) throw new Error('Inbox message is missing both internetMessageId and Graph id');\n    if (providerId.length > 1000) throw new Error('Inbox message identifier exceeds the dashboard limit');\n    if (seen.has(providerId)) continue;\n    seen.add(providerId);\n    const sender = typeof message?.from?.emailAddress?.address === 'string' && message.from.emailAddress.address.trim() ? message.from.emailAddress.address.trim() : (typeof message?.from?.emailAddress?.name === 'string' ? message.from.emailAddress.name.trim() : '');\n    if (!sender) throw new Error('Inbox message is missing its sender');\n    if (sender.length > 500) throw new Error('Inbox message sender exceeds the dashboard limit');\n    const subject = message?.subject == null ? '' : String(message.subject);\n    if (subject.length > 1000) throw new Error('Inbox message subject exceeds the dashboard limit');\n    if (message?.body?.contentType?.toLowerCase() !== 'text' || typeof message?.body?.content !== 'string') throw new Error('Inbox message body was not returned as plain text');\n    const body = message.body.content;\n    if (body.length > 64000) throw new Error('Inbox message body exceeds 64,000 characters; it was not truncated or delivered');\n    const receivedAt = typeof message?.receivedDateTime === 'string' ? message.receivedDateTime : '';\n    if (!receivedAt || Number.isNaN(Date.parse(receivedAt))) throw new Error('Inbox message has an invalid receivedDateTime');\n    let sourceUrl = null;\n    if (message?.webLink != null && message.webLink !== '') {\n      if (typeof message.webLink !== 'string' || !outlookMessageUrl.test(message.webLink)) throw new Error('Inbox message webLink is outside the allowed Outlook hosts');\n      sourceUrl = message.webLink;\n    }\n    const payload = { source: 'dupdash-mail', messageId: providerId, sender, subject, body, receivedAt: new Date(receivedAt).toISOString(), category: 'unsorted', supportKind: null, sourceUrl };\n    if (Buffer.byteLength(JSON.stringify(payload), 'utf8') > 100000) throw new Error('Inbox message payload exceeds 100 KB; it was not truncated or delivered');\n    output.push({ json: payload });\n  }\n}\nreturn output.length ? output : [{ json: { emptyInbox: true } }];"
+      },
+      "id": "validate-catchup",
+      "name": "Validate complete catch-up",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{validatedMessages:$input.all().filter(x=>x.json?.emptyInbox!==true).length}}];"
+      },
+      "id": "catchup-ready",
+      "name": "Close catch-up read barrier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        850,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "dupdash_mail_continuity_ledger"
+        },
+        "matchType": "anyCondition",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": true,
+        "orderBy": false
+      },
+      "id": "get-ledger",
+      "name": "Read durable continuity ledger",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1000,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "function sha256Hex(text) {\n  const bytes = Buffer.from(text, \"utf8\");\n  const words = [];\n  const bitLength = bytes.length * 8;\n  for (let i = 0; i < bytes.length; i++) words[i >> 2] = (words[i >> 2] || 0) | bytes[i] << (24 - (i % 4) * 8);\n  words[bitLength >> 5] = (words[bitLength >> 5] || 0) | 0x80 << (24 - bitLength % 32);\n  words[((bitLength + 64 >> 9) << 4) + 15] = bitLength;\n  const k = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];\n  const h = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];\n  const rotr = (x,n) => (x >>> n) | (x << (32-n));\n  for (let offset=0; offset<words.length; offset+=16) {\n    const w = new Array(64);\n    for (let i=0;i<16;i++) w[i]=words[offset+i]||0;\n    for (let i=16;i<64;i++) { const a=w[i-15],b=w[i-2]; w[i]=(((rotr(a,7)^rotr(a,18)^(a>>>3))+w[i-16]+(rotr(b,17)^rotr(b,19)^(b>>>10))+w[i-7])|0); }\n    let [a,b,c,d,e,f,g,z]=h;\n    for (let i=0;i<64;i++) { const t1=(z+(rotr(e,6)^rotr(e,11)^rotr(e,25))+((e&f)^(~e&g))+k[i]+w[i])|0; const t2=((rotr(a,2)^rotr(a,13)^rotr(a,22))+((a&b)^(a&c)^(b&c)))|0; z=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0; }\n    h[0]=(h[0]+a)|0;h[1]=(h[1]+b)|0;h[2]=(h[2]+c)|0;h[3]=(h[3]+d)|0;h[4]=(h[4]+e)|0;h[5]=(h[5]+f)|0;h[6]=(h[6]+g)|0;h[7]=(h[7]+z)|0;\n  }\n  return h.map(x=>(x>>>0).toString(16).padStart(8,\"0\")).join(\"\");\n}\nfunction dashboardRecordId(message) {\n  return sha256Hex(JSON.stringify([message.source, message.messageId]));\n}\nfunction messageContentDigest(message) {\n  return sha256Hex(JSON.stringify([message.sender, message.subject, message.body, message.receivedAt, message.sourceUrl ?? null]));\n}\nfunction intakeRecordKey(recordId, contentDigest, existing) {\n  if (!existing) return recordId;\n  if (!existing.contentDigest || existing.contentDigest === contentDigest) return null;\n  return `conflict:${recordId}:${contentDigest}`;\n}\nconst mapped=$('Validate complete catch-up').all().filter(item=>item.json?.emptyInbox!==true).map(item=>item.json);\nconst ledger=new Map($input.all().filter(item=>item.json?.recordId).map(item=>[item.json.recordId,item.json]));\nconst out=[];const seen=new Set();\nfor(const message of mapped){\n const recordId=dashboardRecordId(message);if(seen.has(recordId))continue;seen.add(recordId);\n const contentDigest=messageContentDigest(message);const existing=ledger.get(recordId);\n const key=intakeRecordKey(recordId,contentDigest,existing);\n if(key===null || ledger.has(key))continue;\n const conflict=key!==recordId;\n out.push({json:{recordId:key,messageId:message.messageId,sender:message.sender,subject:message.subject,body:message.body,receivedAt:message.receivedAt,sourceUrl:message.sourceUrl??'',contentDigest,state:conflict?'quarantined':'staged-awaiting-approval',category:'',routingMethod:conflict?'continuity':'disabled',reasonCode:conflict?'stable_content_changed':'model_spend_not_authorized',confidence:0,model:'',routedAt:'',dashboardRecordId:'',attemptCount:0,lastErrorClass:'',lastErrorAt:'',routingRunId:'',reservedAt:'',modelInputTokens:0,modelOutputTokens:0,modelCostUsd:0,feedbackEnvironment:'',feedbackInterpretation:'',feedbackEvidenceQuotes:'',feedbackRationale:'',feedbackContext:'',intendedExperienceReference:''}});\n}\nreturn out.length?out:[{json:{_noNew:true}}];"
+      },
+      "id": "prepare-stage",
+      "name": "Prepare durable staging rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1150,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "no-new",
+              "leftValue": "={{ $json._noNew === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "has-new",
+      "name": "No new messages",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1300,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "dupdash_mail_continuity_ledger"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "recordId",
+              "condition": "eq",
+              "keyValue": "={{ $json.recordId }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null,
+          "schema": [
+            {
+              "id": "recordId",
+              "displayName": "recordId",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "messageId",
+              "displayName": "messageId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sender",
+              "displayName": "sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "body",
+              "displayName": "body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "receivedAt",
+              "displayName": "receivedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sourceUrl",
+              "displayName": "sourceUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contentDigest",
+              "displayName": "contentDigest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "routingMethod",
+              "displayName": "routingMethod",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reasonCode",
+              "displayName": "reasonCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "routedAt",
+              "displayName": "routedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dashboardRecordId",
+              "displayName": "dashboardRecordId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "attemptCount",
+              "displayName": "attemptCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lastErrorClass",
+              "displayName": "lastErrorClass",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lastErrorAt",
+              "displayName": "lastErrorAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "routingRunId",
+              "displayName": "routingRunId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reservedAt",
+              "displayName": "reservedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "modelInputTokens",
+              "displayName": "modelInputTokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "modelOutputTokens",
+              "displayName": "modelOutputTokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "modelCostUsd",
+              "displayName": "modelCostUsd",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "feedbackEnvironment",
+              "displayName": "feedbackEnvironment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "feedbackInterpretation",
+              "displayName": "feedbackInterpretation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "feedbackEvidenceQuotes",
+              "displayName": "feedbackEvidenceQuotes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "feedbackRationale",
+              "displayName": "feedbackRationale",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "feedbackContext",
+              "displayName": "feedbackContext",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intendedExperienceReference",
+              "displayName": "intendedExperienceReference",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "upsert-stage",
+      "name": "Upsert durable staged messages",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const mapped=$('Validate complete catch-up').all().filter(item=>item.json?.emptyInbox!==true).map(item=>item.json);const previous=$('Normalize checkpoint').first().json;const prepared=$('Prepare durable staging rows').all().filter(x=>!x.json?._noNew);const written=new Map($input.all().map(x=>[x.json.recordId,x.json]));if(prepared.some(({json})=>written.get(json.recordId)?.contentDigest!==json.contentDigest || written.get(json.recordId)?.state!==json.state))throw Error('Durable staging acknowledgement mismatch; checkpoint retained');const timestamps=[previous.watermark,...mapped.map(x=>x.receivedAt)].filter(Boolean).sort();return [{json:{mailbox:'inbox',watermark:timestamps.at(-1)??previous.watermark??null,checkpointUpdatedAt:new Date().toISOString()}}];"
+      },
+      "id": "checkpoint",
+      "name": "Prepare checkpoint commit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1700,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "dupdash_mail_continuity_state"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "mailbox",
+              "condition": "eq",
+              "keyValue": "inbox"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null,
+          "schema": [
+            {
+              "id": "mailbox",
+              "displayName": "mailbox",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "watermark",
+              "displayName": "watermark",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "checkpointUpdatedAt",
+              "displayName": "checkpointUpdatedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "upsert-state",
+      "name": "Commit Inbox checkpoint",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1900,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const state=$('Prepare checkpoint commit').first().json;const rows=$('Prepare durable staging rows').all();const quarantined=rows.filter(x=>x.json.state==='quarantined').length;const staged=rows.filter(x=>x.json.state==='staged-awaiting-approval').length;return [{json:{completed:true,mode:'continuity-stage-only',staged,quarantined,watermark:state.watermark,modelCalls:0,modelInputTokens:0,modelOutputTokens:0,modelCostUsd:0,dashboardWrites:0,sourceMessagesChanged:false}}];"
+      },
+      "id": "receipt",
+      "name": "Sanitized continuity receipt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2100,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "Fail-closed run configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Fail-closed run configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fail-closed run configuration": {
+      "main": [
+        [
+          {
+            "node": "Create or reuse continuity ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or reuse continuity ledger": {
+      "main": [
+        [
+          {
+            "node": "Create or reuse continuity state",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or reuse continuity state": {
+      "main": [
+        [
+          {
+            "node": "Read Inbox checkpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Inbox checkpoint": {
+      "main": [
+        [
+          {
+            "node": "Normalize checkpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize checkpoint": {
+      "main": [
+        [
+          {
+            "node": "Build overlapped Inbox URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build overlapped Inbox URL": {
+      "main": [
+        [
+          {
+            "node": "Read complete overlapped Inbox pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read complete overlapped Inbox pages": {
+      "main": [
+        [
+          {
+            "node": "Validate complete catch-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate complete catch-up": {
+      "main": [
+        [
+          {
+            "node": "Close catch-up read barrier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Close catch-up read barrier": {
+      "main": [
+        [
+          {
+            "node": "Read durable continuity ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read durable continuity ledger": {
+      "main": [
+        [
+          {
+            "node": "Prepare durable staging rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare durable staging rows": {
+      "main": [
+        [
+          {
+            "node": "No new messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No new messages": {
+      "main": [
+        [
+          {
+            "node": "Prepare checkpoint commit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upsert durable staged messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert durable staged messages": {
+      "main": [
+        [
+          {
+            "node": "Prepare checkpoint commit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare checkpoint commit": {
+      "main": [
+        [
+          {
+            "node": "Commit Inbox checkpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit Inbox checkpoint": {
+      "main": [
+        [
+          {
+            "node": "Sanitized continuity receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "timezone": "UTC"
+  },
+  "pinData": {},
+  "tags": []
+}

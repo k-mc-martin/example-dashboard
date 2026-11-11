@@ -1,0 +1,234 @@
+{
+  "standard": "OWASP ASVS 5.0.0",
+  "scope": "Account permissions",
+  "generatedAt": "2026-11-11T00:41:34.306Z",
+  "sourceUrl": null,
+  "commit": null,
+  "dirty": true,
+  "sourceSha256": "828e55851a9435542f42a82a7a7531413a4960bca381cd7e37006ade378d8465",
+  "runUrl": null,
+  "node": "v25.6.1",
+  "target": "Running loopback demo",
+  "automatedOutcome": "Pass",
+  "stackSetupFailed": false,
+  "runnerExit": 0,
+  "checks": [
+    {
+      "title": "Allowed reads and backup writes for three roles",
+      "method": "HTTP integration",
+      "requirements": [
+        "v5.0.0-8.2.1",
+        "v5.0.0-8.3.1"
+      ],
+      "status": "Pass"
+    },
+    {
+      "title": "Fields returned by the inbox, deployment and storage feeds",
+      "method": "HTTP integration",
+      "requirements": [
+        "v5.0.0-8.2.3"
+      ],
+      "status": "Pass"
+    },
+    {
+      "title": "Objects and sessions stay within the visitor workspace",
+      "method": "HTTP integration",
+      "requirements": [
+        "v5.0.0-8.2.2",
+        "v5.0.0-8.4.1"
+      ],
+      "status": "Pass"
+    },
+    {
+      "title": "Reject forged identity, stale login and cross-origin logout",
+      "method": "HTTP integration",
+      "requirements": [
+        "v5.0.0-7.2.1",
+        "v5.0.0-7.2.2",
+        "v5.0.0-7.2.4",
+        "v5.0.0-7.4.1"
+      ],
+      "status": "Pass"
+    },
+    {
+      "title": "Independent member session enforces live grants and revocations",
+      "method": "HTTP integration",
+      "requirements": [
+        "v5.0.0-8.2.1",
+        "v5.0.0-8.3.1",
+        "v5.0.0-8.3.2",
+        "v5.0.0-8.4.1"
+      ],
+      "status": "Pass"
+    },
+    {
+      "title": "Host-only Secure, HttpOnly and SameSite cookies",
+      "method": "HTTP integration",
+      "requirements": [
+        "v5.0.0-3.3.1",
+        "v5.0.0-3.3.2",
+        "v5.0.0-3.3.3"
+      ],
+      "status": "Pass"
+    },
+    {
+      "title": "A login created just before workspace expiry also expires",
+      "method": "Clock-controlled integration",
+      "requirements": [
+        "v5.0.0-7.3.2",
+        "v5.0.0-7.4.1"
+      ],
+      "status": "Pass"
+    },
+    {
+      "title": "Detect an injected owner-only field in an employee response",
+      "method": "Deliberate response fault",
+      "requirements": [],
+      "status": "Pass"
+    }
+  ],
+  "controls": [
+    {
+      "id": "v5.0.0-3.3.1",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Host-only Secure, HttpOnly and SameSite cookies"
+      ]
+    },
+    {
+      "id": "v5.0.0-3.3.2",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Host-only Secure, HttpOnly and SameSite cookies"
+      ]
+    },
+    {
+      "id": "v5.0.0-3.3.3",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Host-only Secure, HttpOnly and SameSite cookies"
+      ]
+    },
+    {
+      "id": "v5.0.0-7.2.1",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Reject forged identity, stale login and cross-origin logout"
+      ]
+    },
+    {
+      "id": "v5.0.0-7.2.2",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Reject forged identity, stale login and cross-origin logout"
+      ]
+    },
+    {
+      "id": "v5.0.0-7.2.3",
+      "method": "Manual review",
+      "status": "Not yet tested",
+      "reason": "Review random-token generation and entropy at the assessed commit."
+    },
+    {
+      "id": "v5.0.0-7.2.4",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Reject forged identity, stale login and cross-origin logout"
+      ]
+    },
+    {
+      "id": "v5.0.0-7.3.2",
+      "status": "Pass",
+      "method": "Clock-controlled integration",
+      "evidence": [
+        "A login created just before workspace expiry also expires"
+      ]
+    },
+    {
+      "id": "v5.0.0-7.4.1",
+      "status": "Pass",
+      "method": "HTTP integration, Clock-controlled integration",
+      "evidence": [
+        "Reject forged identity, stale login and cross-origin logout",
+        "A login created just before workspace expiry also expires"
+      ]
+    },
+    {
+      "id": "v5.0.0-7.4.4",
+      "method": "Manual review",
+      "status": "Not yet tested",
+      "reason": "Review visible sign-out controls across authenticated screens."
+    },
+    {
+      "id": "v5.0.0-8.1.1",
+      "method": "Manual review",
+      "status": "Not yet tested",
+      "reason": "Review the documented role and object permissions against the dashboard."
+    },
+    {
+      "id": "v5.0.0-8.1.2",
+      "method": "Manual review",
+      "status": "Not yet tested",
+      "reason": "Review the documented field restrictions against all shared feeds."
+    },
+    {
+      "id": "v5.0.0-8.2.1",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Allowed reads and backup writes for three roles",
+        "Independent member session enforces live grants and revocations"
+      ]
+    },
+    {
+      "id": "v5.0.0-8.2.2",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Objects and sessions stay within the visitor workspace"
+      ]
+    },
+    {
+      "id": "v5.0.0-8.2.3",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Fields returned by the inbox, deployment and storage feeds"
+      ]
+    },
+    {
+      "id": "v5.0.0-8.3.1",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Allowed reads and backup writes for three roles",
+        "Independent member session enforces live grants and revocations"
+      ]
+    },
+    {
+      "id": "v5.0.0-8.3.2",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Independent member session enforces live grants and revocations"
+      ]
+    },
+    {
+      "id": "v5.0.0-8.4.1",
+      "status": "Pass",
+      "method": "HTTP integration",
+      "evidence": [
+        "Objects and sessions stay within the visitor workspace",
+        "Independent member session enforces live grants and revocations"
+      ]
+    }
+  ],
+  "rawOutput": "checks.tap",
+  "followUp": "Independent review is pending. The scope is the account exercise. It carries no overall ASVS level claim."
+}

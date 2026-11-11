@@ -1,0 +1,298 @@
+{
+  "id": "DupdashMailboxHistoryBackfill",
+  "name": "Dupdash — Inbox history backfill (manual)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "ef99328f-034a-42ed-93fc-1f9cb550b524",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://mail.dupdash.invalid/v1.0/me/mailFolders/inbox/messages",
+        "authentication": "genericCredentialType",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "$top",
+              "value": "25"
+            },
+            {
+              "name": "$orderby",
+              "value": "receivedDateTime asc"
+            },
+            {
+              "name": "$select",
+              "value": "id,internetMessageId,from,subject,body,receivedDateTime,webLink"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "outlook.body-content-type=\"text\", IdType=\"ImmutableId\""
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "pagination": {
+            "pagination": {
+              "paginationMode": "responseContainsNextURL",
+              "nextURL": "={{ (() => { const raw = $response.body?.['@odata.nextLink']; const initial = 'https://mail.dupdash.invalid/v1.0/me/mailFolders/inbox/messages'; const inbox = RegExp(\"^https://mail[.]dupdash[.]invalid(?::443)?/v1[.]0/me/mailFolders(?:/inbox|[(]'inbox'[)]|%28%27inbox%27%29)/messages(?:[?]|$)\", \"i\"); if (!raw) return initial; if (typeof raw !== 'string' || !inbox.test(raw)) throw Error('Microsoft Graph returned an unexpected pagination URL'); return raw; })() }}",
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body?.['@odata.nextLink'] }}",
+              "limitPagesFetched": false,
+              "requestInterval": 200
+            }
+          },
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "4cd5d0fc-8ee1-4ca1-ab55-60919211822e",
+      "name": "Read all Inbox pages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -520,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashMailRead",
+          "name": "Demo mailbox"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const pages = $input.all().map(item => item.json);\nconst graphInboxUrl = RegExp(\"^https://mail[.]dupdash[.]invalid(?::443)?/v1[.]0/me/mailFolders(?:/inbox|[(]'inbox'[)]|%28%27inbox%27%29)/messages(?:[?]|$)\", \"i\");\nconst outlookMessageUrl = RegExp(\"^https://inbox[.]dupdash[.]invalid(?::443)?(?:/|$)\", \"i\");\nconst seen = new Set();\nconst output = [];\nfunction checkedNextLink(raw) {\n  if (raw === undefined || raw === null || raw === '') return null;\n  if (typeof raw !== 'string') throw new Error('Microsoft Graph pagination URL is not a string');\n  if (!graphInboxUrl.test(raw)) throw new Error('Microsoft Graph returned an unexpected pagination URL');\n  return raw;\n}\nfor (const page of pages) {\n  if (!page || !Array.isArray(page.value)) throw new Error('Microsoft Graph returned an invalid message page');\n  checkedNextLink(page['@odata.nextLink']);\n  for (const message of page.value) {\n    const providerId = typeof message?.internetMessageId === 'string' && message.internetMessageId.trim() ? message.internetMessageId.trim() : (typeof message?.id === 'string' ? message.id.trim() : '');\n    if (!providerId) throw new Error('Inbox message is missing both internetMessageId and Graph id');\n    if (providerId.length > 1000) throw new Error('Inbox message identifier exceeds the dashboard limit');\n    if (seen.has(providerId)) continue;\n    seen.add(providerId);\n    const sender = typeof message?.from?.emailAddress?.address === 'string' && message.from.emailAddress.address.trim() ? message.from.emailAddress.address.trim() : (typeof message?.from?.emailAddress?.name === 'string' ? message.from.emailAddress.name.trim() : '');\n    if (!sender) throw new Error('Inbox message is missing its sender');\n    if (sender.length > 500) throw new Error('Inbox message sender exceeds the dashboard limit');\n    const subject = message?.subject == null ? '' : String(message.subject);\n    if (subject.length > 1000) throw new Error('Inbox message subject exceeds the dashboard limit');\n    if (message?.body?.contentType?.toLowerCase() !== 'text' || typeof message?.body?.content !== 'string') throw new Error('Inbox message body was not returned as plain text');\n    const body = message.body.content;\n    if (body.length > 64000) throw new Error('Inbox message body exceeds 64,000 characters; it was not truncated or delivered');\n    const receivedAt = typeof message?.receivedDateTime === 'string' ? message.receivedDateTime : '';\n    if (!receivedAt || Number.isNaN(Date.parse(receivedAt))) throw new Error('Inbox message has an invalid receivedDateTime');\n    let sourceUrl = null;\n    if (message?.webLink != null && message.webLink !== '') {\n      if (typeof message.webLink !== 'string' || !outlookMessageUrl.test(message.webLink)) throw new Error('Inbox message webLink is outside the allowed Outlook hosts');\n      sourceUrl = message.webLink;\n    }\n    const payload = { source: 'dupdash-mail', messageId: providerId, sender, subject, body, receivedAt: new Date(receivedAt).toISOString(), category: 'unsorted', supportKind: null, sourceUrl };\n    if (Buffer.byteLength(JSON.stringify(payload), 'utf8') > 100000) throw new Error('Inbox message payload exceeds 100 KB; it was not truncated or delivered');\n    output.push({ json: payload });\n  }\n}\nreturn output.length ? output : [{ json: { emptyInbox: true } }];"
+      },
+      "id": "de936131-7c1a-480e-90b5-d23c44822057",
+      "name": "Validate and map all messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9d9dd522-595a-4446-b314-58bd21a2eb5d",
+              "leftValue": "={{ $json.emptyInbox === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "da038aa1-e2ab-4a52-9991-8ce31ab402d2",
+      "name": "Inbox is empty",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sourcePages = $('Read all Inbox pages').all().length;\nreturn [{ json: { completed: true, sourcePages, messageCount: 0, delivered: 0, recordIds: [], totalBodyCharacters: 0, totalBodyUtf8Bytes: 0, oldestReceivedAt: null, newestReceivedAt: null, category: 'unsorted', mailboxScope: 'Inbox', sourceMessagesChanged: false } }];"
+      },
+      "id": "5a5fa726-15d9-46a7-ac39-eb193a308246",
+      "name": "Empty Inbox result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "c1ad93a4-c7a2-414b-a0fc-dcd187597780",
+      "name": "Deliver in batches of 10",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        80,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dashboard:3000/api/n8n/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "77071525-753d-4c9d-a08e-19494cbbe6ed",
+      "name": "Deliver unsorted message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        320,
+        140
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashDashboardIngest",
+          "name": "Dupdash dashboard intake"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.all();\nconst mapped = $('Validate and map all messages').all().filter(item => item.json?.emptyInbox !== true);\nconst sourcePages = $('Read all Inbox pages').all().length;\nfor (const item of results) {\n  if (item.json?.stored !== true || typeof item.json?.id !== 'string' || !/^[a-f0-9]{64}$/i.test(item.json.id)) throw new Error('Dashboard did not confirm a stored message with a valid record ID');\n}\nif (results.length !== mapped.length) throw new Error('Dashboard delivery count does not match the validated message count');\nconst recordIds = results.map(item => item.json.id);\nif (new Set(recordIds).size !== recordIds.length) throw new Error('Dashboard returned duplicate record IDs for distinct validated messages');\nlet totalBodyCharacters = 0;\nlet totalBodyUtf8Bytes = 0;\nlet oldestReceivedAt = null;\nlet newestReceivedAt = null;\nfor (const item of mapped) {\n  const body = item.json.body;\n  const receivedAt = item.json.receivedAt;\n  if (typeof body !== 'string' || typeof receivedAt !== 'string') throw new Error('Validated message metadata is unavailable for the completion proof');\n  totalBodyCharacters += body.length;\n  totalBodyUtf8Bytes += Buffer.byteLength(body, 'utf8');\n  if (oldestReceivedAt === null || receivedAt < oldestReceivedAt) oldestReceivedAt = receivedAt;\n  if (newestReceivedAt === null || receivedAt > newestReceivedAt) newestReceivedAt = receivedAt;\n}\nreturn [{ json: { completed: true, sourcePages, messageCount: mapped.length, delivered: results.length, recordIds, totalBodyCharacters, totalBodyUtf8Bytes, oldestReceivedAt, newestReceivedAt, category: 'unsorted', mailboxScope: 'Inbox', sourceMessagesChanged: false } }];"
+      },
+      "id": "0f736cec-8af9-457b-bcc6-cd8d348d1a8d",
+      "name": "Backfill result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        -40
+      ]
+    }
+  ],
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Read all Inbox pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read all Inbox pages": {
+      "main": [
+        [
+          {
+            "node": "Validate and map all messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate and map all messages": {
+      "main": [
+        [
+          {
+            "node": "Inbox is empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inbox is empty": {
+      "main": [
+        [
+          {
+            "node": "Empty Inbox result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Deliver in batches of 10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deliver in batches of 10": {
+      "main": [
+        [
+          {
+            "node": "Backfill result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Deliver unsorted message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deliver unsorted message": {
+      "main": [
+        [
+          {
+            "node": "Deliver in batches of 10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false
+  },
+  "pinData": {},
+  "tags": []
+}

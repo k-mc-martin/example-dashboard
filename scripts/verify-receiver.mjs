@@ -1,0 +1,15 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const base='http://127.0.0.1:5286';const secret=fs.readFileSync('.dev.vars','utf8').match(/^DUPDASH_INGEST_TOKEN=(.+)$/m)[1];
+const payload={source:'dashboard-test',messageId:'receiver-verification-20260929',sender:'Dashboard test (synthetic)',subject:'Receiver verification — synthetic test',body:'This is a temporary local verification record. No customer correspondence or external service was used.',receivedAt:'2026-09-29T12:00:00-07:00',category:'beta'};
+const post=(data,token=secret,extras={})=>fetch(base+'/api/n8n/messages',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,...extras},body:JSON.stringify(data)});
+assert.equal((await post(payload,'wrong')).status,401);
+assert.equal((await post(payload,secret,{Origin:'https://example.invalid'})).status,403);
+assert.equal((await post({...payload,category:'guessed'})).status,400);
+assert.equal((await post({...payload,sourceUrl:'javascript:alert(1)'})).status,400);
+assert.equal((await post({...payload,body:'x'.repeat(100001)})).status,413);
+let r=await post(payload);assert.equal(r.status,200);const {id}=await r.json();
+assert.equal((await post({...payload,body:payload.body+' Updated once.'})).status,200);
+const state=await (await fetch(base+'/api/dashboard')).json();assert.equal(state.messages.filter(m=>m.id===id).length,1);
+const detail=await (await fetch(base+'/api/messages/'+id)).json();assert.equal(detail.message.body,payload.body+' Updated once.');assert.equal(detail.message.receivedAt,'2026-09-29T19:00:00.000Z');
+fs.mkdirSync('artifacts',{recursive:true});fs.writeFileSync('artifacts/receiver-test.json',JSON.stringify({id,synthetic:true,checks:['unauthorized rejected','cross-origin rejected','invalid category rejected','unsafe link rejected','oversize rejected','authenticated ingestion','idempotent redelivery','full detail retrieval','timestamp normalization']},null,2));
+console.log('Receiver checks passed. One clearly labeled synthetic record is present for UI verification.');

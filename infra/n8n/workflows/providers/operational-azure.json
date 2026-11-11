@@ -1,0 +1,343 @@
+{
+  "id": "DupdashAzureOperational",
+  "name": "Dupdash — Azure signing operations (15 min)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -900,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://signing.dupdash.invalid/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api-version",
+              "value": "2025-10-13"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "account",
+      "name": "Read signing account",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -680,
+        40
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashAzureInventory",
+          "name": "Dupdash Azure inventory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://signing.dupdash.invalid/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing/certificateProfiles",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api-version",
+              "value": "2025-10-13"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "profiles",
+      "name": "Read certificate profiles",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -420,
+        40
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashAzureInventory",
+          "name": "Dupdash Azure inventory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const subscriptionId=\"00000000-0000-4000-8000-000000000001\",resourceGroup=\"demo-signing-rg\",accountName=\"demo-signing\",accountId=\"/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing\";\nfunction unwrapResponse(value) {\n  if (value && typeof value === \"object\" && \"statusCode\" in value) {\n    const statusCode = Number(value.statusCode);\n    if (!Number.isInteger(statusCode) || statusCode < 200 || statusCode >= 300) return { ok: false, statusCode, raw: value };\n    return { ok: true, statusCode, body: value.body };\n  }\n  if (value?.error) {\n    const error = value.error;\n    const candidates = [error?.statusCode, error?.httpCode, error?.cause?.statusCode, error?.response?.statusCode, error?.response?.status];\n    let statusCode = candidates.map(Number).find(Number.isInteger);\n    if (!statusCode) {\n      const match = String(error?.message ?? \"\").match(/(?:status(?: code)?|response code)\\D{0,8}(\\d{3})/i);\n      if (match) statusCode = Number(match[1]);\n    }\n    return { ok: false, statusCode, raw: value };\n  }\n  return { ok: true, statusCode: 200, body: value };\n}\nfunction safeUpstreamError(responses) {\n  const failed = responses.map(unwrapResponse).find(result => !result.ok);\n  if (!failed) return null;\n  if (failed.statusCode === 401 || failed.statusCode === 403) return \"authorization_required\";\n  if (failed.statusCode === 429) return \"rate_limited\";\n  if (!Number.isInteger(failed.statusCode) || failed.statusCode >= 500) return \"provider_unavailable\";\n  return \"invalid_response\";\n}\nfunction buildAzureScopes(accountBody, profilesBody) {\n  if (String(accountBody?.id ?? \"\").toLowerCase() !== accountId.toLowerCase() || accountBody?.name !== accountName || !Array.isArray(profilesBody?.value)) throw new Error(\"invalid_response\");\n  return [{ scope: accountId }, ...profilesBody.value.slice(0, 50).map(profile => ({ scope: String(profile.id) }))];\n}\nfunction buildAzureScopesResponses(accountResponse, profilesResponse) {\n  const errorCode = safeUpstreamError([accountResponse, profilesResponse]);\n  if (errorCode) return [{ scope: accountId, collectorError: errorCode }];\n  try { return buildAzureScopes(unwrapResponse(accountResponse).body, unwrapResponse(profilesResponse).body); }\n  catch { return [{ scope: accountId, collectorError: \"invalid_response\" }]; }\n}\nreturn buildAzureScopesResponses($('Read signing account').first().json, $json).map(json => ({json}));"
+      },
+      "id": "scopes",
+      "name": "Build exact RBAC scopes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://signing.dupdash.invalid' + $json.scope + '/providers/Microsoft.Authorization/roleAssignments' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api-version",
+              "value": "2022-04-01"
+            },
+            {
+              "name": "$filter",
+              "value": "atScope()"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "roles",
+      "name": "Read applicable role assignments",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        100,
+        40
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashAzureInventory",
+          "name": "Dupdash Azure inventory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const subscriptionId=\"00000000-0000-4000-8000-000000000001\",resourceGroup=\"demo-signing-rg\",accountName=\"demo-signing\",accountId=\"/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing\";\nfunction unwrapResponse(value) {\n  if (value && typeof value === \"object\" && \"statusCode\" in value) {\n    const statusCode = Number(value.statusCode);\n    if (!Number.isInteger(statusCode) || statusCode < 200 || statusCode >= 300) return { ok: false, statusCode, raw: value };\n    return { ok: true, statusCode, body: value.body };\n  }\n  if (value?.error) {\n    const error = value.error;\n    const candidates = [error?.statusCode, error?.httpCode, error?.cause?.statusCode, error?.response?.statusCode, error?.response?.status];\n    let statusCode = candidates.map(Number).find(Number.isInteger);\n    if (!statusCode) {\n      const match = String(error?.message ?? \"\").match(/(?:status(?: code)?|response code)\\D{0,8}(\\d{3})/i);\n      if (match) statusCode = Number(match[1]);\n    }\n    return { ok: false, statusCode, raw: value };\n  }\n  return { ok: true, statusCode: 200, body: value };\n}\nfunction safeUpstreamError(responses) {\n  const failed = responses.map(unwrapResponse).find(result => !result.ok);\n  if (!failed) return null;\n  if (failed.statusCode === 401 || failed.statusCode === 403) return \"authorization_required\";\n  if (failed.statusCode === 429) return \"rate_limited\";\n  if (!Number.isInteger(failed.statusCode) || failed.statusCode >= 500) return \"provider_unavailable\";\n  return \"invalid_response\";\n}\nfunction aggregateAzure(accountBody, profilesBody, roleBodies, observedAt = new Date().toISOString()) {\n  if (String(accountBody?.id ?? \"\").toLowerCase() !== accountId.toLowerCase() || accountBody?.name !== accountName || !Array.isArray(profilesBody?.value)) throw new Error(\"invalid_response\");\n  const profilesComplete = !profilesBody.nextLink && profilesBody.value.length <= 50;\n  const profiles = profilesBody.value.map(profile => {\n    if (!profile?.id || !profile?.name) throw new Error(\"invalid_response\");\n    const row = { name: String(profile.name), resourceId: String(profile.id) };\n    if (profile.properties?.profileType) row.profileType = String(profile.properties.profileType);\n    if (profile.properties?.status) row.status = String(profile.properties.status);\n    if (profile.properties?.provisioningState && !row.status) row.status = String(profile.properties.provisioningState);\n    return row;\n  }).slice(0, 50);\n  const rolePages = roleBodies.map(body => body?.json ?? body);\n  let roleAssignmentsComplete = rolePages.length === profiles.length + 1 && rolePages.every(body => Array.isArray(body?.value) && !body.nextLink);\n  const seen = new Set(); const roleAssignments = [];\n  for (const body of rolePages) for (const assignment of Array.isArray(body?.value) ? body.value : []) {\n    const p = assignment?.properties; const key = String(assignment?.id ?? `${p?.scope}:${p?.roleDefinitionId}:${p?.principalId}`);\n    if (seen.has(key)) continue; seen.add(key);\n    if (!p?.scope || !p?.roleDefinitionId || !p?.principalId) throw new Error(\"invalid_response\");\n    const principalType = [\"User\", \"Group\", \"ServicePrincipal\", \"ForeignGroup\", \"Device\", \"AgentUser\", \"AgentServicePrincipal\"].includes(p.principalType) ? p.principalType : \"Unknown\";\n    roleAssignments.push({ scope: String(p.scope), roleDefinitionId: String(p.roleDefinitionId), principalId: String(p.principalId), principalType });\n  }\n  if (roleAssignments.length > 100) roleAssignmentsComplete = false;\n  const data = { subscriptionId, resourceGroup, accountName, resourceId: String(accountBody.id), profilesComplete, profiles, roleAssignmentsComplete, roleAssignments: roleAssignments.slice(0, 100) };\n  if (accountBody.location) data.location = String(accountBody.location);\n  if (accountBody.properties?.provisioningState) data.provisioningState = String(accountBody.properties.provisioningState);\n  const complete = profilesComplete && roleAssignmentsComplete;\n  return { surface: \"azure\", observedAt: new Date(observedAt).toISOString(), status: complete ? \"ok\" : \"partial\", ...(complete ? {} : { errorCode: \"incomplete_collection\" }), data };\n}\nfunction aggregateAzureResponses(accountResponse, profilesResponse, scopeItems, roleItems, observedAt = new Date().toISOString()) {\n  const responses = [accountResponse, profilesResponse, ...roleItems.map(item => item?.json ?? item)];\n  const stagedError = scopeItems.map(item => item?.json ?? item).find(item => item?.collectorError)?.collectorError;\n  const errorCode = stagedError ?? safeUpstreamError(responses);\n  const empty = { subscriptionId, resourceGroup, accountName, resourceId: accountId, profilesComplete: false, profiles: [], roleAssignmentsComplete: false, roleAssignments: [] };\n  if (errorCode) return { surface: \"azure\", observedAt: new Date(observedAt).toISOString(), status: \"error\", errorCode, data: empty };\n  try { return aggregateAzure(unwrapResponse(accountResponse).body, unwrapResponse(profilesResponse).body, roleItems.map(item => unwrapResponse(item?.json ?? item).body), observedAt); }\n  catch { return { surface: \"azure\", observedAt: new Date(observedAt).toISOString(), status: \"error\", errorCode: \"invalid_response\", data: empty }; }\n}\nreturn [{json: aggregateAzureResponses($('Read signing account').first().json, $('Read certificate profiles').first().json, $('Build exact RBAC scopes').all(), $input.all())}];"
+      },
+      "id": "project",
+      "name": "Whitelist Azure telemetry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        360,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dashboard:3000/api/n8n/operations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "id": "deliver",
+      "name": "Deliver operation observation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        620,
+        40
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashDashboardIngest",
+          "name": "Dupdash dashboard intake"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    }
+  ],
+  "connections": {
+    "Every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "Read signing account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Read signing account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read signing account": {
+      "main": [
+        [
+          {
+            "node": "Read certificate profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read certificate profiles": {
+      "main": [
+        [
+          {
+            "node": "Build exact RBAC scopes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build exact RBAC scopes": {
+      "main": [
+        [
+          {
+            "node": "Read applicable role assignments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read applicable role assignments": {
+      "main": [
+        [
+          {
+            "node": "Whitelist Azure telemetry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Whitelist Azure telemetry": {
+      "main": [
+        [
+          {
+            "node": "Deliver operation observation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "executionTimeout": 300
+  },
+  "pinData": {},
+  "tags": []
+}

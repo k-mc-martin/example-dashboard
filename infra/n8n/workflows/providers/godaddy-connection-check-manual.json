@@ -1,0 +1,144 @@
+{
+  "id": "DupdashGoDaddyConnectionCheck",
+  "name": "Dupdash — GoDaddy connection check (manual)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "79b37a56-8276-458a-b178-ea1d89d616cd",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://domains.dupdash.invalid/v3/domains/domain-names/example.invalid",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "3d4622f5-6946-4dc6-8df5-b90f9fb4edce",
+      "name": "Read example.invalid",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -280,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashGoDaddyRead",
+          "name": "Dupdash GoDaddy read"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const domainName = String($json?.domainName ?? $json?.domain ?? '').toLowerCase();\nif (domainName !== 'example.invalid') throw new Error('GoDaddy did not return the expected example.invalid domain');\nreturn [{ json: { provider: 'godaddy', status: 'verified', identity: { domain: domainName }, checkedAt: new Date().toISOString() } }];"
+      },
+      "id": "69ab9545-911f-4c79-a9f9-77cf098c34c7",
+      "name": "Validate and whitelist identity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -40,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dashboard:3000/api/n8n/provider-connections",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Validate and whitelist identity').item.json }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "719176aa-35c0-4618-96be-3a36f3f654a9",
+      "name": "Deliver verified connection",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashDashboardIngest",
+          "name": "Dupdash dashboard intake"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Read example.invalid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read example.invalid": {
+      "main": [
+        [
+          {
+            "node": "Validate and whitelist identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate and whitelist identity": {
+      "main": [
+        [
+          {
+            "node": "Deliver verified connection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false
+  },
+  "pinData": {},
+  "tags": []
+}

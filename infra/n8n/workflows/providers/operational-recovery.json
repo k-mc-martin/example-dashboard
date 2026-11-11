@@ -1,0 +1,176 @@
+{
+  "id": "DupdashRecoveryOperational",
+  "name": "Dupdash — recovery operations (5 min)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Every 5 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -620,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://recovery-feed:8080/recovery.json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "id": "read-recovery",
+      "name": "Read internal recovery feed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -360,
+        40
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "function sanitizeAiUsage(value) {\n  const exact = (v, keys) => v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === keys.length && keys.every(k => Object.hasOwn(v, k));\n  const iso = v => typeof v === 'string' && Number.isFinite(Date.parse(v)) && /T.*(?:Z|[+-]\\d\\d:\\d\\d)$/.test(v);\n  const count = v => Number.isSafeInteger(v) && v >= 0;\n  const money = v => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1e9;\n  const totalKeys = ['calls', 'inputTokens', 'outputTokens', 'estimatedCostUsd'];\n  const total = v => exact(v, totalKeys) && count(v.calls) && count(v.inputTokens) && count(v.outputTokens) && money(v.estimatedCostUsd)\n    && (v.calls > 0 || (v.inputTokens === 0 && v.outputTokens === 0 && v.estimatedCostUsd === 0));\n  if (value?.status === 'unavailable') {\n    return exact(value, ['status', 'measuredAt', 'errorCode']) && iso(value.measuredAt) && value.errorCode === 'usage_unavailable' ? { ...value } : null;\n  }\n  const keys = ['status','measuredAt','trackingStartedAt','windowStartedAt','model','currency','monthKey','today','month','window','reservedMonthUsd','limits','daily','unresolvedCalls'];\n  if (!exact(value, keys) || value.status !== 'ok' || value.model !== 'gpt-5.6-luna' || value.currency !== 'USD'\n    || !iso(value.measuredAt) || !iso(value.trackingStartedAt) || !iso(value.windowStartedAt)\n    || !total(value.today) || !total(value.month) || !total(value.window) || !count(value.unresolvedCalls)\n    || !money(value.reservedMonthUsd) || !exact(value.limits, ['perRunUsd','perDayUsd','perMonthUsd'])\n    || !Object.values(value.limits).every(v => money(v) && v > 0) || !Array.isArray(value.daily) || value.daily.length > 31) return null;\n  const measured = Date.parse(value.measuredAt), start = Date.parse(value.windowStartedAt), tracking = Date.parse(value.trackingStartedAt);\n  const today = new Date(measured).toISOString().slice(0,10);\n  if (tracking > start || start > measured || measured - start > 30 * 86400000 + 1000 || value.monthKey !== today.slice(0,7)) return null;\n  let previous = '', sums = {calls:0,inputTokens:0,outputTokens:0,estimatedCostUsd:0};\n  for (const row of value.daily) {\n    if (!exact(row, ['date', ...totalKeys]) || !/^\\d{4}-\\d{2}-\\d{2}$/.test(row.date) || !Number.isFinite(Date.parse(row.date))\n      || new Date(row.date).toISOString().slice(0,10) !== row.date || row.date <= previous || row.date > today || row.date < new Date(start).toISOString().slice(0,10)\n      || !total(Object.fromEntries(totalKeys.map(k => [k,row[k]])))) return null;\n    previous = row.date;\n    for (const key of totalKeys) sums[key] += row[key];\n  }\n  if (totalKeys.some(k => Math.abs(sums[k] - value.window[k]) > (k === 'estimatedCostUsd' ? 1e-9 : 0))) return null;\n  if (totalKeys.some(k => value.today[k] > value.month[k] + 1e-9)) return null;\n  return JSON.parse(JSON.stringify(value));\n}\nfunction projectRecoveryResponse(response, errorObservedAt = new Date().toISOString()) {\n  const rawStatus = response?.statusCode ?? response?.status ?? response?.error?.statusCode ?? response?.error?.httpCode;\n  const statusCode = Number(rawStatus);\n  const unavailable = () => ({ surface: \"recovery\", observedAt: new Date(errorObservedAt).toISOString(), status: \"error\", errorCode: \"provider_unavailable\" });\n  if (!Number.isInteger(statusCode) || statusCode < 200 || statusCode >= 300) return unavailable();\n  const body = response?.body;\n  const integer = value => Number.isSafeInteger(value) && value >= 0 ? value : null;\n  const iso = value => typeof value === \"string\" && Number.isFinite(Date.parse(value)) ? new Date(value).toISOString() : null;\n  const exact = (value, keys) => value && typeof value === \"object\" && !Array.isArray(value) && Object.keys(value).every(key => keys.includes(key));\n  try {\n    if (!exact(body, [\"schemaVersion\", \"generatedAt\", \"backupFolder\", \"restoreChecks\", \"automation\", \"backupCatalog\"]) || body.schemaVersion !== 1) throw new Error(\"invalid\");\n    const generatedAt = iso(body.generatedAt);\n    const folder = body.backupFolder;\n    if (!generatedAt || !exact(folder, [\"name\", \"bytes\", \"objects\", \"measuredAt\"]) || folder.name !== \"Dupdash Backups\") throw new Error(\"invalid\");\n    const bytes = integer(folder.bytes), objects = integer(folder.objects), measuredAt = iso(folder.measuredAt);\n    if (bytes === null || objects === null || !measuredAt || !Array.isArray(body.restoreChecks) || body.restoreChecks.length > 1000) throw new Error(\"invalid\");\n    const restoreChecks = body.restoreChecks.map(raw => {\n      const allowed = [\"checkedAt\", \"requestedSnapshot\", \"ok\", \"sourceCreatedAt\", \"checksumsVerified\", \"credentialDecryptionVerified\", \"counts\", \"dashboard\", \"serverDashboard\"];\n      if (!exact(raw, allowed)) throw new Error(\"invalid\");\n      const checkedAt = iso(raw.checkedAt), snapshot = raw.requestedSnapshot;\n      if (!checkedAt || typeof raw.ok !== \"boolean\" || (snapshot !== \"latest\" && (typeof snapshot !== \"string\" || !/^[a-fA-F0-9]{64}$/.test(snapshot)))) throw new Error(\"invalid\");\n      const item = { checkedAt, requestedSnapshot: snapshot, ok: raw.ok };\n      if (raw.sourceCreatedAt !== undefined) { const value = iso(raw.sourceCreatedAt); if (!value) throw new Error(\"invalid\"); item.sourceCreatedAt = value; }\n      if (raw.checksumsVerified !== undefined) { const value = integer(raw.checksumsVerified); if (value === null) throw new Error(\"invalid\"); item.checksumsVerified = value; }\n      if (raw.credentialDecryptionVerified !== undefined) { if (typeof raw.credentialDecryptionVerified !== \"boolean\") throw new Error(\"invalid\"); item.credentialDecryptionVerified = raw.credentialDecryptionVerified; }\n      for (const [key, fields] of [[\"counts\", [\"credentials\", \"users\", \"workflows\"]], [\"dashboard\", [\"databases\", \"files\"]], [\"serverDashboard\", [\"messages\", \"tables\"]]]) {\n        if (raw[key] === undefined) continue;\n        if (!exact(raw[key], fields) || Object.keys(raw[key]).length !== fields.length) throw new Error(\"invalid\");\n        const proof = {}; for (const field of fields) { const value = integer(raw[key][field]); if (value === null) throw new Error(\"invalid\"); proof[field] = value; } item[key] = proof;\n      }\n      return item;\n    });\n    const automation = body.automation;\n    if (!exact(automation, [\"measuredAt\", \"workflows\", \"executionHistoryAvailable\", \"lastExecution\", \"failureCount24h\", \"aiUsage\"])) throw new Error(\"invalid\");\n    const automationMeasuredAt = iso(automation.measuredAt);\n    const workflowIds = [\"DupdashRecoveryOperational\", \"DupdashCloudflareOperational\", \"DupdashAzureOperational\", \"DupdashGoDaddyOperational\", \"DupdashLemonSqueezyOperational\", \"DupdashGoogleDriveStorage\", \"DupdashMailboxContinuityPrepared\", \"DupdashMailboxRoutingDrain\"];\n    if (!automationMeasuredAt || !Array.isArray(automation.workflows) || automation.workflows.length > workflowIds.length || typeof automation.executionHistoryAvailable !== \"boolean\") throw new Error(\"invalid\");\n    const workflows = automation.workflows.map(item => {\n      if (!exact(item, [\"id\", \"name\", \"active\"]) || !workflowIds.includes(item.id) || typeof item.name !== \"string\" || !item.name || typeof item.active !== \"boolean\") throw new Error(\"invalid\");\n      return { id: item.id, name: item.name.slice(0, 160), active: item.active };\n    });\n    if (new Set(workflows.map(item => item.id)).size !== workflows.length) throw new Error(\"invalid\");\n    const cleanAutomation = { measuredAt: automationMeasuredAt, workflows, executionHistoryAvailable: automation.executionHistoryAvailable, lastExecution: null, failureCount24h: null };\n    if (automation.aiUsage !== undefined) {\n      const usage = sanitizeAiUsage(automation.aiUsage);\n      cleanAutomation.aiUsage = usage && Date.parse(usage.measuredAt) <= Date.parse(automationMeasuredAt) + 300000\n        ? usage : { status: 'unavailable', measuredAt: automationMeasuredAt, errorCode: 'usage_unavailable' };\n    }\n    if (automation.executionHistoryAvailable) {\n      const last = automation.lastExecution;\n      const failures = integer(automation.failureCount24h);\n      if (!exact(last, [\"workflowId\", \"status\", \"startedAt\", \"finishedAt\", \"durationMs\"]) || !workflowIds.includes(last.workflowId) || typeof last.status !== \"string\" || failures === null) throw new Error(\"invalid\");\n      const startedAt = iso(last.startedAt), finishedAt = last.finishedAt === null ? null : iso(last.finishedAt), durationMs = last.durationMs === null ? null : integer(last.durationMs);\n      if (!startedAt || (last.finishedAt !== null && !finishedAt) || (last.durationMs !== null && durationMs === null)) throw new Error(\"invalid\");\n      cleanAutomation.lastExecution = { workflowId: last.workflowId, status: last.status.slice(0, 40), startedAt, finishedAt, durationMs };\n      cleanAutomation.failureCount24h = failures;\n    } else if (automation.lastExecution !== null || automation.failureCount24h !== null) throw new Error(\"invalid\");\n    let backupCatalog;\n    if (body.backupCatalog !== undefined) {\n      const catalog = body.backupCatalog, ids = [\"dashboard-n8n\", \"example-app-source\"], phases = [\"idle\",\"preparing\",\"snapshotting\",\"uploading\",\"verifying\",\"complete\",\"failed\",\"unavailable\"];\n      if (!exact(catalog,[\"schemaVersion\",\"generatedAt\",\"libraries\"]) || catalog.schemaVersion !== 1 || !iso(catalog.generatedAt) || !Array.isArray(catalog.libraries) || catalog.libraries.length !== 2) throw new Error(\"invalid\");\n      const libraries = catalog.libraries.map(library => {\n        if (!exact(library,[\"id\",\"name\",\"mode\",\"setup\",\"eligibleForSync\",\"phase\",\"summary\",\"destinations\",\"sourceLogicalBytes\"]) || !ids.includes(library.id) || library.mode !== \"active-sync\" || ![\"initialized\",\"not-initialized\",\"unavailable\"].includes(library.setup) || typeof library.eligibleForSync !== \"boolean\" || !phases.includes(library.phase) || typeof library.name !== \"string\" || library.name.length > 96 || typeof library.summary !== \"string\" || library.summary.length > 320 || !Array.isArray(library.destinations) || library.destinations.length > 8 || !(library.sourceLogicalBytes === undefined || library.sourceLogicalBytes === null || integer(library.sourceLogicalBytes) !== null)) throw new Error(\"invalid\");\n        const destinations = library.destinations.map(dest => {\n          if (!exact(dest,[\"id\",\"label\",\"kind\",\"status\",\"lastSnapshot\",\"lastVerification\",\"history\",\"repositoryBytes\",\"repositoryBytesStatus\",\"repositoryBytesMeasuredAt\"]) || typeof dest.id !== \"string\" || dest.id.length > 128 || typeof dest.label !== \"string\" || dest.label.length > 96 || ![\"google-drive\",\"external-drive\"].includes(dest.kind) || ![\"current\",\"stale\",\"error\",\"unavailable\",\"not-initialized\"].includes(dest.status) || !Array.isArray(dest.history) || dest.history.length > 100) throw new Error(\"invalid\");\n          const hasMetric = dest.repositoryBytes !== undefined || dest.repositoryBytesStatus !== undefined || dest.repositoryBytesMeasuredAt !== undefined;\n          if (hasMetric && !((dest.repositoryBytesStatus === \"measured\" && integer(dest.repositoryBytes) !== null && iso(dest.repositoryBytesMeasuredAt)) || (dest.repositoryBytesStatus === \"unavailable\" && dest.repositoryBytes === null && dest.repositoryBytesMeasuredAt === null))) throw new Error(\"invalid\");\n          const snapshot = dest.lastSnapshot === null ? null : dest.lastSnapshot, verification = dest.lastVerification === null ? null : dest.lastVerification;\n          if (snapshot && (!exact(snapshot,[\"snapshotId\",\"createdAt\",\"sizeBytes\"]) || typeof snapshot.snapshotId !== \"string\" || !iso(snapshot.createdAt) || !(snapshot.sizeBytes === null || integer(snapshot.sizeBytes) !== null))) throw new Error(\"invalid\");\n          if (verification && (!exact(verification,[\"status\",\"verifiedAt\",\"snapshotId\"]) || ![\"passed\",\"failed\"].includes(verification.status) || !iso(verification.verifiedAt) || !(verification.snapshotId === null || typeof verification.snapshotId === \"string\"))) throw new Error(\"invalid\");\n          const history = dest.history.map(event => { if (!exact(event,[\"id\",\"kind\",\"status\",\"occurredAt\",\"snapshotId\",\"summary\"]) || typeof event.id !== \"string\" || ![\"snapshot\",\"verification\",\"offload\"].includes(event.kind) || ![\"succeeded\",\"failed\"].includes(event.status) || !iso(event.occurredAt) || !(event.snapshotId === null || typeof event.snapshotId === \"string\") || typeof event.summary !== \"string\" || event.summary.length > 320) throw new Error(\"invalid\"); return {...event,occurredAt:iso(event.occurredAt)}; });\n          return {...dest,lastSnapshot:snapshot?{...snapshot,createdAt:iso(snapshot.createdAt)}:null,lastVerification:verification?{...verification,verifiedAt:iso(verification.verifiedAt)}:null,history};\n        }); return {...library,destinations};\n      });\n      if (new Set(libraries.map(item=>item.id)).size !== 2) throw new Error(\"invalid\");\n      backupCatalog = {schemaVersion:1,generatedAt:iso(catalog.generatedAt),libraries};\n    }\n    return { surface: \"recovery\", observedAt: generatedAt, status: \"ok\", data: { schemaVersion: 1, generatedAt, backupFolder: { name: \"Dupdash Backups\", bytes, objects, measuredAt }, restoreChecks, automation: cleanAutomation, ...(backupCatalog ? {backupCatalog} : {}) } };\n  } catch {\n    return { surface: \"recovery\", observedAt: new Date(errorObservedAt).toISOString(), status: \"error\", errorCode: \"invalid_response\" };\n  }\n}\nreturn [{json: projectRecoveryResponse($json)}];"
+      },
+      "id": "project",
+      "name": "Sanitize recovery telemetry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -100,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dashboard:3000/api/n8n/operations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "id": "deliver",
+      "name": "Deliver operation observation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        160,
+        40
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashDashboardIngest",
+          "name": "Dupdash dashboard intake"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    }
+  ],
+  "connections": {
+    "Every 5 minutes": {
+      "main": [
+        [
+          {
+            "node": "Read internal recovery feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Read internal recovery feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read internal recovery feed": {
+      "main": [
+        [
+          {
+            "node": "Sanitize recovery telemetry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize recovery telemetry": {
+      "main": [
+        [
+          {
+            "node": "Deliver operation observation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "executionTimeout": 60
+  },
+  "pinData": {},
+  "tags": []
+}

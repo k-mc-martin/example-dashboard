@@ -1,0 +1,460 @@
+{
+  "gitleaks-dir": [],
+  "inspector": {
+    "negotiated": {
+      "serverInfo": {
+        "name": "dupdash-stdio-fixture",
+        "version": "1"
+      },
+      "protocolVersion": "2026-07-28",
+      "capabilities": {
+        "tools": {}
+      }
+    },
+    "tools/list": {
+      "tools": [
+        {
+          "name": "fixture_status",
+          "description": "Read the status of a fictional provider.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          }
+        }
+      ]
+    },
+    "tools/call": {
+      "content": [
+        {
+          "type": "text",
+          "text": "fictional provider ready"
+        }
+      ]
+    }
+  },
+  "k6": {
+    "checks": {
+      "passes": 15,
+      "fails": 0,
+      "thresholds": {
+        "rate==1": false
+      },
+      "value": 1
+    },
+    "completed_role_sessions": {
+      "count": 3,
+      "rate": 110.62456787278174,
+      "thresholds": {
+        "count==3": false
+      }
+    },
+    "iterations": {
+      "rate": 110.62456787278174,
+      "count": 3
+    },
+    "http_reqs": {
+      "count": 18,
+      "rate": 663.7474072366905
+    },
+    "http_req_failed": {
+      "passes": 0,
+      "fails": 18,
+      "thresholds": {
+        "rate==0": false
+      },
+      "value": 0
+    }
+  },
+  "osv": {
+    "packagesScanned": 849,
+    "matches": [
+      {
+        "name": "@babel/core",
+        "version": "7.29.0",
+        "advisories": [
+          "GHSA-4x5r-pxfx-6jf8"
+        ]
+      },
+      {
+        "name": "baseline-browser-mapping",
+        "version": "2.10.30",
+        "advisories": [
+          "GHSA-w5vr-8v7q-w6rv"
+        ]
+      },
+      {
+        "name": "brace-expansion",
+        "version": "1.1.14",
+        "advisories": [
+          "GHSA-3jxr-9vmj-r5cp",
+          "GHSA-6j4f-fj2g-mc7p",
+          "GHSA-mh99-v99m-4gvg",
+          "GHSA-q2hr-2g5m-vwhr",
+          "GHSA-qhr7-859c-m2p7",
+          "GHSA-rgw5-rvv9-x895"
+        ]
+      },
+      {
+        "name": "brace-expansion",
+        "version": "5.0.6",
+        "advisories": [
+          "GHSA-3jxr-9vmj-r5cp",
+          "GHSA-6j4f-fj2g-mc7p",
+          "GHSA-mh99-v99m-4gvg",
+          "GHSA-q2hr-2g5m-vwhr",
+          "GHSA-qhr7-859c-m2p7",
+          "GHSA-rgw5-rvv9-x895"
+        ]
+      },
+      {
+        "name": "browserslist",
+        "version": "4.28.2",
+        "advisories": [
+          "GHSA-73wf-gq98-2v4g",
+          "GHSA-c83g-rgw3-j3cx"
+        ]
+      },
+      {
+        "name": "esbuild",
+        "version": "0.18.20",
+        "advisories": [
+          "GHSA-67mh-4wv8-2f99"
+        ]
+      },
+      {
+        "name": "esbuild",
+        "version": "0.27.3",
+        "advisories": [
+          "GHSA-g7r4-m6w7-qqqr"
+        ]
+      },
+      {
+        "name": "esbuild",
+        "version": "0.28.0",
+        "advisories": [
+          "GHSA-g7r4-m6w7-qqqr"
+        ]
+      },
+      {
+        "name": "fast-uri",
+        "version": "3.1.7",
+        "advisories": [
+          "GHSA-333x-w4r6-6crp",
+          "GHSA-hrr3-gc8f-f4qj",
+          "GHSA-w74x-v6f9-j3xg",
+          "GHSA-wjr9-j795-jxcr",
+          "GHSA-xhq7-xmqj-769h"
+        ]
+      },
+      {
+        "name": "fflate",
+        "version": "0.7.4",
+        "advisories": [
+          "GHSA-px8p-9vwx-vf98"
+        ]
+      },
+      {
+        "name": "image-size",
+        "version": "2.0.2",
+        "advisories": [
+          "GHSA-5p2g-fcmc-qvqq",
+          "GHSA-w3rx-r6r6-pgpr"
+        ]
+      },
+      {
+        "name": "js-yaml",
+        "version": "4.1.1",
+        "advisories": [
+          "GHSA-2883-xcg3-v3hh",
+          "GHSA-52cp-r559-cp3m",
+          "GHSA-5p4m-2wfm-xmqj",
+          "GHSA-h67p-54hq-rp68"
+        ]
+      },
+      {
+        "name": "minimatch",
+        "version": "10.2.5",
+        "advisories": [
+          "GHSA-g3hv-75wg-m249"
+        ]
+      },
+      {
+        "name": "next",
+        "version": "16.3.4",
+        "advisories": [
+          "GHSA-2464-fhr4-w9xw",
+          "GHSA-39w2-rjm5-chcv",
+          "GHSA-3w37-wq28-93x7",
+          "GHSA-4jqv-mc3x-m676",
+          "GHSA-673q-mjm6-r5xr",
+          "GHSA-cjq9-62q9-8jv4",
+          "GHSA-f87g-xv8r-7p7x",
+          "GHSA-h694-7cp9-m8p3",
+          "GHSA-mcj8-r9mp-w47p",
+          "GHSA-p3m5-59mp-jv5r",
+          "GHSA-vcvr-r3jv-pc5j"
+        ]
+      },
+      {
+        "name": "react-server-dom-webpack",
+        "version": "19.2.6",
+        "advisories": [
+          "GHSA-wx67-qw84-cm4g",
+          "GHSA-xqc2-xf4c-x3h3"
+        ]
+      },
+      {
+        "name": "satori",
+        "version": "0.16.0",
+        "advisories": [
+          "GHSA-wx4j-mvgx-mqwp"
+        ]
+      },
+      {
+        "name": "sharp",
+        "version": "0.35.4",
+        "advisories": [
+          "GHSA-wq5f-xc86-pv6w"
+        ]
+      },
+      {
+        "name": "source-map-js",
+        "version": "1.2.1",
+        "advisories": [
+          "GHSA-68fv-2mgg-jv7q"
+        ]
+      },
+      {
+        "name": "undici",
+        "version": "7.24.8",
+        "advisories": [
+          "GHSA-2gqq-gqf2-x968",
+          "GHSA-2jfj-6hjv-fm6j",
+          "GHSA-2m5v-pch6-74hx",
+          "GHSA-35p6-xmwp-9g52",
+          "GHSA-3xpg-4rpp-hhhm",
+          "GHSA-4cwx-7wf7-3272",
+          "GHSA-4qv8-2p9j-2685",
+          "GHSA-4w7w-5xrc-9h26",
+          "GHSA-55wc-3pg8-jfw6",
+          "GHSA-8436-99hf-9mmv",
+          "GHSA-8xcm-r25x-g524",
+          "GHSA-9fm3-97px-rjf6",
+          "GHSA-f72v-6w45-q472",
+          "GHSA-g8m3-5g58-fq7m",
+          "GHSA-hm92-r4w5-c3mj",
+          "GHSA-jr45-8vmc-qm54",
+          "GHSA-m8rv-5g2x-5cg5",
+          "GHSA-p88m-4jfj-68fv",
+          "GHSA-pmjh-fq2x-6v4x",
+          "GHSA-pr7r-676h-xcf6",
+          "GHSA-qrxm-fqhp-jwvm",
+          "GHSA-r53p-7pc4-xj5r",
+          "GHSA-rfgv-xxqx-mfg5",
+          "GHSA-rx4f-c7p8-82vq",
+          "GHSA-v3r7-h72x-cjcm",
+          "GHSA-vmh5-mc38-953g",
+          "GHSA-vxpw-j846-p89q",
+          "GHSA-w293-vg96-wgc3",
+          "GHSA-xjj6-f33q-929c"
+        ]
+      },
+      {
+        "name": "vite",
+        "version": "8.0.13",
+        "advisories": [
+          "GHSA-587h-7wmj-h5pm",
+          "GHSA-698v-4r3x-3vcv",
+          "GHSA-9jrq-w75r-8gcw",
+          "GHSA-fx2h-pf6j-xcff",
+          "GHSA-r825-w8mm-5pxw",
+          "GHSA-rq7h-c2jc-7f22",
+          "GHSA-v6wh-96g9-6wx3"
+        ]
+      },
+      {
+        "name": "ws",
+        "version": "8.18.0",
+        "advisories": [
+          "GHSA-58qx-3vcg-4xpx",
+          "GHSA-96hv-2xvq-fx4p"
+        ]
+      },
+      {
+        "name": "zod",
+        "version": "3.25.76",
+        "advisories": [
+          "GHSA-mrhx-c7xc-m3w5"
+        ]
+      }
+    ]
+  },
+  "owasp-mappings": {
+    "scope": "Account exercise reference mappings. Test outcomes are in the account report.",
+    "catalog": "https://raw.githubusercontent.com/OWASP/ASVS/5cf9b032440be53ce345ab3c130fda46ba1ce7a2/5.0/docs_en/OWASP_Application_Security_Verification_Standard_5.0.0_en.csv",
+    "catalogRequirements": 345,
+    "automated": [
+      "v5.0.0-3.3.1",
+      "v5.0.0-3.3.2",
+      "v5.0.0-3.3.3",
+      "v5.0.0-7.2.1",
+      "v5.0.0-7.2.2",
+      "v5.0.0-7.2.4",
+      "v5.0.0-7.3.2",
+      "v5.0.0-7.4.1",
+      "v5.0.0-8.2.1",
+      "v5.0.0-8.2.2",
+      "v5.0.0-8.2.3",
+      "v5.0.0-8.3.1",
+      "v5.0.0-8.3.2",
+      "v5.0.0-8.4.1"
+    ],
+    "manual": [
+      "v5.0.0-7.2.3",
+      "v5.0.0-7.4.4",
+      "v5.0.0-8.1.1",
+      "v5.0.0-8.1.2"
+    ],
+    "WSTG": {
+      "WSTG-v42-ATHZ-02": {
+        "procedure": "https://raw.githubusercontent.com/OWASP/wstg/dd33419e10edb22b78d89325a6c2aad9f184e3a2/document/4-Web_Application_Security_Testing/05-Authorization_Testing/02-Testing_for_Bypassing_Authorization_Schema.md",
+        "scenario": "Allowed reads and backup writes for three roles"
+      },
+      "WSTG-v42-ATHZ-03": {
+        "procedure": "https://raw.githubusercontent.com/OWASP/wstg/dd33419e10edb22b78d89325a6c2aad9f184e3a2/document/4-Web_Application_Security_Testing/05-Authorization_Testing/03-Testing_for_Privilege_Escalation.md",
+        "scenario": "Independent member session enforces live grants and revocations"
+      },
+      "WSTG-v42-ATHZ-04": {
+        "procedure": "https://raw.githubusercontent.com/OWASP/wstg/dd33419e10edb22b78d89325a6c2aad9f184e3a2/document/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References.md",
+        "scenario": "Objects and sessions stay within the visitor workspace"
+      },
+      "WSTG-v42-SESS-06": {
+        "procedure": "https://raw.githubusercontent.com/OWASP/wstg/dd33419e10edb22b78d89325a6c2aad9f184e3a2/document/4-Web_Application_Security_Testing/06-Session_Management_Testing/06-Testing_for_Logout_Functionality.md",
+        "scenario": "Reject forged identity, stale login and cross-origin logout"
+      }
+    }
+  },
+  "semgrep": {
+    "filesScanned": 178,
+    "matches": [
+      {
+        "rule": "unescaped-sql-interpolation",
+        "path": "/src/lib/feedback-store.ts",
+        "line": 144
+      },
+      {
+        "rule": "unescaped-sql-interpolation",
+        "path": "/src/lib/feedback-store.ts",
+        "line": 151
+      },
+      {
+        "rule": "unescaped-sql-interpolation",
+        "path": "/src/lib/inbound-drive-storage.ts",
+        "line": 72
+      },
+      {
+        "rule": "unescaped-sql-interpolation",
+        "path": "/src/lib/inbound-drive-storage.ts",
+        "line": 73
+      },
+      {
+        "rule": "unescaped-sql-interpolation",
+        "path": "/src/lib/inbound-drive-storage.ts",
+        "line": 74
+      }
+    ]
+  },
+  "summary": {
+    "generatedAt": "2026-11-11T01:19:06.875682+00:00",
+    "commit": null,
+    "sourceSha256": "75202701cb630ca1efa38bf506e4552aae0fc6c4fd2fba05e8ec0001a15097f2",
+    "images": {
+      "gitleaks": "zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f",
+      "semgrep": "semgrep/semgrep:1.171.0@sha256:bdf7013b2c3634a487671158da77c554f531742326b543a9464d2adf6c433ac8",
+      "osv": "ghcr.io/google/osv-scanner:v2.7.1@sha256:a70ffffc2bfd33482953e5d6b64c6fcdb30239717a07b0f0d3ab2859ce3e4cde",
+      "inspector": "ghcr.io/modelcontextprotocol/inspector:2.14.0@sha256:3d2834aa15cac87b5d17c680ad8db4e36a0ac2360c270057b80baf96579eeb66",
+      "k6": "grafana/k6:2.3.0@sha256:2dd4756ec6e14e62778916e1eb850108e4b499304c02df56760fa0bdb0fba0b8",
+      "zap": "ghcr.io/zaproxy/zaproxy:2.17.0@sha256:9624669db72f54d86c4b46a7064518bd9bf79d8c61a4c31befa9923489f328af"
+    },
+    "checks": {
+      "OWASP references and mappings": {
+        "status": "passed",
+        "detail": "18 ASVS requirement references and 4 WSTG procedures validated"
+      },
+      "Gitleaks source": {
+        "status": "passed",
+        "detail": "0 flagged matches"
+      },
+      "Gitleaks full history": {
+        "status": "pending",
+        "detail": "No commits in this repository yet"
+      },
+      "Gitleaks deleted-secret control": {
+        "status": "passed",
+        "detail": "Detected a synthetic token deleted before HEAD"
+      },
+      "Semgrep source": {
+        "status": "findings",
+        "detail": "178 source files, 5 rule matches"
+      },
+      "Semgrep rule controls": {
+        "status": "passed",
+        "detail": "Each local rule detected its seeded example"
+      },
+      "OSV dependencies": {
+        "status": "findings",
+        "detail": "849 package versions, 80 distinct advisories across 22 affected versions"
+      },
+      "MCP Inspector stdio": {
+        "status": "passed",
+        "detail": "Discovered and called the offline fixture tool"
+      },
+      "Application and provider harness": {
+        "status": "passed",
+        "detail": "tests 29, pass 29, fail 0"
+      },
+      "Provider delivery via n8n": {
+        "status": "passed",
+        "detail": "Verified provider delivery, retries, workspace isolation and backup completion"
+      },
+      "k6 mixed roles": {
+        "status": "passed",
+        "detail": "15 checks in 3 role sessions"
+      },
+      "ZAP passive API baseline": {
+        "status": "findings",
+        "detail": "4 alert types, highest risk medium"
+      }
+    }
+  },
+  "zap": {
+    "target": "http://127.0.0.1:5286",
+    "alerts": [
+      {
+        "pluginid": "10038",
+        "alert": "Content Security Policy (CSP) Header Not Set",
+        "riskcode": "2",
+        "count": "1"
+      },
+      {
+        "pluginid": "10037",
+        "alert": "Server Leaks Information via \"X-Powered-By\" HTTP Response Header Field(s)",
+        "riskcode": "1",
+        "count": "1"
+      },
+      {
+        "pluginid": "10109",
+        "alert": "Modern Web Application",
+        "riskcode": "0",
+        "count": "1"
+      },
+      {
+        "pluginid": "10112",
+        "alert": "Session Management Response Identified",
+        "riskcode": "0",
+        "count": "1"
+      }
+    ]
+  }
+}

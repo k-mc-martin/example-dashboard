@@ -1,0 +1,65 @@
+name: Account permissions evidence
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      evidence: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - id: stack
+        name: Build and start fictional providers, n8n and dashboard
+        run: |
+          npm run demo:up
+          curl --fail --silent --output /dev/null --retry 15 --retry-connrefused http://127.0.0.1:5286/
+      - name: Run account checks and render evidence
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        env:
+          DEMO_STACK_OUTCOME: ${{ steps.stack.outcome }}
+        run: |
+          rm -f docs/security/evidence/accounts/{results.json,report.md,checks.tap}
+          npm run verify:accounts
+      - id: upload
+        name: Keep the generated report and test output
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: account-permissions-evidence
+          path: docs/security/evidence/accounts/
+          if-no-files-found: error
+      - if: always()
+        run: docker compose -f infra/simulation/compose.yml down -v
+
+  release-evidence:
+    needs: verify
+    if: ${{ !cancelled() && github.event_name == 'release' && needs.verify.outputs.evidence != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Attach evidence from this run to its tagged release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name account-permissions-evidence --dir account-permissions
+          zip -j account-permissions-evidence.zip account-permissions/{report.md,results.json,checks.tap}
+          gh release upload "$RELEASE_TAG" account-permissions-evidence.zip --repo "$GITHUB_REPOSITORY"

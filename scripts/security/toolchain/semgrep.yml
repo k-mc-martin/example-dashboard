@@ -1,0 +1,22 @@
+rules:
+  - id: javascript-dynamic-code
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Review dynamic execution of JavaScript in the connector.
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+  - id: disabled-tls-validation
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Keep certificate validation enabled for provider requests.
+    pattern-either:
+      - pattern: "({..., rejectUnauthorized: false, ...})"
+      - pattern: process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+  - id: unescaped-sql-interpolation
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Bind variable SQL parameters and review interpolated identifiers.
+    pattern-either:
+      - pattern: $DB.prepare(`...${$X}...`)
+      - pattern: $DB.exec(`...${$X}...`)

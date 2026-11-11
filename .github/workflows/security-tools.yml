@@ -1,0 +1,46 @@
+name: Security tools
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Run scanners and exercise the isolated demo
+        run: python3 scripts/security/toolchain/verify.py
+      - name: Upload sanitized evidence including open findings
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: security-tool-evidence
+          path: artifacts/security-tools/*.json
+          if-no-files-found: error
+
+  release-evidence:
+    needs: verify
+    if: ${{ !cancelled() && github.event_name == 'release' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Attach this run's evidence to its release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name security-tool-evidence --dir evidence
+          zip -j security-tool-evidence.zip evidence/*.json
+          gh release upload "$RELEASE_TAG" security-tool-evidence.zip --repo "$GITHUB_REPOSITORY" --clobber

@@ -1,0 +1,38 @@
+# Dupdash security verification
+
+From the demo checkout, run `npm run verify:tools`. You need Docker with Compose v2.24.4 or newer, Git, curl, Python 3.9+ and npm. The Python entry point also works directly. On GitHub, open **Actions → Security tools** to inspect a run or run the suite in your fork. Each run records the commit when available, a digest of the checkout it scanned, tool image digests and the outcome of each check.
+
+The runner builds a disposable dashboard, n8n and nine fictional provider feeds. Both Compose networks are internal. It publishes zero host ports. The HTTP clients share only the test dashboard’s network namespace. OSV gets the npm lockfile, and the reference checker retrieves pinned public OWASP documents. The application receives no production keys. The runner removes the test stack and its temporary workspaces at the end.
+
+## Tools and coverage
+
+| Item | What the campaign can verify today |
+|---|---|
+| Codex / coding agent | Develops application-specific tests in the checkout. The checked-in tests run in CI without a model account or key. |
+| OWASP ASVS 5.0.0 | Each account scenario carries versioned requirement IDs. The suite checks both automated and manual mappings against the official release. The [account report](evidence/accounts/report.md) gives an outcome and method for each requirement in scope. |
+| OWASP WSTG 4.2 | Four published procedures are tied to specific account tests for authorization bypass, privilege escalation, cross-visitor object access and logout. See `owasp-mappings.json` in the run evidence. |
+| MCP Authorization Specification | The dashboard currently exposes a browser navigation helper. For a future remote MCP endpoint, exercise resource discovery, audience binding, scopes and token expiry against the protected resource. [Versioned authorization specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/index.md) |
+| MCP Security Best Practices | The remote connector exercise will need evidence for confused-deputy consent, token passthrough prevention and session isolation. These checks are pending. [Versioned security guidance](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices.md) |
+| MCP Inspector | Negotiates the July 2026 protocol over stdio, lists a synthetic tool and calls it. Validates the response with networking disabled. The result covers Inspector setup. |
+| OWASP ZAP Automation Framework | Sends five bounded requests as a signed-out visitor and a signed-in Employee, checks the expected 200/401/403 responses, waits for passive scanning and records alert IDs and risk. Medium or high alerts flag the run. Coverage comprises the landing page and two protected API routes. |
+| OSV-Scanner | Checks resolved versions in `package-lock.json` against current advisory data, including development dependencies. The report lists affected versions and advisory IDs. Runtime reachability needs separate triage. |
+| Gitleaks | Scans the Git-eligible worktree, including untracked source, and all reachable Git refs. A separate fixture commits and deletes a synthetic token to verify history detection. An empty history is reported as pending. |
+| Semgrep | Three checked-in JavaScript/TypeScript rules check for dynamic execution, disabled TLS validation and SQL interpolation. Seeded examples verify each rule. Review the flagged lines against their inputs. [Rules](../../scripts/security/toolchain/semgrep.yml) |
+| Grafana k6 | Three concurrent virtual users exercise Employee, Administrator and Owner access. Each gets an independent workspace. Thresholds require all checks and all three sessions to complete. This establishes a functional concurrency baseline. |
+| Custom application harness | Runs the account, independent-tab, revocation, isolation and provider suites, including a seeded response fault. The [manual verification log](accounts.md#manual-verification-log) records the owner’s browser observations. |
+| Provider stubs | A separate HTTP test drives fictional data through n8n and checks delivery, safe retries, isolation and simulated backup completion. |
+| GitHub Actions | Runs on pushes, pull requests, manual dispatch and published releases. The README badge follows `main`. The workflow publishes sanitized evidence even if a scanner flags a finding. [Workflow](../../.github/workflows/security-tools.yml) |
+
+## First local baseline
+
+On November 10, 2026, the account and provider harness passed 29 tests, the simulated n8n delivery passed, and k6 passed all 15 assertions across three role sessions. Gitleaks found zero matches in the source and caught the deleted fixture token. The demo checkout had no commits yet. Its public remote was empty, so the README badge was awaiting its first hosted run.
+
+OSV reported 80 distinct advisories across 22 of the 849 resolved package versions it scanned, including Next.js. Semgrep reported five SQL interpolation sites. The feedback queries build clauses from fixed fragments and bind the search values. The drive queries interpolate a fixed column list and a numeric constant. The five matches remain visible for review. ZAP reported a missing Content Security Policy on the landing page and disclosure of the framework through the X-Powered-By header. [Generated baseline and advisory IDs](evidence/tools/baseline.json)
+
+## Reading the evidence
+
+Open `artifacts/security-tools/summary.json` after a local run. Its neighboring JSON files contain rule IDs and locations, package versions and advisory IDs, ZAP alerts, k6 counts, Inspector replies and OWASP mappings. A run with findings, a failed tool, or a pending check returns a nonzero exit. Published GitHub releases attach the evidence ZIP to the tag. The full local failure log stays outside the upload directory.
+
+To record a new reviewable baseline, run `npm run verify:tools -- --save-baseline`. The evidence file is excluded from its own source fingerprint.
+
+The account report and its manual checks cover the account exercise. Overall ASVS level, broader authenticated API coverage, remote MCP authorization and deployment security each need their own evidence. A new exercise can add cases, map them to its requirements and include its outputs with the same workflow.

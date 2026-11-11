@@ -1,0 +1,83 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/.vinext/
+/out/
+/desktop/build/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+next-env.d.ts
+/dist/
+/.wrangler/
+# Checkout-local execution profile and tool state; never publish them.
+/.sites-runtime/
+/.agents/
+/.codex/
+/outputs/
+/work/
+
+# Local dashboard data and credentials
+.dev.vars*
+.env*
+!.env.example
+.wrangler/
+artifacts/
+/.node-data/
+
+# Local runtime state and credentials
+*.sqlite*
+*.db
+*.db-*
+*.key
+*.p12
+*.pfx
+*.log
+*.dump
+*.bak
+*.tgz
+*.tar*
+*.zip
+*.7z
+*.age
+**/__pycache__/
+**/secrets/
+**/credentials/
+infra/dashboard/data/
+.ssh/
+id_ed25519*
+id_rsa*
+credentials.json
+rclone.conf
+*.sql.gz
+*.db3
+*.sqlite3

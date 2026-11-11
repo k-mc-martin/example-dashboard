@@ -1,0 +1,211 @@
+{
+  "id": "DupdashLemonSqueezyOperational",
+  "name": "Dupdash — Lemon Squeezy operations (15 min)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -900,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://sales.dupdash.invalid/v1/orders",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter[store_id]",
+              "value": "100001"
+            },
+            {
+              "name": "page[size]",
+              "value": "100"
+            },
+            {
+              "name": "page[number]",
+              "value": "1"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.api+json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "paginationMode": "responseContainsNextURL",
+              "nextURL": "={{ (() => { const raw = $response.body?.links?.next; const initial = 'https://sales.dupdash.invalid/v1/orders'; if (!raw) return initial; const url = new URL(raw); if (url.protocol !== 'https:' || url.hostname !== 'sales.dupdash.invalid' || url.pathname !== '/v1/orders') throw Error('Lemon Squeezy returned an unexpected pagination URL'); if (url.searchParams.get('filter[store_id]') !== '100001') throw Error('Lemon Squeezy pagination dropped the store filter'); return url.toString(); })() }}",
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body?.links?.next }}",
+              "limitPagesFetched": true,
+              "maxRequests": 100
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "orders",
+      "name": "Read all store orders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -620,
+        40
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashLemonSqueezy",
+          "name": "Dupdash Lemon Squeezy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const statuses = [\"pending\",\"failed\",\"paid\",\"refunded\",\"partial_refund\",\"fraudulent\"];\nfunction unwrapResponse(value) {\n  if (value && typeof value === \"object\" && \"statusCode\" in value) {\n    const statusCode = Number(value.statusCode);\n    if (!Number.isInteger(statusCode) || statusCode < 200 || statusCode >= 300) return { ok: false, statusCode, raw: value };\n    return { ok: true, statusCode, body: value.body };\n  }\n  if (value?.error) {\n    const error = value.error;\n    const candidates = [error?.statusCode, error?.httpCode, error?.cause?.statusCode, error?.response?.statusCode, error?.response?.status];\n    let statusCode = candidates.map(Number).find(Number.isInteger);\n    if (!statusCode) {\n      const match = String(error?.message ?? \"\").match(/(?:status(?: code)?|response code)\\D{0,8}(\\d{3})/i);\n      if (match) statusCode = Number(match[1]);\n    }\n    return { ok: false, statusCode, raw: value };\n  }\n  return { ok: true, statusCode: 200, body: value };\n}\nfunction safeUpstreamError(responses) {\n  const failed = responses.map(unwrapResponse).find(result => !result.ok);\n  if (!failed) return null;\n  if (failed.statusCode === 401 || failed.statusCode === 403) return \"authorization_required\";\n  if (failed.statusCode === 429) return \"rate_limited\";\n  if (!Number.isInteger(failed.statusCode) || failed.statusCode >= 500) return \"provider_unavailable\";\n  return \"invalid_response\";\n}\nfunction emptySlice() { return { orderCount: 0, grossCents: 0, refundedCents: 0, netCents: 0, taxCents: 0, discountCents: 0, byStatus: [], byDay: [], byProduct: [] }; }\nfunction aggregateLemonSqueezy(pageBodies, observedAt = new Date().toISOString()) {\n  const pages = pageBodies.map(item => item?.json ?? item);\n  const orders = pages.flatMap(page => Array.isArray(page?.data) ? page.data : []);\n  if (!pages.length || pages.some(page => !page?.meta?.page)) throw new Error(\"invalid_response\");\n  const lastPage = Math.max(...pages.map(page => Number(page.meta.page.lastPage)));\n  const currentPages = new Set(pages.map(page => Number(page.meta.page.currentPage)));\n  const complete = Number.isSafeInteger(lastPage) && lastPage > 0 && Array.from({ length: lastPage }, (_, index) => index + 1).every(page => currentPages.has(page));\n  const slices = { live: emptySlice(), test: emptySlice() };\n  const maps = { live: { status: new Map(), day: new Map(), product: new Map() }, test: { status: new Map(), day: new Map(), product: new Map() } };\n  for (const entry of orders) {\n    const a = entry?.attributes;\n    if (entry?.type !== \"orders\" || String(a?.store_id) !== \"100001\" || !statuses.includes(a?.status)) throw new Error(\"invalid_response\");\n    const target = a.test_mode === true ? \"test\" : \"live\";\n    const slice = slices[target];\n    const gross = Number(a.total_usd), refunded = Number(a.refunded_amount_usd ?? 0), tax = Number(a.tax_usd ?? 0), discount = Number(a.discount_total_usd ?? 0);\n    if (![gross, refunded, tax, discount].every(Number.isSafeInteger) || [gross, refunded, tax, discount].some(value => value < 0) || refunded > gross) throw new Error(\"invalid_response\");\n    const financial = [\"paid\", \"refunded\", \"partial_refund\"].includes(a.status);\n    const countedGross = financial ? gross : 0, countedRefund = financial ? refunded : 0;\n    slice.orderCount += 1; slice.grossCents += countedGross; slice.refundedCents += countedRefund; slice.taxCents += financial ? tax : 0; slice.discountCents += financial ? discount : 0;\n    maps[target].status.set(a.status, (maps[target].status.get(a.status) ?? 0) + 1);\n    const date = String(a.created_at ?? \"\").slice(0, 10);\n    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) throw new Error(\"invalid_response\");\n    const day = maps[target].day.get(date) ?? { date, orderCount: 0, grossCents: 0, refundedCents: 0, netCents: 0 };\n    day.orderCount += 1; day.grossCents += countedGross; day.refundedCents += countedRefund; day.netCents = day.grossCents - day.refundedCents; maps[target].day.set(date, day);\n    const item = a.first_order_item;\n    if (item && Number.isSafeInteger(Number(item.product_id)) && Number.isSafeInteger(Number(item.variant_id))) {\n      const key = `${item.product_id}:${item.variant_id}`;\n      const product = maps[target].product.get(key) ?? { productId: Number(item.product_id), variantId: Number(item.variant_id), productName: String(item.product_name ?? \"Unknown\"), variantName: String(item.variant_name ?? \"Unknown\"), orderCount: 0, grossCents: 0 };\n      product.orderCount += 1; product.grossCents += countedGross; maps[target].product.set(key, product);\n    }\n  }\n  for (const target of [\"live\", \"test\"]) {\n    const slice = slices[target]; slice.netCents = slice.grossCents - slice.refundedCents;\n    slice.byStatus = statuses.filter(status => maps[target].status.has(status)).map(status => ({ status, count: maps[target].status.get(status) }));\n    slice.byDay = [...maps[target].day.values()].sort((a, b) => a.date.localeCompare(b.date)).slice(-366);\n    slice.byProduct = [...maps[target].product.values()].sort((a, b) => b.grossCents - a.grossCents).slice(0, 100);\n  }\n  return { surface: \"lemonsqueezy\", observedAt: new Date(observedAt).toISOString(), status: complete ? \"ok\" : \"partial\", ...(complete ? {} : { errorCode: \"incomplete_collection\" }), data: { storeId: \"100001\", currency: \"USD\", complete, pageCount: currentPages.size, ...slices } };\n}\nfunction aggregateLemonSqueezyResponses(items, observedAt = new Date().toISOString()) {\n  const responses = items.map(item => item?.json ?? item);\n  const errorCode = safeUpstreamError(responses);\n  const empty = { storeId: \"100001\", currency: \"USD\", complete: false, pageCount: 0, live: emptySlice(), test: emptySlice() };\n  if (errorCode) return { surface: \"lemonsqueezy\", observedAt: new Date(observedAt).toISOString(), status: \"error\", errorCode, data: empty };\n  try { return aggregateLemonSqueezy(responses.map(response => unwrapResponse(response).body), observedAt); }\n  catch { return { surface: \"lemonsqueezy\", observedAt: new Date(observedAt).toISOString(), status: \"error\", errorCode: \"invalid_response\", data: empty }; }\n}\nreturn [{json: aggregateLemonSqueezyResponses($input.all())}];"
+      },
+      "id": "project",
+      "name": "Aggregate without customer data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -300,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dashboard:3000/api/n8n/operations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "id": "deliver",
+      "name": "Deliver operation observation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        40
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "DupdashDashboardIngest",
+          "name": "Dupdash dashboard intake"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    }
+  ],
+  "connections": {
+    "Every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "Read all store orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Read all store orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read all store orders": {
+      "main": [
+        [
+          {
+            "node": "Aggregate without customer data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate without customer data": {
+      "main": [
+        [
+          {
+            "node": "Deliver operation observation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "executionTimeout": 300
+  },
+  "pinData": {},
+  "tags": []
+}

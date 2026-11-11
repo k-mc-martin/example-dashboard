@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS operational_observations (surface TEXT NOT NULL, observed_at TEXT NOT NULL, status TEXT NOT NULL, payload_json TEXT NOT NULL, received_at TEXT NOT NULL, PRIMARY KEY(surface, observed_at));
