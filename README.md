@@ -2,7 +2,7 @@
 
 [![Launch Dupdash](docs/launch-dupdash.svg)](https://vps-ca027b84.vps.ovh.us/launch)
 
-[Manual review worksheet](docs/security/manual-review.md) · [Browse the source in VS Code](https://github.dev/k-mc-martin/example-dashboard) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version)
+[Manual review results](docs/security/accounts.md#hosted-account-review-november-10-2026) · [Repeat the review](docs/security/manual-review.md) · [Browse the source in VS Code](https://github.dev/k-mc-martin/example-dashboard) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version)
 
 Dupdash is an interactive connector-security demo with fictional business activity. Each browser session gets its own eight-hour workspace. Sign in with a fictional account and choose **Generate new activity** to trigger a provider update. An open, visible dashboard also requests activity once a minute.
 

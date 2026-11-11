@@ -62,7 +62,7 @@ const results = {
   target: ci ? 'Demo stack built in GitHub Actions from this checkout' : 'Running loopback demo',
   automatedOutcome: passed ? 'Pass' : 'Incomplete or failed', stackSetupFailed: setupFailed,
   runnerExit:child.status, checks:outcomes, controls, rawOutput:'checks.tap',
-  followUp:'Independent review is pending. The scope is the account exercise. It carries no overall ASVS level claim.',
+  followUp:'This run covers automated account checks. The dated manual verification log identifies each human-reviewed revision and its exceptions.',
 };
 writeFileSync(file('results.json'), JSON.stringify(results, null, 2) + '\n');
 execFileSync(process.execPath, [resolve(dirname(fileURLToPath(import.meta.url)), 'render-report.mjs'),file('results.json')]);

@@ -1,4 +1,4 @@
-# Review the four open account controls
+# Review the four account controls
 
 [Launch Dupdash](https://vps-ca027b84.vps.ovh.us/launch) and open the [deployed commit](https://vps-ca027b84.vps.ovh.us/version). Follow the source link in that response to inspect the exact deployed version. On GitHub, press the period key to open that revision in the browser editor. For desktop VS Code, open the cloned repository and compare its checked-out commit with the deployed SHA.
 
@@ -15,4 +15,4 @@ Use the [session requirements](https://github.com/OWASP/ASVS/blob/v5.0.0_release
 
 ## Record your result
 
-Add your observations to the [manual verification log](accounts.md#manual-verification-log). For each row include the requirement ID, your name or reviewer handle, date, commit, environment, steps, expected and observed behavior, and a verdict. Use **Pass**, **Fail**, or **Not yet tested**. If a check covers only a subset of screens or feeds, list the remaining scope. For an exception, link the relevant source or a screenshot with session values removed. The automated report lists these four requirements as awaiting manual review.
+Add your observations to the [manual verification log](accounts.md#manual-verification-log). For each row include the requirement ID, your name or reviewer handle, date, commit, environment, steps, expected and observed behavior, and a verdict. Use **Pass**, **Fail**, or **Not yet tested**. If a check covers only a subset of screens or feeds, list the remaining scope. For an exception, link the relevant source or a screenshot with session values removed. The project owner’s November 10 verdicts and follow-up notes are in the [hosted review log](accounts.md#hosted-account-review-november-10-2026).
