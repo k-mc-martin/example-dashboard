@@ -4,7 +4,7 @@ import { inboundProviderConnection } from "../lib/inbound-provider-connection.ts
 
 const at = "2026-09-30T18:00:00-07:00";
 const valid = {
-  cloudflare: { accountId: "00000000000000000000000000000001", pagesProjects: ["dupdash-public", "dupdash-beta"], r2Bucket: "dupdash-downloads" },
+  cloudflare: { accountId: "00000000000000000000000000000001", pagesProjects: ["secdash-public", "secdash-beta"], r2Bucket: "secdash-downloads" },
   lemonsqueezy: { storeId: "100001", domain: "store.example.invalid" },
   godaddy: { domain: "example.invalid" },
   azure: { subscriptionId: "00000000-0000-4000-8000-000000000001", resourceGroup: "demo-signing-rg", resourceType: "Microsoft.CodeSigning/codeSigningAccounts", accountName: "demo-signing" },

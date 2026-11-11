@@ -11,7 +11,7 @@ export default defineConfig({
   root: path.join(desktopDirectory, "ui"),
   publicDir: path.join(projectRoot, "public"),
   envDir: false,
-  envPrefix: "DUPDASH_DESKTOP_PUBLIC_",
+  envPrefix: "SECDASH_DESKTOP_PUBLIC_",
   plugins: [react()],
   resolve: {
     alias: { "@": projectRoot },

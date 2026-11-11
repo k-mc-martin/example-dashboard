@@ -10,7 +10,7 @@ import "./recovery-environment.css";
 const UI_REFRESH_MS = 5_000;
 type SuccessfulSample = Extract<DriveStorageSample, { status: "ok" }>;
 type RestoreCheck = { checkedAt: string; requestedSnapshot: string; sourceCreatedAt?: string; ok: boolean; checksumsVerified?: number; credentialDecryptionVerified?: boolean; counts?: { credentials: number; users: number; workflows: number }; dashboard?: { databases: number; files: number }; serverDashboard?: { messages: number; tables: number } };
-type RecoveryData = { schemaVersion: 1; generatedAt: string; backupFolder: { name: "Dupdash Backups"; bytes: number; objects: number; measuredAt: string }; restoreChecks: RestoreCheck[] };
+type RecoveryData = { schemaVersion: 1; generatedAt: string; backupFolder: { name: "SecDash Backups"; bytes: number; objects: number; measuredAt: string }; restoreChecks: RestoreCheck[] };
 type RecoveryObservation = { surface: "recovery"; observedAt: string; receivedAt: string; status: "ok" | "partial" | "error"; data?: RecoveryData; errorCode?: string };
 const SUCCESS_SAMPLE = (sample: DriveStorageSample): sample is SuccessfulSample => sample.status === "ok" && deriveDriveStorageMetrics(sample) !== null;
 const errorCodes = new Set(["authorization_required", "provider_unavailable", "invalid_response"]);
@@ -43,7 +43,7 @@ function isRecoveryObservation(value: unknown): value is RecoveryObservation {
   if (item.surface === "recovery" && item.status === "error") return isTimestamp(item.observedAt) && isTimestamp(item.receivedAt) && typeof item.errorCode === "string" && ["authorization_required","provider_unavailable","rate_limited","invalid_response","incomplete_collection"].includes(item.errorCode);
   const folder = data?.backupFolder as Record<string, unknown> | undefined;
   return item.surface === "recovery" && item.status === "ok" && isTimestamp(item.observedAt) && isTimestamp(item.receivedAt)
-    && data?.schemaVersion === 1 && isTimestamp(data.generatedAt) && folder?.name === "Dupdash Backups" && nonNegative(folder.bytes) && nonNegative(folder.objects) && isTimestamp(folder.measuredAt)
+    && data?.schemaVersion === 1 && isTimestamp(data.generatedAt) && folder?.name === "SecDash Backups" && nonNegative(folder.bytes) && nonNegative(folder.objects) && isTimestamp(folder.measuredAt)
     && Array.isArray(data.restoreChecks) && data.restoreChecks.every(raw => { const check = raw as Record<string, unknown>; return isTimestamp(check.checkedAt) && typeof check.requestedSnapshot === "string" && typeof check.ok === "boolean"; });
 }
 

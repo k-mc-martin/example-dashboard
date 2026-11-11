@@ -12,8 +12,8 @@ const fixed = <T extends z.ZodRawShape>(provider: string, identity: T) => z.obje
 export const inboundProviderConnection = z.discriminatedUnion("provider", [
   fixed("cloudflare", {
     accountId: z.literal("00000000000000000000000000000001"),
-    pagesProjects: z.tuple([z.literal("dupdash-public"), z.literal("dupdash-beta")]),
-    r2Bucket: z.literal("dupdash-downloads"),
+    pagesProjects: z.tuple([z.literal("secdash-public"), z.literal("secdash-beta")]),
+    r2Bucket: z.literal("secdash-downloads"),
   }),
   fixed("lemonsqueezy", {
     storeId: z.literal("100001"),

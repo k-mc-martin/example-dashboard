@@ -14,11 +14,11 @@ const publicSummaries = {
 
 function configuration(): { base: string; token: string } | null {
   const values = process.env;
-  if (!values.DUPDASH_BACKUP_URL || !values.DUPDASH_BACKUP_TOKEN || values.DUPDASH_BACKUP_TOKEN.length < 32) return null;
+  if (!values.SECDASH_BACKUP_URL || !values.SECDASH_BACKUP_TOKEN || values.SECDASH_BACKUP_TOKEN.length < 32) return null;
   try {
-    const url = new URL(values.DUPDASH_BACKUP_URL);
+    const url = new URL(values.SECDASH_BACKUP_URL);
     if (url.protocol !== "http:" || url.hostname !== "127.0.0.1" || url.port !== "5780" || url.username || url.password || !["", "/"].includes(url.pathname) || url.search || url.hash) return null;
-    return { base: "http://127.0.0.1:5780", token: values.DUPDASH_BACKUP_TOKEN };
+    return { base: "http://127.0.0.1:5780", token: values.SECDASH_BACKUP_TOKEN };
   } catch { return null; }
 }
 

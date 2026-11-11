@@ -8,11 +8,11 @@ import { closeDb, getDb } from "../db/index.ts";
 import { channels } from "../lib/dashboard.ts";
 import { inboundMessage, messageKey } from "../lib/inbound.ts";
 
-const originalPath = process.env.DUPDASH_DATABASE_PATH;
+const originalPath = process.env.SECDASH_DATABASE_PATH;
 
 test("infrastructure is a distinct accepted dashboard category", () => {
   const parsed = inboundMessage.parse({
-    source: "dupdash-mail",
+    source: "secdash-mail",
     messageId: "infrastructure-category-contract",
     sender: "Provider status",
     subject: "Delivery failed",
@@ -27,18 +27,18 @@ test("infrastructure is a distinct accepted dashboard category", () => {
 });
 
 test("infrastructure intake persists unchanged content and contributes its own count", async t => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "dupdash-infrastructure-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "secdash-infrastructure-"));
   const databasePath = path.join(directory, "dashboard.sqlite");
-  process.env.DUPDASH_DATABASE_PATH = databasePath;
+  process.env.SECDASH_DATABASE_PATH = databasePath;
   t.after(() => {
     closeDb();
-    if (originalPath === undefined) delete process.env.DUPDASH_DATABASE_PATH;
-    else process.env.DUPDASH_DATABASE_PATH = originalPath;
+    if (originalPath === undefined) delete process.env.SECDASH_DATABASE_PATH;
+    else process.env.SECDASH_DATABASE_PATH = originalPath;
     fs.rmSync(directory, { recursive: true, force: true });
   });
 
   const message = inboundMessage.parse({
-    source: "dupdash-mail",
+    source: "secdash-mail",
     messageId: "infrastructure-storage",
     sender: "Provider status",
     subject: "Delivery failed",

@@ -94,9 +94,9 @@ const expectedAttentionDismissalColumns = [
 ] as const;
 
 function databasePath(): string {
-  const configured = process.env.DUPDASH_DATABASE_PATH;
-  if (!configured) throw new Error("DUPDASH_DATABASE_PATH is required.");
-  if (!isAbsolute(configured)) throw new Error("DUPDASH_DATABASE_PATH must be an absolute path.");
+  const configured = process.env.SECDASH_DATABASE_PATH;
+  if (!configured) throw new Error("SECDASH_DATABASE_PATH is required.");
+  if (!isAbsolute(configured)) throw new Error("SECDASH_DATABASE_PATH must be an absolute path.");
   return resolve(configured);
 }
 
@@ -220,7 +220,7 @@ export class SQLiteDatabase {
 let openDatabase: { path: string; database: SQLiteDatabase } | undefined;
 export function getDb(): SQLiteDatabase {
   const path = databasePath();
-  if (openDatabase && openDatabase.path !== path) throw new Error("DUPDASH_DATABASE_PATH changed while the database was open.");
+  if (openDatabase && openDatabase.path !== path) throw new Error("SECDASH_DATABASE_PATH changed while the database was open.");
   if (!openDatabase) openDatabase = { path, database: new SQLiteDatabase(path) };
   return openDatabase.database;
 }

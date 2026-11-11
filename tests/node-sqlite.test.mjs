@@ -11,9 +11,9 @@ const row = (id, subject) => [id, "sender@example.com", subject, "body", "2026-0
 const insert = `INSERT INTO messages (${fields.join(",")}) VALUES (${fields.map(() => "?").join(",")}) ON CONFLICT(id) DO UPDATE SET subject=excluded.subject,updated_at=excluded.updated_at`;
 
 test("persists across reopen and supports upsert/read/batch", async (t) => {
-  const directory = mkdtempSync(join(tmpdir(), "dupdash-db-"));
+  const directory = mkdtempSync(join(tmpdir(), "secdash-db-"));
   t.after(() => { closeDb(); rmSync(directory, { recursive: true }); });
-  process.env.DUPDASH_DATABASE_PATH = join(directory, "dashboard.sqlite");
+  process.env.SECDASH_DATABASE_PATH = join(directory, "dashboard.sqlite");
   await getDb().prepare(insert).bind(...row("one", "first")).run();
   await getDb().prepare(insert).bind(...row("one", "updated")).run();
   closeDb();
@@ -33,10 +33,10 @@ test("persists across reopen and supports upsert/read/batch", async (t) => {
 
 test("batch rejects foreign statements and rolls back on failure", async (t) => {
   closeDb();
-  const directory = mkdtempSync(join(tmpdir(), "dupdash-db-"));
-  const otherDirectory = mkdtempSync(join(tmpdir(), "dupdash-db-"));
+  const directory = mkdtempSync(join(tmpdir(), "secdash-db-"));
+  const otherDirectory = mkdtempSync(join(tmpdir(), "secdash-db-"));
   t.after(() => { closeDb(); rmSync(directory, { recursive: true }); rmSync(otherDirectory, { recursive: true }); });
-  process.env.DUPDASH_DATABASE_PATH = join(directory, "dashboard.sqlite");
+  process.env.SECDASH_DATABASE_PATH = join(directory, "dashboard.sqlite");
   const db = getDb();
   const other = new SQLiteDatabase(join(otherDirectory, "other.sqlite"));
   t.after(() => other.close());
@@ -47,18 +47,18 @@ test("batch rejects foreign statements and rolls back on failure", async (t) => 
 
 test("requires an absolute configured path", () => {
   closeDb();
-  delete process.env.DUPDASH_DATABASE_PATH;
+  delete process.env.SECDASH_DATABASE_PATH;
   assert.throws(() => getDb(), /required/);
-  process.env.DUPDASH_DATABASE_PATH = "relative.sqlite";
+  process.env.SECDASH_DATABASE_PATH = "relative.sqlite";
   assert.throws(() => getDb(), /absolute/);
 });
 
 test("refuses an existing incompatible schema without replacing it", (t) => {
   closeDb();
-  const directory = mkdtempSync(join(tmpdir(), "dupdash-db-"));
+  const directory = mkdtempSync(join(tmpdir(), "secdash-db-"));
   t.after(() => { closeDb(); rmSync(directory, { recursive: true }); });
   const path = join(directory, "dashboard.sqlite");
-  process.env.DUPDASH_DATABASE_PATH = path;
+  process.env.SECDASH_DATABASE_PATH = path;
   const native = new DatabaseSync(path);
   native.exec("CREATE TABLE messages (id text PRIMARY KEY NOT NULL)");
   native.close();

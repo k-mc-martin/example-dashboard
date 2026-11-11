@@ -5,11 +5,11 @@ import { DatabaseSync } from 'node:sqlite';
 import { defaultPermissions, demoAccounts, type DemoAccount, type DemoIdentity, type TeamPermissions } from './demo-permissions.ts';
 import { newMemberHost, lifetimeSeconds, memberHost, workspaceId } from './demo-session.ts';
 
-export const loginCookie = '__Host-dupdash_login';
+export const loginCookie = '__Host-secdash_login';
 let registry: DatabaseSync | undefined;
 function sessions() {
   if (registry) return registry;
-  const dir = process.env.DUPDASH_WORKSPACES;
+  const dir = process.env.SECDASH_WORKSPACES;
   if (!dir || !isAbsolute(dir)) throw Error('Demo workspace directory is missing');
   mkdirSync(dir, { recursive: true, mode: 0o700 });
   const db = new DatabaseSync(join(dir, 'demo-logins.sqlite'));
@@ -103,7 +103,7 @@ export function enterMemberTab(host: string, ticket: string) {
 
 // A visitor can try each fictional identity. Its sign-in pass applies to that workspace and account alone.
 export function demoPass(workspace: string, account: DemoIdentity) {
-  return createHmac('sha256', process.env.DUPDASH_SESSION_SECRET!).update('demo-login:' + workspace + ':' + account.id).digest('hex');
+  return createHmac('sha256', process.env.SECDASH_SESSION_SECRET!).update('demo-login:' + workspace + ':' + account.id).digest('hex');
 }
 export function issueLogin(workspace: string, id: unknown, pass: unknown) {
   const account = demoAccounts.find(entry => entry.id === id);

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { inboundFeedback } from "./feedback.ts";
 const sourceUrl = z.string().url().max(2048).refine(v => {
   const u = new URL(v);
-  return u.protocol === "https:" && !u.username && !u.password && ["inbox.dupdash.invalid", "messages.dupdash.invalid", "webmail.dupdash.invalid", "reader.dupdash.invalid"].includes(u.hostname);
+  return u.protocol === "https:" && !u.username && !u.password && ["inbox.secdash.invalid", "messages.secdash.invalid", "webmail.secdash.invalid", "reader.secdash.invalid"].includes(u.hostname);
 }, "Use a direct message link from the connected mail provider").nullable().optional();
 export const inboundMessage = z.object({
   source: z.string().trim().min(1).max(80).regex(/^[a-z0-9._-]+$/),

@@ -1,35 +1,35 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { demoAccounts } from './demo-permissions.ts';
 
-export const demoCookie = '__Host-dupdash_workspace';
+export const demoCookie = '__Host-secdash_workspace';
 export const lifetimeSeconds = 8 * 60 * 60;
 export function demoEnabled() {
-  return process.env.DUPDASH_DEMO_MODE === '1';
+  return process.env.SECDASH_DEMO_MODE === '1';
 }
 
 export function demoPort() {
-  return process.env.DUPDASH_DEMO_PORT || '5286';
+  return process.env.SECDASH_DEMO_PORT || '5286';
 }
 // Public hostnames come from deployment configuration. Forwarded headers cannot select an origin.
 export function demoScheme() {
-  return process.env.DUPDASH_PUBLIC_HOST ? 'https://' : 'http://';
+  return process.env.SECDASH_PUBLIC_HOST ? 'https://' : 'http://';
 }
 export function newMemberHost(id: string) {
-  if (!process.env.DUPDASH_PUBLIC_HOST) return 'member-' + randomBytes(16).toString('hex') + '.localhost:' + demoPort();
-  const domain = process.env.DUPDASH_MEMBER_DOMAIN;
+  if (!process.env.SECDASH_PUBLIC_HOST) return 'member-' + randomBytes(16).toString('hex') + '.localhost:' + demoPort();
+  const domain = process.env.SECDASH_MEMBER_DOMAIN;
   if (!domain || !/^[a-z0-9]+(?:[a-z0-9.-]*[a-z0-9])?$/.test(domain) || !demoAccounts.some(member => member.role !== 'Owner' && member.id === id)) {
     throw Error('Invalid hosted member configuration');
   }
   return id + '.' + domain;
 }
 export function memberHost(host: string | null) {
-  if (process.env.DUPDASH_PUBLIC_HOST) {
+  if (process.env.SECDASH_PUBLIC_HOST) {
     return demoAccounts.some(member => member.role !== 'Owner' && host === newMemberHost(member.id));
   }
   return !!host && host.endsWith(':' + demoPort()) && /^member-[a-f0-9]{32}\.localhost:[0-9]+$/.test(host);
 }
 export function primaryHost(host: string | null) {
-  if (process.env.DUPDASH_PUBLIC_HOST) return host === process.env.DUPDASH_PUBLIC_HOST;
+  if (process.env.SECDASH_PUBLIC_HOST) return host === process.env.SECDASH_PUBLIC_HOST;
   return host === 'localhost:' + demoPort() || host === '127.0.0.1:' + demoPort();
 }
 
@@ -45,7 +45,7 @@ export function demoOriginAllowed(request: Request) {
 }
 
 function sign(id: string, host?: string | null) {
-  const key = process.env.DUPDASH_SESSION_SECRET;
+  const key = process.env.SECDASH_SESSION_SECRET;
   if (!key || key.length < 32) throw Error('The demo session signing key is missing');
   return createHmac('sha256', key).update(memberHost(host ?? null) ? host + '/' + id : id).digest('hex');
 }

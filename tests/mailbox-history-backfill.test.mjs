@@ -42,14 +42,14 @@ function message(overrides = {}) {
     subject: "Subject",
     body: { contentType: "text", content: "Full body" },
     receivedDateTime: "2026-09-01T12:00:00Z",
-    webLink: "https://inbox.dupdash.invalid/mail/deeplink/read/id",
+    webLink: "https://inbox.secdash.invalid/mail/deeplink/read/id",
     ...overrides,
   };
 }
 
 test("maps two Graph pages and preserves unsorted delivery fields", async () => {
   const pages = [
-    { value: [message()], "@odata.nextLink": "https://mail.dupdash.invalid/v1.0/me/mailFolders/inbox/messages?$skip=25" },
+    { value: [message()], "@odata.nextLink": "https://mail.secdash.invalid/v1.0/me/mailFolders/inbox/messages?$skip=25" },
     { value: [message({ id: "graph-2", internetMessageId: "", subject: null, webLink: null })] },
   ];
   const result = await mapPages(pages);
@@ -119,7 +119,7 @@ test("workflow remains inactive, manual-only, and does not persist payloads", ()
 test("pagination uses a valid initial URL and completes after a final page", () => {
   const graphNode = workflow.nodes.find(node => node.name === "Read all Inbox pages");
   const pagination = graphNode.parameters.options.pagination.pagination;
-  const initialUrl = "https://mail.dupdash.invalid/v1.0/me/mailFolders/inbox/messages";
+  const initialUrl = "https://mail.secdash.invalid/v1.0/me/mailFolders/inbox/messages";
   assert.equal(evaluateExpression(pagination.nextURL, {}), initialUrl);
   assert.equal(evaluateExpression(pagination.nextURL, { body: { value: [] } }), initialUrl);
   assert.equal(evaluateExpression(pagination.completeExpression, { body: { value: [] } }), true);
@@ -131,7 +131,7 @@ test("pagination uses a valid initial URL and completes after a final page", () 
 
 test("workflow reads only Inbox metadata and bodies and contains no mail mutation", () => {
   const graphNode = workflow.nodes.find(node => node.name === "Read all Inbox pages");
-  assert.equal(graphNode.parameters.url, "https://mail.dupdash.invalid/v1.0/me/mailFolders/inbox/messages");
+  assert.equal(graphNode.parameters.url, "https://mail.secdash.invalid/v1.0/me/mailFolders/inbox/messages");
   assert.equal(graphNode.parameters.method, undefined);
   const selected = graphNode.parameters.queryParameters.parameters.find(parameter => parameter.name === "$select").value;
   assert.equal(selected.includes("attachments"), false);
@@ -140,7 +140,7 @@ test("workflow reads only Inbox metadata and bodies and contains no mail mutatio
 
 test("completion proof contains hashes and aggregates but no mailbox content", async () => {
   const mapped = await mapPages([
-    { value: [message({ body: { contentType: "text", content: "First 😀" }, receivedDateTime: "2026-09-01T12:00:00Z" })], "@odata.nextLink": "https://mail.dupdash.invalid/v1.0/me/mailFolders/inbox/messages?$skip=25" },
+    { value: [message({ body: { contentType: "text", content: "First 😀" }, receivedDateTime: "2026-09-01T12:00:00Z" })], "@odata.nextLink": "https://mail.secdash.invalid/v1.0/me/mailFolders/inbox/messages?$skip=25" },
     { value: [message({ id: "graph-2", internetMessageId: "<message-2@example.test>", body: { contentType: "text", content: "Second" }, receivedDateTime: "2026-09-02T12:00:00Z" })] },
   ]);
   const ids = ["a".repeat(64), "b".repeat(64)];

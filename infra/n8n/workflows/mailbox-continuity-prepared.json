@@ -1,6 +1,6 @@
 {
-  "id": "DupdashMailboxContinuityPrepared",
-  "name": "Dupdash — mailbox continuity (authorized, 15 minutes)",
+  "id": "SecDashMailboxContinuityPrepared",
+  "name": "SecDash — mailbox continuity (authorized, 15 minutes)",
   "active": false,
   "nodes": [
     {
@@ -52,7 +52,7 @@
       "parameters": {
         "resource": "table",
         "operation": "create",
-        "tableName": "dupdash_mail_continuity_ledger",
+        "tableName": "secdash_mail_continuity_ledger",
         "columns": {
           "column": [
             {
@@ -194,7 +194,7 @@
       "parameters": {
         "resource": "table",
         "operation": "create",
-        "tableName": "dupdash_mail_continuity_state",
+        "tableName": "secdash_mail_continuity_state",
         "columns": {
           "column": [
             {
@@ -231,7 +231,7 @@
         "dataTableId": {
           "__rl": true,
           "mode": "name",
-          "value": "dupdash_mail_continuity_state"
+          "value": "secdash_mail_continuity_state"
         },
         "matchType": "allConditions",
         "filters": {
@@ -272,7 +272,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const base='https://mail.dupdash.invalid/v1.0/me/mailFolders/inbox/messages';const parts=['%24top=25','%24orderby='+encodeURIComponent('receivedDateTime asc'),'%24select='+encodeURIComponent('id,internetMessageId,from,subject,body,receivedDateTime,webLink')];if($json.watermark){const t=Date.parse($json.watermark);if(!Number.isFinite(t))throw Error('Invalid checkpoint watermark');parts.push('%24filter='+encodeURIComponent('receivedDateTime ge '+new Date(t-600000).toISOString()));}return [{json:{...$json,startUrl:base+'?'+parts.join('&')}}];"
+        "jsCode": "const base='https://mail.secdash.invalid/v1.0/me/mailFolders/inbox/messages';const parts=['%24top=25','%24orderby='+encodeURIComponent('receivedDateTime asc'),'%24select='+encodeURIComponent('id,internetMessageId,from,subject,body,receivedDateTime,webLink')];if($json.watermark){const t=Date.parse($json.watermark);if(!Number.isFinite(t))throw Error('Invalid checkpoint watermark');parts.push('%24filter='+encodeURIComponent('receivedDateTime ge '+new Date(t-600000).toISOString()));}return [{json:{...$json,startUrl:base+'?'+parts.join('&')}}];"
       },
       "id": "start-url",
       "name": "Build overlapped Inbox URL",
@@ -305,7 +305,7 @@
           "pagination": {
             "pagination": {
               "paginationMode": "responseContainsNextURL",
-              "nextURL": "={{ (() => { const raw = $response.body?.['@odata.nextLink']; const initial = $('Build overlapped Inbox URL').first().json.startUrl; const inbox = RegExp(\"^https://mail[.]dupdash[.]invalid(?::443)?/v1[.]0/me/mailFolders(?:/inbox|[(]'inbox'[)]|%28%27inbox%27%29)/messages(?:[?]|$)\", \"i\"); if (!raw) return initial; if (typeof raw !== 'string' || !inbox.test(raw)) throw Error('Microsoft Graph returned an unexpected pagination URL'); return raw; })() }}",
+              "nextURL": "={{ (() => { const raw = $response.body?.['@odata.nextLink']; const initial = $('Build overlapped Inbox URL').first().json.startUrl; const inbox = RegExp(\"^https://mail[.]secdash[.]invalid(?::443)?/v1[.]0/me/mailFolders(?:/inbox|[(]'inbox'[)]|%28%27inbox%27%29)/messages(?:[?]|$)\", \"i\"); if (!raw) return initial; if (typeof raw !== 'string' || !inbox.test(raw)) throw Error('Microsoft Graph returned an unexpected pagination URL'); return raw; })() }}",
               "paginationCompleteWhen": "other",
               "completeExpression": "={{ !$response.body?.['@odata.nextLink'] }}",
               "limitPagesFetched": true,
@@ -331,14 +331,14 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashMailRead",
+          "id": "SecDashMailRead",
           "name": "Demo mailbox"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "const pages = $input.all().map(item => item.json);\nconst graphInboxUrl = RegExp(\"^https://mail[.]dupdash[.]invalid(?::443)?/v1[.]0/me/mailFolders(?:/inbox|[(]'inbox'[)]|%28%27inbox%27%29)/messages(?:[?]|$)\", \"i\");\nconst outlookMessageUrl = RegExp(\"^https://inbox[.]dupdash[.]invalid(?::443)?(?:/|$)\", \"i\");\nconst seen = new Set();\nconst output = [];\nfunction checkedNextLink(raw) {\n  if (raw === undefined || raw === null || raw === '') return null;\n  if (typeof raw !== 'string') throw new Error('Microsoft Graph pagination URL is not a string');\n  if (!graphInboxUrl.test(raw)) throw new Error('Microsoft Graph returned an unexpected pagination URL');\n  return raw;\n}\nfor (const page of pages) {\n  if (!page || !Array.isArray(page.value)) throw new Error('Microsoft Graph returned an invalid message page');\n  checkedNextLink(page['@odata.nextLink']);\n  for (const message of page.value) {\n    const providerId = typeof message?.internetMessageId === 'string' && message.internetMessageId.trim() ? message.internetMessageId.trim() : (typeof message?.id === 'string' ? message.id.trim() : '');\n    if (!providerId) throw new Error('Inbox message is missing both internetMessageId and Graph id');\n    if (providerId.length > 1000) throw new Error('Inbox message identifier exceeds the dashboard limit');\n    if (seen.has(providerId)) continue;\n    seen.add(providerId);\n    const sender = typeof message?.from?.emailAddress?.address === 'string' && message.from.emailAddress.address.trim() ? message.from.emailAddress.address.trim() : (typeof message?.from?.emailAddress?.name === 'string' ? message.from.emailAddress.name.trim() : '');\n    if (!sender) throw new Error('Inbox message is missing its sender');\n    if (sender.length > 500) throw new Error('Inbox message sender exceeds the dashboard limit');\n    const subject = message?.subject == null ? '' : String(message.subject);\n    if (subject.length > 1000) throw new Error('Inbox message subject exceeds the dashboard limit');\n    if (message?.body?.contentType?.toLowerCase() !== 'text' || typeof message?.body?.content !== 'string') throw new Error('Inbox message body was not returned as plain text');\n    const body = message.body.content;\n    if (body.length > 64000) throw new Error('Inbox message body exceeds 64,000 characters; it was not truncated or delivered');\n    const receivedAt = typeof message?.receivedDateTime === 'string' ? message.receivedDateTime : '';\n    if (!receivedAt || Number.isNaN(Date.parse(receivedAt))) throw new Error('Inbox message has an invalid receivedDateTime');\n    let sourceUrl = null;\n    if (message?.webLink != null && message.webLink !== '') {\n      if (typeof message.webLink !== 'string' || !outlookMessageUrl.test(message.webLink)) throw new Error('Inbox message webLink is outside the allowed Outlook hosts');\n      sourceUrl = message.webLink;\n    }\n    const payload = { source: 'dupdash-mail', messageId: providerId, sender, subject, body, receivedAt: new Date(receivedAt).toISOString(), category: 'unsorted', supportKind: null, sourceUrl };\n    if (Buffer.byteLength(JSON.stringify(payload), 'utf8') > 100000) throw new Error('Inbox message payload exceeds 100 KB; it was not truncated or delivered');\n    output.push({ json: payload });\n  }\n}\nreturn output.length ? output : [{ json: { emptyInbox: true } }];"
+        "jsCode": "const pages = $input.all().map(item => item.json);\nconst graphInboxUrl = RegExp(\"^https://mail[.]secdash[.]invalid(?::443)?/v1[.]0/me/mailFolders(?:/inbox|[(]'inbox'[)]|%28%27inbox%27%29)/messages(?:[?]|$)\", \"i\");\nconst outlookMessageUrl = RegExp(\"^https://inbox[.]secdash[.]invalid(?::443)?(?:/|$)\", \"i\");\nconst seen = new Set();\nconst output = [];\nfunction checkedNextLink(raw) {\n  if (raw === undefined || raw === null || raw === '') return null;\n  if (typeof raw !== 'string') throw new Error('Microsoft Graph pagination URL is not a string');\n  if (!graphInboxUrl.test(raw)) throw new Error('Microsoft Graph returned an unexpected pagination URL');\n  return raw;\n}\nfor (const page of pages) {\n  if (!page || !Array.isArray(page.value)) throw new Error('Microsoft Graph returned an invalid message page');\n  checkedNextLink(page['@odata.nextLink']);\n  for (const message of page.value) {\n    const providerId = typeof message?.internetMessageId === 'string' && message.internetMessageId.trim() ? message.internetMessageId.trim() : (typeof message?.id === 'string' ? message.id.trim() : '');\n    if (!providerId) throw new Error('Inbox message is missing both internetMessageId and Graph id');\n    if (providerId.length > 1000) throw new Error('Inbox message identifier exceeds the dashboard limit');\n    if (seen.has(providerId)) continue;\n    seen.add(providerId);\n    const sender = typeof message?.from?.emailAddress?.address === 'string' && message.from.emailAddress.address.trim() ? message.from.emailAddress.address.trim() : (typeof message?.from?.emailAddress?.name === 'string' ? message.from.emailAddress.name.trim() : '');\n    if (!sender) throw new Error('Inbox message is missing its sender');\n    if (sender.length > 500) throw new Error('Inbox message sender exceeds the dashboard limit');\n    const subject = message?.subject == null ? '' : String(message.subject);\n    if (subject.length > 1000) throw new Error('Inbox message subject exceeds the dashboard limit');\n    if (message?.body?.contentType?.toLowerCase() !== 'text' || typeof message?.body?.content !== 'string') throw new Error('Inbox message body was not returned as plain text');\n    const body = message.body.content;\n    if (body.length > 64000) throw new Error('Inbox message body exceeds 64,000 characters; it was not truncated or delivered');\n    const receivedAt = typeof message?.receivedDateTime === 'string' ? message.receivedDateTime : '';\n    if (!receivedAt || Number.isNaN(Date.parse(receivedAt))) throw new Error('Inbox message has an invalid receivedDateTime');\n    let sourceUrl = null;\n    if (message?.webLink != null && message.webLink !== '') {\n      if (typeof message.webLink !== 'string' || !outlookMessageUrl.test(message.webLink)) throw new Error('Inbox message webLink is outside the allowed Outlook hosts');\n      sourceUrl = message.webLink;\n    }\n    const payload = { source: 'secdash-mail', messageId: providerId, sender, subject, body, receivedAt: new Date(receivedAt).toISOString(), category: 'unsorted', supportKind: null, sourceUrl };\n    if (Buffer.byteLength(JSON.stringify(payload), 'utf8') > 100000) throw new Error('Inbox message payload exceeds 100 KB; it was not truncated or delivered');\n    output.push({ json: payload });\n  }\n}\nreturn output.length ? output : [{ json: { emptyInbox: true } }];"
       },
       "id": "validate-catchup",
       "name": "Validate complete catch-up",
@@ -369,7 +369,7 @@
         "dataTableId": {
           "__rl": true,
           "mode": "name",
-          "value": "dupdash_mail_continuity_ledger"
+          "value": "secdash_mail_continuity_ledger"
         },
         "matchType": "anyCondition",
         "filters": {
@@ -442,7 +442,7 @@
         "dataTableId": {
           "__rl": true,
           "mode": "name",
-          "value": "dupdash_mail_continuity_ledger"
+          "value": "secdash_mail_continuity_ledger"
         },
         "matchType": "allConditions",
         "filters": {
@@ -761,7 +761,7 @@
         "dataTableId": {
           "__rl": true,
           "mode": "name",
-          "value": "dupdash_mail_continuity_state"
+          "value": "secdash_mail_continuity_state"
         },
         "matchType": "allConditions",
         "filters": {

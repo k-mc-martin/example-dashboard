@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
-const root = await mkdtemp(join(tmpdir(), "dupdash-recovery-feed-"));
+const root = await mkdtemp(join(tmpdir(), "secdash-recovery-feed-"));
 const feedPath = join(root, "recovery.json"), statusPath = join(root, "status.json");
 process.env.NODE_ENV = "test";
 process.env.RECOVERY_FEED_PATH = feedPath;
@@ -21,7 +21,7 @@ async function request(now) {
 }
 async function fixtures(now, status = "ok") {
   const at = new Date(now).toISOString();
-  await writeFile(feedPath, JSON.stringify({ schemaVersion: 1, generatedAt: at, backupFolder: { name: "Dupdash Backups", bytes: 12, objects: 3, measuredAt: at }, restoreChecks: [] }));
+  await writeFile(feedPath, JSON.stringify({ schemaVersion: 1, generatedAt: at, backupFolder: { name: "SecDash Backups", bytes: 12, objects: 3, measuredAt: at }, restoreChecks: [] }));
   await writeFile(statusPath, JSON.stringify(status === "ok" ? { schemaVersion: 1, attemptedAt: at, status } : { schemaVersion: 1, attemptedAt: at, status, errorCode: "collection_failed" }));
 }
 

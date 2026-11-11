@@ -45,13 +45,13 @@ const countBytes = z.object({ key: shortText, count: safeInteger, bytes: safeInt
 export const cloudflareTelemetryDataSchema = z.object({
   accountId: z.string().regex(/^[a-f0-9]{32}$/),
   pages: z.array(z.object({
-    projectName: z.enum(["dupdash-public", "dupdash-beta"]),
+    projectName: z.enum(["secdash-public", "secdash-beta"]),
     complete: z.boolean(),
     deploymentsTruncated: z.boolean(),
     deployments: z.array(deployment).max(30),
   }).strict()).length(2).refine(items => new Set(items.map(item => item.projectName)).size === 2),
   r2: z.object({
-    bucketName: z.literal("dupdash-downloads"),
+    bucketName: z.literal("secdash-downloads"),
     complete: z.boolean(),
     objectsTruncated: z.boolean(),
     pageCount: safeInteger,

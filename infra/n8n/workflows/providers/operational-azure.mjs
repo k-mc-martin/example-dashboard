@@ -59,16 +59,16 @@ export function aggregateAzureResponses(accountResponse, profilesResponse, scope
 }
 
 const api = "2025-10-13";
-const base = `https://signing.dupdash.invalid${accountId}`;
+const base = `https://signing.secdash.invalid${accountId}`;
 const helpers = `${unwrapResponse.toString()}\n${safeUpstreamError.toString()}`;
 const scopesCode = `const subscriptionId=${JSON.stringify(subscriptionId)},resourceGroup=${JSON.stringify(resourceGroup)},accountName=${JSON.stringify(accountName)},accountId=${JSON.stringify(accountId)};\n${helpers}\n${buildAzureScopes.toString()}\n${buildAzureScopesResponses.toString()}\nreturn buildAzureScopesResponses($('Read signing account').first().json, $json).map(json => ({json}));`;
 const aggregateCode = `const subscriptionId=${JSON.stringify(subscriptionId)},resourceGroup=${JSON.stringify(resourceGroup)},accountName=${JSON.stringify(accountName)},accountId=${JSON.stringify(accountId)};\n${helpers}\n${aggregateAzure.toString()}\n${aggregateAzureResponses.toString()}\nreturn [{json: aggregateAzureResponses($('Read signing account').first().json, $('Read certificate profiles').first().json, $('Build exact RBAC scopes').all(), $input.all())}];`;
-export const definition = workflow("DupdashAzureOperational", "Dupdash — Azure signing operations (15 min)", [
+export const definition = workflow("SecDashAzureOperational", "SecDash — Azure signing operations (15 min)", [
   scheduleNode, manualNode,
-  httpNode({ id: "account", name: "Read signing account", url: base, credentialId: "DupdashAzureInventory", credentialName: "Dupdash Azure inventory", position: [-680, 40], query: [{ name: "api-version", value: api }] }),
-  httpNode({ id: "profiles", name: "Read certificate profiles", url: `${base}/certificateProfiles`, credentialId: "DupdashAzureInventory", credentialName: "Dupdash Azure inventory", position: [-420, 40], query: [{ name: "api-version", value: api }] }),
+  httpNode({ id: "account", name: "Read signing account", url: base, credentialId: "SecDashAzureInventory", credentialName: "SecDash Azure inventory", position: [-680, 40], query: [{ name: "api-version", value: api }] }),
+  httpNode({ id: "profiles", name: "Read certificate profiles", url: `${base}/certificateProfiles`, credentialId: "SecDashAzureInventory", credentialName: "SecDash Azure inventory", position: [-420, 40], query: [{ name: "api-version", value: api }] }),
   codeNode("scopes", "Build exact RBAC scopes", scopesCode, [-160, 40]),
-  httpNode({ id: "roles", name: "Read applicable role assignments", url: "={{ 'https://signing.dupdash.invalid' + $json.scope + '/providers/Microsoft.Authorization/roleAssignments' }}", credentialId: "DupdashAzureInventory", credentialName: "Dupdash Azure inventory", position: [100, 40], query: [{ name: "api-version", value: "2022-04-01" }, { name: "$filter", value: "atScope()" }] }),
+  httpNode({ id: "roles", name: "Read applicable role assignments", url: "={{ 'https://signing.secdash.invalid' + $json.scope + '/providers/Microsoft.Authorization/roleAssignments' }}", credentialId: "SecDashAzureInventory", credentialName: "SecDash Azure inventory", position: [100, 40], query: [{ name: "api-version", value: "2022-04-01" }, { name: "$filter", value: "atScope()" }] }),
   codeNode("project", "Whitelist Azure telemetry", aggregateCode, [360, 40]), deliveryNode([620, 40]),
 ], {
   ...connectBoth("Read signing account"),

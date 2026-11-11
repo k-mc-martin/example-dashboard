@@ -47,11 +47,11 @@ test('sales, refunds and mail receipts agree as a workspace evolves', () => {
   }
 });
 test('a failed or corrupted provider delivery leaves the prior revision intact', async (t) => {
-  const original = process.env.DUPDASH_N8N_WEBHOOK;
-  process.env.DUPDASH_N8N_WEBHOOK = 'http://127.0.0.1:5790/webhook/dupdash-events';
+  const original = process.env.SECDASH_N8N_WEBHOOK;
+  process.env.SECDASH_N8N_WEBHOOK = 'http://127.0.0.1:5790/webhook/secdash-events';
   t.after(() => {
-    if (original === undefined) delete process.env.DUPDASH_N8N_WEBHOOK;
-    else process.env.DUPDASH_N8N_WEBHOOK = original;
+    if (original === undefined) delete process.env.SECDASH_N8N_WEBHOOK;
+    else process.env.SECDASH_N8N_WEBHOOK = original;
   });
   const db = new SQLiteDatabase(':memory:');
   t.after(() => db.close());

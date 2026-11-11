@@ -1,6 +1,6 @@
 {
-  "id": "DupdashGoogleDriveStorage",
-  "name": "Dupdash — Google Drive storage",
+  "id": "SecDashGoogleDriveStorage",
+  "name": "SecDash — Google Drive storage",
   "active": false,
   "nodes": [
     {
@@ -36,7 +36,7 @@
     },
     {
       "parameters": {
-        "url": "https://drive.dupdash.invalid/drive/v3/about",
+        "url": "https://drive.secdash.invalid/drive/v3/about",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
@@ -79,8 +79,8 @@
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashGoogleDriveStorage",
-          "name": "Dupdash Google Drive storage"
+          "id": "SecDashGoogleDriveStorage",
+          "name": "SecDash Google Drive storage"
         }
       }
     },
@@ -126,8 +126,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashDashboardIngest",
-          "name": "Dupdash dashboard intake"
+          "id": "SecDashDashboardIngest",
+          "name": "SecDash dashboard intake"
         }
       },
       "retryOnFail": true,

@@ -4,7 +4,7 @@ import test from "node:test";
 import { buildWorkflow, calibrateModelDecision, conservativeCostUpperBound, dashboardRecordId, deterministicRoute, evidenceNegatesClaim, makeRequest, messageContentDigest, selectRecordSubset, senderAuthoredBody, senderAuthoredText, sha256Hex, validateModelResponse } from "../infra/n8n/workflows/mailbox-routing-preview.mjs";
 
 const workflow = JSON.parse(await readFile(new URL("../infra/n8n/workflows/mailbox-routing-preview-manual.json", import.meta.url), "utf8"));
-const message = (overrides={}) => ({source:"dupdash-mail",messageId:"<1@example.test>",sender:"person@example.test",subject:"Hello",body:"Body",...overrides});
+const message = (overrides={}) => ({source:"secdash-mail",messageId:"<1@example.test>",sender:"person@example.test",subject:"Hello",body:"Body",...overrides});
 const noFeedback = {environment:"none",interpretation:"unclassified",evidenceQuotes:[],rationale:"The source contains no product feedback.",context:"The message contains no product-experience claim.",intendedExperienceReference:null};
 const noClassificationEvidence = {audienceEvidence:null,obstructionEvidence:null};
 const response = value => ({choices:[{finish_reason:"stop",message:{content:JSON.stringify({...value,feedback:value.feedback??noFeedback,classificationEvidence:value.classificationEvidence??noClassificationEvidence})}}],usage:{prompt_tokens:10,completion_tokens:8,total_tokens:18}});
@@ -176,9 +176,9 @@ test("record subset selects exactly requested hashes and rejects invalid, duplic
 
 test("subset workflow embeds only its two hashes and a reduced pre-request cost cap", () => {
   const ids=["1".repeat(64),"2".repeat(64)];
-  const subset=buildWorkflow({id:"DupdashMailboxRoutingRecheck",name:"recheck",recordIds:ids,maxRunCostUsd:.9});
+  const subset=buildWorkflow({id:"SecDashMailboxRoutingRecheck",name:"recheck",recordIds:ids,maxRunCostUsd:.9});
   const code=subset.nodes.find(n=>n.name==="Prepare preview and cost gate").parameters.jsCode;
-  assert.equal(subset.id,"DupdashMailboxRoutingRecheck");
+  assert.equal(subset.id,"SecDashMailboxRoutingRecheck");
   assert.match(code,/MAX_RUN_COST_USD=0.9/);
   for(const id of ids) assert.match(code,new RegExp(id));
   assert.match(code,/subset was not found exactly/);
@@ -193,7 +193,7 @@ test("cost gate is conservative and deterministic messages avoid model cost", ()
 
 test("pure SHA-256 matches known vectors and the dashboard key contract", () => {
   assert.equal(sha256Hex("abc"),"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
-  assert.equal(dashboardRecordId(message()),sha256Hex(JSON.stringify(["dupdash-mail","<1@example.test>"])));
+  assert.equal(dashboardRecordId(message()),sha256Hex(JSON.stringify(["secdash-mail","<1@example.test>"])));
   assert.equal(messageContentDigest(message()),sha256Hex(JSON.stringify([message().sender,message().subject,message().body,message().receivedAt,message().sourceUrl ?? null])));
 });
 
@@ -206,8 +206,8 @@ test("workflow is an inactive preview with no dashboard write or retries", () =>
   assert.equal(workflow.nodes.some(n=>n.type==="n8n-nodes-base.scheduleTrigger"),false);
   assert.equal(JSON.stringify(workflow).includes("http://dashboard:3000/api/n8n/messages"),false);
   const openai=workflow.nodes.find(n=>n.name==="Classify one message");
-  assert.equal(openai.parameters.url,"https://routing.dupdash.invalid/v1/chat/completions");
-  assert.equal(openai.credentials.httpHeaderAuth.name,"DupdashOpenAIRouting");
+  assert.equal(openai.parameters.url,"https://routing.secdash.invalid/v1/chat/completions");
+  assert.equal(openai.credentials.httpHeaderAuth.name,"SecDashOpenAIRouting");
   assert.equal(openai.parameters.options.batching.batch.batchSize,1);
   assert.equal(openai.parameters.options.retry,undefined);
   const source=workflow.nodes.find(n=>n.name==="Keep model source");

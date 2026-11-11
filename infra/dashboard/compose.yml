@@ -1,10 +1,10 @@
-name: dupdash-dashboard
+name: secdash-dashboard
 services:
   dashboard:
     build:
       context: ../..
       dockerfile: infra/dashboard/Dockerfile
-    image: dupdash-dashboard:private
+    image: secdash-dashboard:private
     restart: unless-stopped
     init: true
     user: "1000:1000"
@@ -15,7 +15,7 @@ services:
       - /tmp:rw,noexec,nosuid,size=64m
     env_file: .env
     environment:
-      DUPDASH_DATABASE_PATH: /data/dashboard.sqlite
+      SECDASH_DATABASE_PATH: /data/dashboard.sqlite
     volumes:
       - ./data:/data
     ports:
@@ -25,7 +25,7 @@ services:
       backend:
         aliases: [dashboard]
     healthcheck:
-      test: ["CMD", "node", "-e", "const r=require('node:http').get('http://127.0.0.1:3000/api/health',{headers:{host:'127.0.0.1:5286',authorization:'Bearer '+process.env.DUPDASH_OPERATOR_TOKEN}},s=>{s.resume();process.exit(s.statusCode===200?0:1)});r.setTimeout(4000,()=>{r.destroy();process.exit(1)});r.on('error',()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "const r=require('node:http').get('http://127.0.0.1:3000/api/health',{headers:{host:'127.0.0.1:5286',authorization:'Bearer '+process.env.SECDASH_OPERATOR_TOKEN}},s=>{s.resume();process.exit(s.statusCode===200?0:1)});r.setTimeout(4000,()=>{r.destroy();process.exit(1)});r.on('error',()=>process.exit(1))"]
       interval: 20s
       timeout: 5s
       start_period: 30s
@@ -35,4 +35,4 @@ networks:
     internal: true
   backend:
     external: true
-    name: dupdash-n8n_backend
+    name: secdash-n8n_backend

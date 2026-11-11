@@ -72,7 +72,7 @@ export type CommandDeckModel = {
   storage: {
     feed: CommandDeckFeed;
     googleQuota: null;
-    backupFolder: { name: "Dupdash Backups"; bytes: number; objects: number; measuredAt: string } | null;
+    backupFolder: { name: "SecDash Backups"; bytes: number; objects: number; measuredAt: string } | null;
   };
   backups: {
     feed: CommandDeckFeed;
@@ -128,7 +128,7 @@ function validRecoveryData(value: unknown): value is RecoveryData {
   const item = value as Partial<RecoveryData>;
   const folder = object(item.backupFolder);
   if (item.schemaVersion !== 1 || typeof item.generatedAt !== "string" || !Number.isFinite(Date.parse(item.generatedAt)) || !folder
-    || folder.name !== "Dupdash Backups" || !Number.isSafeInteger(folder.bytes) || (folder.bytes as number) < 0
+    || folder.name !== "SecDash Backups" || !Number.isSafeInteger(folder.bytes) || (folder.bytes as number) < 0
     || !Number.isSafeInteger(folder.objects) || (folder.objects as number) < 0 || typeof folder.measuredAt !== "string" || !Number.isFinite(Date.parse(folder.measuredAt))
     || !Array.isArray(item.restoreChecks)
     || !item.restoreChecks.every(raw => {

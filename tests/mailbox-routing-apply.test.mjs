@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { buildWorkflow, prepareApply, validatePreviewReceipt } from "../infra/n8n/workflows/mailbox-routing-apply.mjs";
 import { dashboardRecordId, messageContentDigest } from "../infra/n8n/workflows/mailbox-routing-preview.mjs";
 
-const message = (overrides={}) => ({source:"dupdash-mail",messageId:"<1@example.test>",sender:"person@example.test",subject:"Hello",body:"Body",receivedAt:"2026-09-30T12:00:00.000Z",category:"unsorted",supportKind:null,sourceUrl:"https://inbox.dupdash.invalid/mail/id/example",...overrides});
+const message = (overrides={}) => ({source:"secdash-mail",messageId:"<1@example.test>",sender:"person@example.test",subject:"Hello",body:"Body",receivedAt:"2026-09-30T12:00:00.000Z",category:"unsorted",supportKind:null,sourceUrl:"https://inbox.secdash.invalid/mail/id/example",...overrides});
 const decision = (input=message(), overrides={}) => ({recordId:dashboardRecordId(input),contentDigest:messageContentDigest(input),category:"beta",reasonCode:"beta_feedback",confidence:.92,method:"model",...overrides});
 const receipt = (results=[decision()]) => ({completed:true,mode:"dry-run",messageCount:results.length,counts:{},methods:{},usage:{},conservativeUpperCostUsd:.01,results,dashboardWrites:0,sourceMessagesChanged:false});
 
@@ -74,7 +74,7 @@ test("generated workflow gates the whole Inbox before its first POST", () => {
   const post=workflow.nodes.find(node=>node.name==="Deliver classified message");
   assert.ok(gate.parameters.jsCode.includes("contentDigest"));
   assert.equal(post.parameters.url,"http://dashboard:3000/api/n8n/messages");
-  assert.equal(post.credentials.httpHeaderAuth.id,"DupdashDashboardIngest");
+  assert.equal(post.credentials.httpHeaderAuth.id,"SecDashDashboardIngest");
   assert.equal(JSON.stringify(workflow).includes("scheduleTrigger"),false);
   assert.equal(JSON.stringify(workflow).includes("require('crypto')"),false);
   assert.deepEqual(workflow.connections["Validate preview against current Inbox"].main[0][0].node,"Deliver in batches of 10");
@@ -91,12 +91,12 @@ test("receipt contains no mail content and asserts exact distinct IDs", () => {
 });
 
 test("CLI writes an importable workflow even when the checkout path contains spaces", () => {
-  const directory=mkdtempSync(join(tmpdir(),"dupdash routing apply "));
+  const directory=mkdtempSync(join(tmpdir(),"secdash routing apply "));
   const receiptPath=join(directory,"preview receipt.json");
   const outputPath=join(directory,"apply workflow.json");
   writeFileSync(receiptPath,JSON.stringify(receipt()));
   execFileSync(process.execPath,[fileURLToPath(new URL("../infra/n8n/workflows/mailbox-routing-apply.mjs",import.meta.url)),receiptPath,outputPath]);
   const generated=JSON.parse(readFileSync(outputPath,"utf8"));
-  assert.equal(generated.id,"DupdashMailboxRoutingApply");
+  assert.equal(generated.id,"SecDashMailboxRoutingApply");
   assert.equal(generated.active,false);
 });

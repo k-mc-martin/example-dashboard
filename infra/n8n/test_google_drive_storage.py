@@ -31,19 +31,19 @@ class GoogleDriveStorageWorkflowTests(unittest.TestCase):
 
     def test_contract_and_safety_settings(self):
         self.assertFalse(self.workflow["active"])
-        self.assertEqual(self.workflow["id"], "DupdashGoogleDriveStorage")
+        self.assertEqual(self.workflow["id"], "SecDashGoogleDriveStorage")
         self.assertEqual(self.workflow["settings"]["saveDataSuccessExecution"], "none")
         self.assertEqual(self.workflow["settings"]["saveDataErrorExecution"], "none")
         self.assertFalse(self.workflow["settings"]["saveManualExecutions"])
         trigger = self.nodes["Every 5 minutes"]
         self.assertEqual(trigger["parameters"]["rule"]["interval"], [{"field": "minutes", "minutesInterval": 5}])
         request = self.nodes["Read Drive storage quota"]
-        self.assertEqual(request["parameters"]["url"], "https://drive.dupdash.invalid/drive/v3/about")
+        self.assertEqual(request["parameters"]["url"], "https://drive.secdash.invalid/drive/v3/about")
         self.assertEqual(request["parameters"]["queryParameters"]["parameters"], [{"name": "fields", "value": "storageQuota"}])
-        self.assertEqual(request["credentials"]["httpHeaderAuth"]["id"], "DupdashGoogleDriveStorage")
+        self.assertEqual(request["credentials"]["httpHeaderAuth"]["id"], "SecDashGoogleDriveStorage")
         delivery = self.nodes["Deliver storage observation"]
         self.assertEqual(delivery["parameters"]["url"], "http://dashboard:3000/api/n8n/drive-storage")
-        self.assertEqual(delivery["credentials"]["httpHeaderAuth"]["id"], "DupdashDashboardIngest")
+        self.assertEqual(delivery["credentials"]["httpHeaderAuth"]["id"], "SecDashDashboardIngest")
 
     def test_valid_quota_is_sanitized(self):
         output = self.normalize({"statusCode": 200, "body": {"storageQuota": {

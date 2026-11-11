@@ -20,7 +20,7 @@ class RecoveryOperationalTests(unittest.TestCase):
         return json.loads(result.stdout)
 
     def test_workflow_safety(self):
-        self.assertEqual(self.workflow["id"], "DupdashRecoveryOperational")
+        self.assertEqual(self.workflow["id"], "SecDashRecoveryOperational")
         self.assertFalse(self.workflow["active"])
         self.assertEqual(self.workflow["settings"]["saveDataSuccessExecution"], "none")
         self.assertEqual(self.workflow["settings"]["saveDataErrorExecution"], "none")
@@ -30,12 +30,12 @@ class RecoveryOperationalTests(unittest.TestCase):
         self.assertEqual(self.nodes["Read internal recovery feed"]["parameters"]["url"], "http://recovery-feed:8080/recovery.json")
         delivery = self.nodes["Deliver operation observation"]
         self.assertEqual(delivery["parameters"]["url"], "http://dashboard:3000/api/n8n/operations")
-        self.assertEqual(delivery["credentials"]["httpHeaderAuth"]["id"], "DupdashDashboardIngest")
+        self.assertEqual(delivery["credentials"]["httpHeaderAuth"]["id"], "SecDashDashboardIngest")
         self.assertEqual(delivery["maxTries"], 3)
 
     def test_valid_feed_is_strictly_projected_with_source_timestamp(self):
         generated = "2026-09-30T20:11:39.379721+00:00"
-        output = self.project({"statusCode":200,"body":{"schemaVersion":1,"generatedAt":generated,"backupFolder":{"name":"Dupdash Backups","bytes":11996082,"objects":42,"measuredAt":generated},"restoreChecks":[{"checkedAt":generated,"requestedSnapshot":"a"*64,"ok":True,"checksumsVerified":10,"counts":{"credentials":8,"users":1,"workflows":11}}],"automation":{"measuredAt":generated,"workflows":[{"id":"DupdashRecoveryOperational","name":"Recovery","active":False}],"executionHistoryAvailable":False,"lastExecution":None,"failureCount24h":None}}})
+        output = self.project({"statusCode":200,"body":{"schemaVersion":1,"generatedAt":generated,"backupFolder":{"name":"SecDash Backups","bytes":11996082,"objects":42,"measuredAt":generated},"restoreChecks":[{"checkedAt":generated,"requestedSnapshot":"a"*64,"ok":True,"checksumsVerified":10,"counts":{"credentials":8,"users":1,"workflows":11}}],"automation":{"measuredAt":generated,"workflows":[{"id":"SecDashRecoveryOperational","name":"Recovery","active":False}],"executionHistoryAvailable":False,"lastExecution":None,"failureCount24h":None}}})
         self.assertEqual(output["observedAt"], "2026-09-30T20:11:39.379Z")
         self.assertEqual(output["data"]["backupFolder"]["objects"], 42)
         self.assertEqual(set(output), {"surface","observedAt","status","data"})
@@ -47,7 +47,7 @@ class RecoveryOperationalTests(unittest.TestCase):
             self.assertNotIn("discard", json.dumps(output))
 
     def test_invalid_success_is_error_not_zero(self):
-        output = self.project({"statusCode":200,"body":{"schemaVersion":1,"generatedAt":"bad","backupFolder":{"name":"Dupdash Backups","bytes":None,"objects":0,"measuredAt":"bad"},"restoreChecks":[]}})
+        output = self.project({"statusCode":200,"body":{"schemaVersion":1,"generatedAt":"bad","backupFolder":{"name":"SecDash Backups","bytes":None,"objects":0,"measuredAt":"bad"},"restoreChecks":[]}})
         self.assertEqual(output["status"], "error")
         self.assertEqual(output["errorCode"], "invalid_response")
         self.assertNotIn("data", output)
@@ -56,7 +56,7 @@ class RecoveryOperationalTests(unittest.TestCase):
         at = "2026-09-30T20:00:00.000Z"
         totals = {"calls": 1, "inputTokens": 1719, "outputTokens": 29, "estimatedCostUsd": 0.0003786}
         usage = {"status":"ok", "measuredAt":at, "trackingStartedAt":"2026-09-30T00:00:00Z", "windowStartedAt":"2026-09-30T00:00:00Z", "model":"gpt-5.6-luna", "currency":"USD", "monthKey":"2026-09", "today":totals.copy(), "month":totals.copy(), "window":totals.copy(), "reservedMonthUsd":0.00189175, "limits":{"perRunUsd":0.05,"perDayUsd":0.2,"perMonthUsd":2}, "daily":[{"date":"2026-09-30",**totals}], "unresolvedCalls":0}
-        body = {"schemaVersion":1,"generatedAt":at,"backupFolder":{"name":"Dupdash Backups","bytes":12,"objects":1,"measuredAt":at},"restoreChecks":[],"automation":{"measuredAt":at,"workflows":[],"executionHistoryAvailable":False,"lastExecution":None,"failureCount24h":None,"aiUsage":usage}}
+        body = {"schemaVersion":1,"generatedAt":at,"backupFolder":{"name":"SecDash Backups","bytes":12,"objects":1,"measuredAt":at},"restoreChecks":[],"automation":{"measuredAt":at,"workflows":[],"executionHistoryAvailable":False,"lastExecution":None,"failureCount24h":None,"aiUsage":usage}}
         result = self.project({"statusCode":200,"body":body})
         self.assertEqual(result["status"], "ok")
         self.assertEqual(result["data"]["automation"]["aiUsage"], usage)
@@ -70,7 +70,7 @@ class RecoveryOperationalTests(unittest.TestCase):
         at = "2026-10-01T18:00:00Z"
         library = lambda identifier: {"id":identifier,"name":identifier,"mode":"active-sync","setup":"not-initialized","eligibleForSync":True,"phase":"idle","summary":"Awaiting setup.","destinations":[]}
         catalog = {"schemaVersion":1,"generatedAt":at,"libraries":[library("dashboard-n8n"),library("example-app-source")]}
-        body = {"schemaVersion":1,"generatedAt":at,"backupFolder":{"name":"Dupdash Backups","bytes":12,"objects":1,"measuredAt":at},"restoreChecks":[],"automation":{"measuredAt":at,"workflows":[],"executionHistoryAvailable":False,"lastExecution":None,"failureCount24h":None},"backupCatalog":catalog}
+        body = {"schemaVersion":1,"generatedAt":at,"backupFolder":{"name":"SecDash Backups","bytes":12,"objects":1,"measuredAt":at},"restoreChecks":[],"automation":{"measuredAt":at,"workflows":[],"executionHistoryAvailable":False,"lastExecution":None,"failureCount24h":None},"backupCatalog":catalog}
         result = self.project({"statusCode":200,"body":body})
         self.assertEqual([item["id"] for item in result["data"]["backupCatalog"]["libraries"]], ["dashboard-n8n","example-app-source"])
         body["backupCatalog"]["privatePath"] = "/secret"

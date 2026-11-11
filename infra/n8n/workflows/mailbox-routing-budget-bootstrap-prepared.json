@@ -1,6 +1,6 @@
 {
-  "id": "DupdashMailBudgetBootstrap",
-  "name": "Dupdash — routing budget bootstrap (one-time, inactive)",
+  "id": "SecDashMailBudgetBootstrap",
+  "name": "SecDash — routing budget bootstrap (one-time, inactive)",
   "active": false,
   "nodes": [
     {
@@ -18,7 +18,7 @@
       "parameters": {
         "resource": "table",
         "operation": "create",
-        "tableName": "dupdash_mail_routing_budget",
+        "tableName": "secdash_mail_routing_budget",
         "columns": {
           "column": [
             {
@@ -87,7 +87,7 @@
         "dataTableId": {
           "__rl": true,
           "mode": "name",
-          "value": "dupdash_mail_routing_budget"
+          "value": "secdash_mail_routing_budget"
         },
         "matchType": "allConditions",
         "filters": {
@@ -133,7 +133,7 @@
         "dataTableId": {
           "__rl": true,
           "mode": "name",
-          "value": "dupdash_mail_routing_budget"
+          "value": "secdash_mail_routing_budget"
         },
         "columns": {
           "mappingMode": "defineBelow",

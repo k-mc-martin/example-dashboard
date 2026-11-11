@@ -10,7 +10,7 @@ const proof = z.object({checkedAt:time,requestedSnapshot:z.string().regex(/^(lat
   sourceCreatedAt:time.optional(),checksumsVerified:count.optional(),credentialDecryptionVerified:z.boolean().optional(),
   counts:z.object({credentials:count,users:count,workflows:count}).strict().optional(),
   dashboard:z.object({databases:count,files:count}).strict().optional(),serverDashboard:z.object({messages:count,tables:count}).strict().optional()}).strict();
-const workflowId=z.enum(['DupdashAzureOperational','DupdashCloudflareOperational','DupdashGoDaddyOperational','DupdashGoogleDriveStorage','DupdashLemonSqueezyOperational','DupdashMailboxContinuityPrepared','DupdashMailboxRoutingDrain','DupdashRecoveryOperational']);
+const workflowId=z.enum(['SecDashAzureOperational','SecDashCloudflareOperational','SecDashGoDaddyOperational','SecDashGoogleDriveStorage','SecDashLemonSqueezyOperational','SecDashMailboxContinuityPrepared','SecDashMailboxRoutingDrain','SecDashRecoveryOperational']);
 const aiUsage = z.custom<AiUsage>(value => parseAiUsage(value) !== null).transform(value => parseAiUsage(value)!);
 const automation=z.object({measuredAt:time,workflows:z.array(z.object({id:workflowId,name:z.string().min(1).max(160),active:z.boolean()}).strict()).max(8),executionHistoryAvailable:z.boolean(),lastExecution:z.object({workflowId,status:z.string().min(1).max(40),startedAt:time,finishedAt:time.nullable(),durationMs:count.nullable()}).strict().nullable(),failureCount24h:count.nullable(),aiUsage:aiUsage.optional()}).strict().refine(x=>x.executionHistoryAvailable ? (x.lastExecution!==null && x.failureCount24h!==null) : (x.lastExecution===null && x.failureCount24h===null)).refine(x=>!x.aiUsage || Date.parse(x.aiUsage.measuredAt)<=Date.parse(x.measuredAt)+300_000);
 const catalogEvent=z.object({id:z.string().min(1).max(128),kind:z.enum(['snapshot','verification','offload']),status:z.enum(['succeeded','failed']),occurredAt:time,snapshotId:z.string().min(1).max(128).nullable(),summary:z.string().max(320)}).strict();
@@ -18,7 +18,7 @@ const catalogDestination=z.object({id:z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._
 const catalogLibrary=z.object({id:z.enum(['dashboard-n8n','example-app-source']),name:z.string().min(1).max(96),mode:z.literal('active-sync'),setup:z.enum(['initialized','not-initialized','unavailable']),eligibleForSync:z.boolean(),phase:z.enum(['idle','preparing','snapshotting','uploading','verifying','complete','failed','unavailable']),summary:z.string().max(320),destinations:z.array(catalogDestination).max(8),sourceLogicalBytes:count.nullable().optional()}).strict();
 const backupCatalog=z.object({schemaVersion:z.literal(1),generatedAt:time,libraries:z.array(catalogLibrary).length(2)}).strict().refine(x=>new Set(x.libraries.map(v=>v.id)).size===2);
 const recoveryData = z.object({schemaVersion:z.literal(1),generatedAt:time,
-  backupFolder:z.object({name:z.literal('Dupdash Backups'),bytes:count,objects:count,measuredAt:time}).strict(),
+  backupFolder:z.object({name:z.literal('SecDash Backups'),bytes:count,objects:count,measuredAt:time}).strict(),
   restoreChecks:z.array(proof).max(1000),automation:automation.optional(),backupCatalog:backupCatalog.optional()}).strict();
 const errorCodes = z.enum(['authorization_required','provider_unavailable','rate_limited','invalid_response','incomplete_collection']);
 const recovery = z.union([

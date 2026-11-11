@@ -26,7 +26,7 @@ test("one notification can be dismissed without hiding another", () => {
 });
 
 test("dismissals persist across database reopen while changed and new conditions surface", async (t) => {
-  const directory = mkdtempSync(join(tmpdir(), "dupdash-attention-"));
+  const directory = mkdtempSync(join(tmpdir(), "secdash-attention-"));
   const path = join(directory, "dashboard.sqlite");
   t.after(() => rmSync(directory, { recursive: true, force: true }));
 

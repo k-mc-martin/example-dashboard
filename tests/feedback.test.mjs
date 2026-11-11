@@ -25,7 +25,7 @@ function feedback(overrides = {}) {
 }
 
 test("feedback storage is additive, atomic, idempotent, stale-aware, and pageable", async (t) => {
-  const directory = mkdtempSync(join(tmpdir(), "dupdash-feedback-"));
+  const directory = mkdtempSync(join(tmpdir(), "secdash-feedback-"));
   t.after(() => rmSync(directory, { recursive: true }));
   const db = new SQLiteDatabase(join(directory, "dashboard.sqlite"));
   t.after(() => db.close());
@@ -112,7 +112,7 @@ test("feedback query parsing rejects duplicate, unknown, and oversized raw param
 });
 
 test("obstruction attention exposes current reports individually and excludes stale analysis", async (t) => {
-  const directory = mkdtempSync(join(tmpdir(), "dupdash-feedback-attention-"));
+  const directory = mkdtempSync(join(tmpdir(), "secdash-feedback-attention-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const db = new SQLiteDatabase(join(directory, "dashboard.sqlite"));
   t.after(() => db.close());

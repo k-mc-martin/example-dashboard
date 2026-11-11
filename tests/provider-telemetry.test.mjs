@@ -32,9 +32,9 @@ test("validator rejects unknown fields and incomplete data marked ok", () => {
   const cloudflare = {
     surface: "cloudflare", observedAt: "2026-09-30T20:00:00Z", status: "ok",
     data: { accountId: "00000000000000000000000000000001", pages: [
-      { projectName: "dupdash-public", complete: false, deploymentsTruncated: false, deployments: [] },
-      { projectName: "dupdash-beta", complete: true, deploymentsTruncated: false, deployments: [] },
-    ], r2: { bucketName: "dupdash-downloads", complete: true, objectsTruncated: false, pageCount: 1, objectCount: 0, totalBytes: 0, byPrefix: [], byExtension: [], objects: [] } },
+      { projectName: "secdash-public", complete: false, deploymentsTruncated: false, deployments: [] },
+      { projectName: "secdash-beta", complete: true, deploymentsTruncated: false, deployments: [] },
+    ], r2: { bucketName: "secdash-downloads", complete: true, objectsTruncated: false, pageCount: 1, objectCount: 0, totalBytes: 0, byPrefix: [], byExtension: [], objects: [] } },
   };
   assert.equal(parseProviderTelemetry(cloudflare), null);
   assert.notEqual(parseProviderTelemetry({ ...cloudflare, status: "partial", errorCode: "incomplete_collection" }), null);
@@ -54,8 +54,8 @@ test("HTTP failures become sanitized error observations", () => {
   assert.equal(lemon.errorCode, "rate_limited");
   assert.equal(JSON.stringify(lemon).includes("hidden"), false);
   const cloudflare = aggregateCloudflareResponses({
-    "dupdash-public:production": { statusCode: 500 }, "dupdash-public:preview": { statusCode: 200, body: {} },
-    "dupdash-beta:production": { statusCode: 200, body: {} }, "dupdash-beta:preview": { statusCode: 200, body: {} }, r2: [],
+    "secdash-public:production": { statusCode: 500 }, "secdash-public:preview": { statusCode: 200, body: {} },
+    "secdash-beta:production": { statusCode: 200, body: {} }, "secdash-beta:preview": { statusCode: 200, body: {} }, r2: [],
   }, "2026-09-30T20:00:00Z");
   assert.equal(cloudflare.errorCode, "provider_unavailable");
   assert.notEqual(parseProviderTelemetry(cloudflare), null);
@@ -71,8 +71,8 @@ test("pending Lemon Squeezy orders affect counts but not collected totals", () =
 test("Cloudflare projection computes complete inventory without forwarding metadata", () => {
   const page = (project, environment) => ({ success: true, result: [{ id: `${project}-${environment}`, project_name: project, environment, url: `https://${project}.sites.example.invalid`, created_on: "2026-09-30T18:00:00Z", modified_on: "2026-09-30T18:01:00Z", latest_stage: { name: "deploy", status: "success" }, is_skipped: false, env_vars: { SECRET: "must-not-pass" } }], result_info: { total_pages: 1 } });
   const value = aggregateCloudflare({
-    "dupdash-public:production": page("dupdash-public", "production"), "dupdash-public:preview": page("dupdash-public", "preview"),
-    "dupdash-beta:production": page("dupdash-beta", "production"), "dupdash-beta:preview": page("dupdash-beta", "preview"),
+    "secdash-public:production": page("secdash-public", "production"), "secdash-public:preview": page("secdash-public", "preview"),
+    "secdash-beta:production": page("secdash-beta", "production"), "secdash-beta:preview": page("secdash-beta", "preview"),
     r2: [{ success: true, result: [{ key: "releases/ExampleApp.exe", size: 123, last_modified: "2026-09-30T18:00:00Z", storage_class: "Standard", custom_metadata: { secret: "no" } }], result_info: { is_truncated: false } }],
   }, "2026-09-30T20:00:00Z");
   assert.notEqual(parseProviderTelemetry(value), null);
@@ -84,8 +84,8 @@ test("Cloudflare projection computes complete inventory without forwarding metad
 test("Cloudflare never presents an unavailable section as partial zero inventory", () => {
   const page = { statusCode: 200, body: { success: true, result: [], result_info: { total_pages: 1 } } };
   const value = aggregateCloudflareResponses({
-    "dupdash-public:production": page, "dupdash-public:preview": page,
-    "dupdash-beta:production": page, "dupdash-beta:preview": page,
+    "secdash-public:production": page, "secdash-public:preview": page,
+    "secdash-beta:production": page, "secdash-beta:preview": page,
     r2: [{ statusCode: 503, body: { secret: "must-not-pass" } }],
   }, "2026-09-30T20:00:00Z");
   assert.equal(value.status, "error");
@@ -94,12 +94,12 @@ test("Cloudflare never presents an unavailable section as partial zero inventory
 });
 
 test("Cloudflare distinguishes complete collection from bounded drilldown views", () => {
-  const deployments = Array.from({ length: 31 }, (_, index) => ({ id: `deployment-${index}`, project_name: "dupdash-public", environment: "production", url: `https://deployment-${index}.sites.example.invalid`, created_on: "2026-09-30T18:00:00Z", latest_stage: { name: "deploy", status: "success" }, is_skipped: false }));
+  const deployments = Array.from({ length: 31 }, (_, index) => ({ id: `deployment-${index}`, project_name: "secdash-public", environment: "production", url: `https://deployment-${index}.sites.example.invalid`, created_on: "2026-09-30T18:00:00Z", latest_stage: { name: "deploy", status: "success" }, is_skipped: false }));
   const empty = { success: true, result: [], result_info: { total_pages: 1 } };
   const objects = Array.from({ length: 76 }, (_, index) => ({ key: `release-${index}.bin`, size: 1, last_modified: "2026-09-30T18:00:00Z", storage_class: "Standard" }));
   const value = aggregateCloudflare({
-    "dupdash-public:production": { success: true, result: deployments, result_info: { total_pages: 1 } }, "dupdash-public:preview": empty,
-    "dupdash-beta:production": empty, "dupdash-beta:preview": empty,
+    "secdash-public:production": { success: true, result: deployments, result_info: { total_pages: 1 } }, "secdash-public:preview": empty,
+    "secdash-beta:production": empty, "secdash-beta:preview": empty,
     r2: [{ success: true, result: objects, result_info: { is_truncated: false } }],
   }, "2026-09-30T20:00:00Z");
   assert.equal(value.status, "ok");

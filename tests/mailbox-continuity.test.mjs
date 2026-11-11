@@ -4,7 +4,7 @@ import test from 'node:test';
 import { assertModelBudget, buildWorkflow, checkpointAfter, contentFingerprint, graphStartUrl, planContinuity, validateNextLink, validateRunConfig, verifyHistoricalSeed } from '../infra/n8n/workflows/mailbox-continuity.mjs';
 import { dashboardRecordId } from '../infra/n8n/workflows/mailbox-routing-preview.mjs';
 
-const message = (overrides = {}) => ({ source: 'dupdash-mail', messageId: '<new@example.test>', sender: 'person@example.test', subject: 'Hello', body: 'Body', receivedAt: '2026-09-30T06:00:00.000Z', sourceUrl: null, ...overrides });
+const message = (overrides = {}) => ({ source: 'secdash-mail', messageId: '<new@example.test>', sender: 'person@example.test', subject: 'Hello', body: 'Body', receivedAt: '2026-09-30T06:00:00.000Z', sourceUrl: null, ...overrides });
 
 test('defaults fail closed with no reusable model budget', () => {
   const config = validateRunConfig();
@@ -23,9 +23,9 @@ test('fresh approval enforces every ceiling before a call', () => {
 test('checkpoint query overlaps the prior watermark and nextLinks stay on exact Inbox collection', () => {
   const url = new URL(graphStartUrl({ watermark: '2026-09-30T06:00:00.000Z' }));
   assert.equal(url.searchParams.get('$filter'), 'receivedDateTime ge 2026-09-30T05:50:00.000Z');
-  const next = 'https://mail.dupdash.invalid/v1.0/me/mailFolders/inbox/messages?$skiptoken=abc';
+  const next = 'https://mail.secdash.invalid/v1.0/me/mailFolders/inbox/messages?$skiptoken=abc';
   assert.equal(validateNextLink(next), next);
-  assert.throws(() => validateNextLink('https://mail.dupdash.invalid/v1.0/me/messages?$skiptoken=abc'), /pagination path/);
+  assert.throws(() => validateNextLink('https://mail.secdash.invalid/v1.0/me/messages?$skiptoken=abc'), /pagination path/);
   assert.throws(() => validateNextLink('https://example.com/v1.0/me/mailFolders/inbox/messages'), /pagination origin/);
 });
 
@@ -74,7 +74,7 @@ test('prepared workflow is a real inactive durable staging pipeline with no mode
   assert.ok(workflow.nodes.some(node => node.type === 'n8n-nodes-base.manualTrigger'));
   assert.equal(workflow.nodes.some(node => node.type === 'n8n-nodes-base.scheduleTrigger'), true);
   assert.equal(workflow.nodes.find(node => node.name === 'Every 15 minutes').parameters.rule.interval[0].minutesInterval, 15);
-  assert.equal(JSON.stringify(workflow).includes('routing.dupdash.invalid'), false);
+  assert.equal(JSON.stringify(workflow).includes('routing.secdash.invalid'), false);
   assert.equal(JSON.stringify(workflow).includes('api/n8n/messages'), false);
   assert.equal(workflow.nodes.filter(node => node.type === 'n8n-nodes-base.dataTable').length, 6);
   assert.equal(workflow.nodes.find(node => node.name === 'Upsert durable staged messages').parameters.operation, 'upsert');

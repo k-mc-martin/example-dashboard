@@ -28,7 +28,7 @@ test('workflow is inactive and model call is behind authorization and optimistic
   assert.equal(workflow.nodes.find(n=>n.name==='Every 15 minutes, offset 5m').parameters.rule.interval[0].expression,'5,20,35,50 * * * *');
   assert.equal(workflow.nodes.find(n=>n.name==='Demo routing limits').parameters.jsCode.includes('modelRoutingAuthorized":false'),true);
   const model=workflow.nodes.find(n=>n.name==='Classify one message');
-  assert.equal(model.credentials.httpHeaderAuth.id,'DupdashOpenAIRouting');
+  assert.equal(model.credentials.httpHeaderAuth.id,'SecDashOpenAIRouting');
   assert.equal(model.parameters.options.retry,undefined);
   const planCode=workflow.nodes.find(n=>n.name==='Plan deterministic and model routes').parameters.jsCode;
   assert.match(planCode,/max_completion_tokens: 512/);
@@ -41,7 +41,7 @@ test('workflow is inactive and model call is behind authorization and optimistic
   assert.deepEqual(workflow.connections['Confirm exclusive model claims'].main[0].map(x=>x.node).sort(),['Classify one message','Keep model source'].sort());
   const delivery=workflow.nodes.find(n=>n.name==='Deliver routed message');
   assert.equal(delivery.parameters.url,'http://dashboard:3000/api/n8n/messages');
-  assert.equal(delivery.credentials.httpHeaderAuth.id,'DupdashDashboardIngest');
+  assert.equal(delivery.credentials.httpHeaderAuth.id,'SecDashDashboardIngest');
   assert.equal(workflow.nodes.find(n=>n.name==='Mark ledger delivery terminal').parameters.filters.conditions.some(c=>c.keyName==='state'&&c.keyValue==='routed-awaiting-delivery'),true);
   assert.deepEqual(workflow.connections['Already routed'].main[0].map(x=>x.node),['Prepare idempotent dashboard delivery']);
   assert.equal(workflow.connections['Already routed'].main[0].some(x=>x.node==='Classify one message'),false);

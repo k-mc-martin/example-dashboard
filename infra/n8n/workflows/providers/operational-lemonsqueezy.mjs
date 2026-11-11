@@ -56,15 +56,15 @@ export function aggregateLemonSqueezyResponses(items, observedAt = new Date().to
 const pagination = {
   pagination: {
     paginationMode: "responseContainsNextURL",
-    nextURL: "={{ (() => { const raw = $response.body?.links?.next; const initial = 'https://sales.dupdash.invalid/v1/orders'; if (!raw) return initial; const url = new URL(raw); if (url.protocol !== 'https:' || url.hostname !== 'sales.dupdash.invalid' || url.pathname !== '/v1/orders') throw Error('Lemon Squeezy returned an unexpected pagination URL'); if (url.searchParams.get('filter[store_id]') !== '100001') throw Error('Lemon Squeezy pagination dropped the store filter'); return url.toString(); })() }}",
+    nextURL: "={{ (() => { const raw = $response.body?.links?.next; const initial = 'https://sales.secdash.invalid/v1/orders'; if (!raw) return initial; const url = new URL(raw); if (url.protocol !== 'https:' || url.hostname !== 'sales.secdash.invalid' || url.pathname !== '/v1/orders') throw Error('Lemon Squeezy returned an unexpected pagination URL'); if (url.searchParams.get('filter[store_id]') !== '100001') throw Error('Lemon Squeezy pagination dropped the store filter'); return url.toString(); })() }}",
     paginationCompleteWhen: "other", completeExpression: "={{ !$response.body?.links?.next }}",
     limitPagesFetched: true, maxRequests: 100,
   },
 };
 const projection = `const statuses = ${JSON.stringify(statuses)};\n${unwrapResponse.toString()}\n${safeUpstreamError.toString()}\n${emptySlice.toString()}\n${aggregateLemonSqueezy.toString()}\n${aggregateLemonSqueezyResponses.toString()}\nreturn [{json: aggregateLemonSqueezyResponses($input.all())}];`;
-export const definition = workflow("DupdashLemonSqueezyOperational", "Dupdash — Lemon Squeezy operations (15 min)", [
+export const definition = workflow("SecDashLemonSqueezyOperational", "SecDash — Lemon Squeezy operations (15 min)", [
   scheduleNode, manualNode,
-  httpNode({ id: "orders", name: "Read all store orders", url: "https://sales.dupdash.invalid/v1/orders", credentialId: "DupdashLemonSqueezy", credentialName: "Dupdash Lemon Squeezy", position: [-620, 40], query: [{ name: "filter[store_id]", value: "100001" }, { name: "page[size]", value: "100" }, { name: "page[number]", value: "1" }], pagination }),
+  httpNode({ id: "orders", name: "Read all store orders", url: "https://sales.secdash.invalid/v1/orders", credentialId: "SecDashLemonSqueezy", credentialName: "SecDash Lemon Squeezy", position: [-620, 40], query: [{ name: "filter[store_id]", value: "100001" }, { name: "page[size]", value: "100" }, { name: "page[number]", value: "1" }], pagination }),
   codeNode("project", "Aggregate without customer data", projection, [-300, 40]), deliveryNode([0, 40]),
 ], {
   ...connectBoth("Read all store orders"),

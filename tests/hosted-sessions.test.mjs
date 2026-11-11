@@ -8,12 +8,12 @@ import { demoCookie, demoOriginAllowed, newDemoCookie, signedWorkspace } from '.
 import { createMemberTab, currentAccount, enterMemberTab, loginCookie, revokeLogin } from '../lib/demo-login.ts';
 
 test('HTTPS member sessions on shared DNS names remain independent across visitors', t => {
-  const dir = mkdtempSync(join(tmpdir(), 'dupdash-https-'));
+  const dir = mkdtempSync(join(tmpdir(), 'secdash-https-'));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
-  process.env.DUPDASH_PUBLIC_HOST = 'review.example';
-  process.env.DUPDASH_MEMBER_DOMAIN = 'members.example';
-  process.env.DUPDASH_WORKSPACES = dir;
-  process.env.DUPDASH_SESSION_SECRET = randomBytes(32).toString('hex');
+  process.env.SECDASH_PUBLIC_HOST = 'review.example';
+  process.env.SECDASH_MEMBER_DOMAIN = 'members.example';
+  process.env.SECDASH_WORKSPACES = dir;
+  process.env.SECDASH_SESSION_SECRET = randomBytes(32).toString('hex');
   const first = newDemoCookie().split('.')[0];
   const second = newDemoCookie().split('.')[0];
   const one = createMemberTab(first, 'mira');

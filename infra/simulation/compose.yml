@@ -1,11 +1,11 @@
-name: dupdash-simulation
+name: secdash-simulation
 services:
   providers:
     build:
       context: ../..
       dockerfile: infra/simulation/Dockerfile
     environment:
-      DUPDASH_PROVIDER_BIND: 0.0.0.0
+      SECDASH_PROVIDER_BIND: 0.0.0.0
     networks: [simulation]
     read_only: true
     cap_drop: [ALL]
@@ -16,12 +16,12 @@ services:
     entrypoint: ["/bin/sh", "-ec"]
     command:
       - |
-        n8n import:workflow --input=/opt/dupdash-events.json
-        n8n publish:workflow --id=DupdashSimulation
+        n8n import:workflow --input=/opt/secdash-events.json
+        n8n publish:workflow --id=SecDashSimulation
         exec n8n start
     configs:
       - source: workflow
-        target: /opt/dupdash-events.json
+        target: /opt/secdash-events.json
     tmpfs:
       - /home/node/.n8n:uid=1000,gid=1000,mode=0700
     environment:
@@ -44,17 +44,17 @@ services:
     build:
       context: ../..
       dockerfile: infra/dashboard/Dockerfile
-    command: ["sh","-ec","export DUPDASH_SESSION_SECRET=$$(node -e \"process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))\"); exec node server.js"]
+    command: ["sh","-ec","export SECDASH_SESSION_SECRET=$$(node -e \"process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))\"); exec node server.js"]
     environment:
-      DUPDASH_DEMO_PORT: "${DUPDASH_DEMO_PORT:-5286}"
-      DUPDASH_DEMO_MODE: "1"
-      DUPDASH_WORKSPACES: /demo/workspaces
-      DUPDASH_N8N_WEBHOOK: http://n8n:5678/webhook/dupdash-events
+      SECDASH_DEMO_PORT: "${SECDASH_DEMO_PORT:-5286}"
+      SECDASH_DEMO_MODE: "1"
+      SECDASH_WORKSPACES: /demo/workspaces
+      SECDASH_N8N_WEBHOOK: http://n8n:5678/webhook/secdash-events
     tmpfs:
       - /demo:uid=1000,gid=1000,mode=0700,size=192m
       - /tmp:mode=1777,size=64m
     read_only: true
-    ports: ["127.0.0.1:${DUPDASH_DEMO_PORT:-5286}:3000"]
+    ports: ["127.0.0.1:${SECDASH_DEMO_PORT:-5286}:3000"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     networks: [entry, simulation]

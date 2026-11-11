@@ -1,6 +1,6 @@
 {
-  "id": "DupdashAzureOperational",
-  "name": "Dupdash — Azure signing operations (15 min)",
+  "id": "SecDashAzureOperational",
+  "name": "SecDash — Azure signing operations (15 min)",
   "active": false,
   "nodes": [
     {
@@ -36,7 +36,7 @@
     },
     {
       "parameters": {
-        "url": "https://signing.dupdash.invalid/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing",
+        "url": "https://signing.secdash.invalid/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
@@ -79,14 +79,14 @@
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashAzureInventory",
-          "name": "Dupdash Azure inventory"
+          "id": "SecDashAzureInventory",
+          "name": "SecDash Azure inventory"
         }
       }
     },
     {
       "parameters": {
-        "url": "https://signing.dupdash.invalid/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing/certificateProfiles",
+        "url": "https://signing.secdash.invalid/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing/certificateProfiles",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
@@ -129,8 +129,8 @@
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashAzureInventory",
-          "name": "Dupdash Azure inventory"
+          "id": "SecDashAzureInventory",
+          "name": "SecDash Azure inventory"
         }
       }
     },
@@ -149,7 +149,7 @@
     },
     {
       "parameters": {
-        "url": "={{ 'https://signing.dupdash.invalid' + $json.scope + '/providers/Microsoft.Authorization/roleAssignments' }}",
+        "url": "={{ 'https://signing.secdash.invalid' + $json.scope + '/providers/Microsoft.Authorization/roleAssignments' }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
@@ -196,8 +196,8 @@
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashAzureInventory",
-          "name": "Dupdash Azure inventory"
+          "id": "SecDashAzureInventory",
+          "name": "SecDash Azure inventory"
         }
       }
     },
@@ -243,8 +243,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashDashboardIngest",
-          "name": "Dupdash dashboard intake"
+          "id": "SecDashDashboardIngest",
+          "name": "SecDash dashboard intake"
         }
       },
       "retryOnFail": true,

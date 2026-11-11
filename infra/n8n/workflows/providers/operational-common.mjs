@@ -42,7 +42,7 @@ export function httpNode({ id, name, url, credentialId, credentialName, position
     parameters: {
       url, authentication: "genericCredentialType", genericAuthType: "httpHeaderAuth",
       sendQuery: query.length > 0, ...(query.length ? { queryParameters: { parameters: query } } : {}),
-      sendHeaders: true, headerParameters: { parameters: [{ name: "Accept", value: credentialId === "DupdashLemonSqueezy" ? "application/vnd.api+json" : "application/json" }] }, options: { ...options, timeout: 30000 },
+      sendHeaders: true, headerParameters: { parameters: [{ name: "Accept", value: credentialId === "SecDashLemonSqueezy" ? "application/vnd.api+json" : "application/json" }] }, options: { ...options, timeout: 30000 },
     }, id, name, type: "n8n-nodes-base.httpRequest", typeVersion: 4.2, position,
     onError: "continueRegularOutput",
     credentials: { httpHeaderAuth: { id: credentialId, name: credentialName } },
@@ -60,7 +60,7 @@ export function deliveryNode(position) {
       sendBody: true, contentType: "json", specifyBody: "json", jsonBody: "={{ $json }}",
       options: { response: { response: { responseFormat: "json" } }, timeout: 15000 },
     }, id: "deliver", name: "Deliver operation observation", type: "n8n-nodes-base.httpRequest", typeVersion: 4.2, position,
-    credentials: { httpHeaderAuth: { id: "DupdashDashboardIngest", name: "Dupdash dashboard intake" } }, retryOnFail: true, maxTries: 3, waitBetweenTries: 1000,
+    credentials: { httpHeaderAuth: { id: "SecDashDashboardIngest", name: "SecDash dashboard intake" } }, retryOnFail: true, maxTries: 3, waitBetweenTries: 1000,
   };
 }
 

@@ -14,7 +14,7 @@ function statusValid(value) {
 function feedValid(value) {
   const folder = value?.backupFolder;
   return value?.schemaVersion === 1 && timestamp(value.generatedAt)
-    && folder?.name === "Dupdash Backups" && Number.isSafeInteger(folder.bytes) && folder.bytes >= 0
+    && folder?.name === "SecDash Backups" && Number.isSafeInteger(folder.bytes) && folder.bytes >= 0
     && Number.isSafeInteger(folder.objects) && folder.objects >= 0 && timestamp(folder.measuredAt)
     && Array.isArray(value.restoreChecks);
 }

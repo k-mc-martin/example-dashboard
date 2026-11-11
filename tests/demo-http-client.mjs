@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 
-export const base = 'http://127.0.0.1:' + (process.env.DUPDASH_DEMO_PORT || '5286');
+export const base = 'http://127.0.0.1:' + (process.env.SECDASH_DEMO_PORT || '5286');
 export const request = (cookie, path, options = {}) =>
   fetch(base + path, { ...options, headers: { cookie, ...options.headers } });
 export async function json(cookie, path, options = {}) {
@@ -11,7 +11,7 @@ export async function json(cookie, path, options = {}) {
 export async function visitor() {
   const response = await fetch(base);
   assert.equal(response.status, 200);
-  return readCookie(response, '__Host-dupdash_workspace');
+  return readCookie(response, '__Host-secdash_workspace');
 }
 function readCookie(response, name) {
   const header = response.headers.getSetCookie().find(value => value.startsWith(name + '='));
@@ -31,7 +31,7 @@ export async function signIn(workspace, role) {
   const response = await postLogin(workspace, { id, pass });
   assert.equal(response.status, 200);
   assert.equal((await response.json()).account.role, role);
-  return workspace + '; ' + readCookie(response, '__Host-dupdash_login');
+  return workspace + '; ' + readCookie(response, '__Host-secdash_login');
 }
 export async function signOut(cookie) {
   const response = await request(cookie, '/api/demo/session', { method: 'DELETE', headers: { Origin: base } });

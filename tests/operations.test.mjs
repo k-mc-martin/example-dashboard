@@ -6,7 +6,7 @@ import {join} from 'node:path';
 import {closeDb,getDb} from '../db/index.ts';
 import {parseOperation,readOperations,storeOperation} from '../lib/inbound-operations.ts';
 const at='2026-09-29T01:00:00.000Z';
-const sample={surface:'recovery',observedAt:at,status:'ok',data:{schemaVersion:1,generatedAt:at,backupFolder:{name:'Dupdash Backups',bytes:1200,objects:4,measuredAt:at},restoreChecks:[{checkedAt:at,requestedSnapshot:'a'.repeat(64),ok:true,checksumsVerified:10}]}};
+const sample={surface:'recovery',observedAt:at,status:'ok',data:{schemaVersion:1,generatedAt:at,backupFolder:{name:'SecDash Backups',bytes:1200,objects:4,measuredAt:at},restoreChecks:[{checkedAt:at,requestedSnapshot:'a'.repeat(64),ok:true,checksumsVerified:10}]}};
 test('recovery envelope rejects secrets, unknown values and impossible metrics',()=>{
  assert.ok(parseOperation(sample));
  assert.equal(parseOperation({...sample,token:'secret'}),null);
@@ -16,7 +16,7 @@ test('recovery envelope rejects secrets, unknown values and impossible metrics',
  assert.ok(parseOperation({surface:'recovery',observedAt:at,status:'error',errorCode:'provider_unavailable'}));
 });
 test('operations retain prior success, reject duplicate replacement and return compact ordered history',async t=>{
- closeDb();const dir=mkdtempSync(join(tmpdir(),'dupdash-ops-'));process.env.DUPDASH_DATABASE_PATH=join(dir,'db.sqlite');t.after(()=>{closeDb();rmSync(dir,{recursive:true});});const db=getDb();
+ closeDb();const dir=mkdtempSync(join(tmpdir(),'secdash-ops-'));process.env.SECDASH_DATABASE_PATH=join(dir,'db.sqlite');t.after(()=>{closeDb();rmSync(dir,{recursive:true});});const db=getDb();
  assert.equal(await storeOperation(db,parseOperation(sample)),true);
  assert.equal(await storeOperation(db,parseOperation({...sample,data:{...sample.data,backupFolder:{...sample.data.backupFolder,bytes:999}}})),false);
  for(let i=1;i<=30;i++) await storeOperation(db,{surface:'recovery',observedAt:new Date(Date.parse(at)+i*60000).toISOString(),status:'error',errorCode:'provider_unavailable'});
@@ -34,7 +34,7 @@ test('recovery automation distinguishes absent execution history from measured z
  assert.ok(parseOperation(withAutomation(base)));
  assert.equal(parseOperation(withAutomation({...base,failureCount24h:0})),null);
  assert.equal(parseOperation(withAutomation({...base,executionHistoryAvailable:true})),null);
- const measured={...base,executionHistoryAvailable:true,failureCount24h:0,lastExecution:{workflowId:'DupdashRecoveryOperational',status:'success',startedAt:at,finishedAt:at,durationMs:0}};
+ const measured={...base,executionHistoryAvailable:true,failureCount24h:0,lastExecution:{workflowId:'SecDashRecoveryOperational',status:'success',startedAt:at,finishedAt:at,durationMs:0}};
  assert.ok(parseOperation(withAutomation(measured)));
  assert.equal(parseOperation(withAutomation({...measured,secret:'redacted'})),null);
 });

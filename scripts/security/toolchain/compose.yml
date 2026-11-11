@@ -2,7 +2,7 @@ services:
   dashboard:
     environment:
       PORT: "5286"
-      DUPDASH_DEMO_PORT: "5286"
+      SECDASH_DEMO_PORT: "5286"
     ports: !reset []
 networks:
   entry:

@@ -9,7 +9,7 @@ export function proxy(request: NextRequest) {
   const site = request.headers.get('sec-fetch-site');
   if (path === '/version' && demoEnabled() && primaryHost(request.headers.get('host')) &&
       ['GET', 'HEAD'].includes(request.method)) {
-    const commit = process.env.DUPDASH_REVISION ?? '';
+    const commit = process.env.SECDASH_REVISION ?? '';
     if (!/^[a-f0-9]{40}$/.test(commit)) return new NextResponse(null, { status: 404 });
     return NextResponse.json({ commit, source: 'https://github.com/k-mc-martin/example-dashboard/tree/' + commit },
       { headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' } });
@@ -59,11 +59,11 @@ export function proxy(request: NextRequest) {
   }
   if (entering) {
     // Preserve a signed, pre-login workspace from the earlier loopback preview.
-    const previous = !workspace && workspaceId(request, "dupdash_workspace");
-    const reusable = previous && !hasActiveLogin(previous) && request.cookies.get("dupdash_workspace");
+    const previous = !workspace && workspaceId(request, "secdash_workspace");
+    const reusable = previous && !hasActiveLogin(previous) && request.cookies.get("secdash_workspace");
     response.cookies.set(demoCookie, reusable ? reusable.value : newDemoCookie(),
       {httpOnly:true, secure:true, sameSite:"strict", path:"/", maxAge:lifetimeSeconds});
-    if (previous) response.cookies.delete("dupdash_workspace");
+    if (previous) response.cookies.delete("secdash_workspace");
   }
   response.headers.set("Cache-Control", "no-store");
   response.headers.set("X-Content-Type-Options", "nosniff");

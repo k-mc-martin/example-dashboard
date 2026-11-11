@@ -1,6 +1,6 @@
 {
-  "id": "DupdashMailDelivery",
-  "name": "Dupdash — mailbox delivery test (manual)",
+  "id": "SecDashMailDelivery",
+  "name": "SecDash — mailbox delivery test (manual)",
   "active": false,
   "nodes": [
     {
@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "url": "https://mail.dupdash.invalid/v1.0/me/messages",
+        "url": "https://mail.secdash.invalid/v1.0/me/messages",
         "authentication": "genericCredentialType",
         "sendQuery": true,
         "queryParameters": {
@@ -61,7 +61,7 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashMailRead",
+          "id": "SecDashMailRead",
           "name": "Demo mailbox"
         }
       }
@@ -73,7 +73,7 @@
             {
               "id": "da4d46bb-0140-471a-a421-c70c513f3eb0",
               "name": "source",
-              "value": "dupdash-mail",
+              "value": "secdash-mail",
               "type": "string"
             },
             {
@@ -153,8 +153,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashDashboardIngest",
-          "name": "Dupdash dashboard intake"
+          "id": "SecDashDashboardIngest",
+          "name": "SecDash dashboard intake"
         }
       }
     },
@@ -180,8 +180,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashDashboardIngest",
-          "name": "Dupdash dashboard intake"
+          "id": "SecDashDashboardIngest",
+          "name": "SecDash dashboard intake"
         }
       }
     },

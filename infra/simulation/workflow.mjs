@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 export function simulationWorkflow(local = false) {
   return {
-    id: 'DupdashSimulation',
-    name: 'Dupdash fictional providers',
+    id: 'SecDashSimulation',
+    name: 'SecDash fictional providers',
     versionId: 'e2e71ed1-909d-44d7-8ad5-77a00f029e08',
     active: false,
     settings: {
@@ -24,7 +24,7 @@ export function simulationWorkflow(local = false) {
         webhookId: 'e62c61c6-a40b-494c-bfe9-fd63428adb23',
         parameters: {
           httpMethod: 'POST',
-          path: 'dupdash-events',
+          path: 'secdash-events',
           responseMode: 'lastNode',
           responseData: 'firstEntryJson',
           options: {},

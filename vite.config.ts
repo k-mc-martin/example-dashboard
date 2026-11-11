@@ -20,7 +20,7 @@ const localBindingConfig = {
     ? [
         {
           binding: d1,
-          database_name: "dupdash-local-db",
+          database_name: "secdash-local-db",
           database_id: SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
         },
       ]
@@ -29,7 +29,7 @@ const localBindingConfig = {
     ? [
         {
           binding: r2,
-          bucket_name: "dupdash-local-storage",
+          bucket_name: "secdash-local-storage",
         },
       ]
     : [],

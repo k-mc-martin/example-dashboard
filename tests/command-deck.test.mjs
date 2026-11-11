@@ -32,7 +32,7 @@ const recovery = (usage = aiUsage) => ({
   surface: "recovery", observedAt, receivedAt, status: "ok",
   data: {
     schemaVersion: 1, generatedAt: observedAt,
-    backupFolder: { name: "Dupdash Backups", bytes: 4096, objects: 8, measuredAt: observedAt },
+    backupFolder: { name: "SecDash Backups", bytes: 4096, objects: 8, measuredAt: observedAt },
     restoreChecks: [
       { checkedAt: "2026-09-30T17:00:00.000Z", requestedSnapshot: "a".repeat(64), ok: false },
       { checkedAt: observedAt, requestedSnapshot: "b".repeat(64), ok: true },

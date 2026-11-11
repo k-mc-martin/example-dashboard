@@ -300,12 +300,12 @@ def main():
         checks[name] = {"status": status, "detail": detail}
         print(f"  {status}: {detail}", flush=True)
 
-    with tempfile.TemporaryDirectory(prefix="dupdash-security-") as temp:
+    with tempfile.TemporaryDirectory(prefix="secdash-security-") as temp:
         work = Path(temp)
         source = work / "source"
         source.mkdir()
         fingerprint = snapshot(source)
-        compose = ["docker", "compose", "-p", "dupdash-check-" + uuid.uuid4().hex[:12],
+        compose = ["docker", "compose", "-p", "secdash-check-" + uuid.uuid4().hex[:12],
                    "-f", source / "infra/simulation/compose.yml", "-f", source / HERE.relative_to(ROOT) / "compose.yml"]
         # Each tool sees only its own writable scratch directory.
         def scratch(name):

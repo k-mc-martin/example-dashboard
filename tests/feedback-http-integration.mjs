@@ -9,7 +9,7 @@ import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 assert.ok(existsSync(join(root, ".next", "BUILD_ID")), "Run a production build before this integration check.");
-const directory = mkdtempSync(join(tmpdir(), "dupdash-feedback-http-"));
+const directory = mkdtempSync(join(tmpdir(), "secdash-feedback-http-"));
 const database = join(directory, "dashboard.sqlite");
 const operatorToken = randomBytes(32).toString("hex");
 const ingestToken = randomBytes(32).toString("hex");
@@ -25,7 +25,7 @@ const base = `http://127.0.0.1:${port}`;
 const expectedHost = "127.0.0.1:5286";
 const server = spawn(process.execPath, [join(root, ".next", "standalone", "server.js")], {
   cwd: root,
-  env: { ...process.env, HOSTNAME: "127.0.0.1", PORT: String(port), DUPDASH_DATABASE_PATH: database, DUPDASH_OPERATOR_TOKEN: operatorToken, DUPDASH_INGEST_TOKEN: ingestToken },
+  env: { ...process.env, HOSTNAME: "127.0.0.1", PORT: String(port), SECDASH_DATABASE_PATH: database, SECDASH_OPERATOR_TOKEN: operatorToken, SECDASH_INGEST_TOKEN: ingestToken },
   stdio: ["ignore", "pipe", "pipe"],
 });
 let serverOutput = "";

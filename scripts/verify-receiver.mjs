@@ -1,5 +1,5 @@
 import fs from 'node:fs';import assert from 'node:assert/strict';
-const base='http://127.0.0.1:5286';const secret=fs.readFileSync('.dev.vars','utf8').match(/^DUPDASH_INGEST_TOKEN=(.+)$/m)[1];
+const base='http://127.0.0.1:5286';const secret=fs.readFileSync('.dev.vars','utf8').match(/^SECDASH_INGEST_TOKEN=(.+)$/m)[1];
 const payload={source:'dashboard-test',messageId:'receiver-verification-20260929',sender:'Dashboard test (synthetic)',subject:'Receiver verification — synthetic test',body:'This is a temporary local verification record. No customer correspondence or external service was used.',receivedAt:'2026-09-29T12:00:00-07:00',category:'beta'};
 const post=(data,token=secret,extras={})=>fetch(base+'/api/n8n/messages',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,...extras},body:JSON.stringify(data)});
 assert.equal((await post(payload,'wrong')).status,401);

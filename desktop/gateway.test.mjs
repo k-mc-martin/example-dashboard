@@ -40,7 +40,7 @@ function request(serverPort, requestPath, { method = "GET", headers = {}, body }
 }
 
 test("desktop gateway isolates local UI, private APIs, and backup control", async t => {
-  const directory = mkdtempSync(path.join(tmpdir(), "dupdash-desktop-gateway-"));
+  const directory = mkdtempSync(path.join(tmpdir(), "secdash-desktop-gateway-"));
   const uiRoot = path.join(directory, "ui");
   const outside = path.join(directory, "private.txt");
   await import("node:fs/promises").then(({ mkdir }) => mkdir(uiRoot));

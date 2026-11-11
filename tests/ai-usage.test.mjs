@@ -35,9 +35,9 @@ test('new month and zero usage remain valid while caps and tiny costs stay preci
 });
 
 test('AI telemetry is accepted and persisted only through the existing strict operations intake',async t=>{
- closeDb();const dir=mkdtempSync(join(tmpdir(),'dupdash-ai-'));process.env.DUPDASH_DATABASE_PATH=join(dir,'db.sqlite');t.after(()=>{closeDb();rmSync(dir,{recursive:true});});const db=getDb();
+ closeDb();const dir=mkdtempSync(join(tmpdir(),'secdash-ai-'));process.env.SECDASH_DATABASE_PATH=join(dir,'db.sqlite');t.after(()=>{closeDb();rmSync(dir,{recursive:true});});const db=getDb();
  const at=sample().measuredAt;
- const record={surface:'recovery',status:'ok',observedAt:at,data:{schemaVersion:1,generatedAt:at,backupFolder:{name:'Dupdash Backups',bytes:12,objects:1,measuredAt:at},restoreChecks:[],automation:{measuredAt:at,workflows:[],executionHistoryAvailable:false,lastExecution:null,failureCount24h:null,aiUsage:sample()}}};
+ const record={surface:'recovery',status:'ok',observedAt:at,data:{schemaVersion:1,generatedAt:at,backupFolder:{name:'SecDash Backups',bytes:12,objects:1,measuredAt:at},restoreChecks:[],automation:{measuredAt:at,workflows:[],executionHistoryAvailable:false,lastExecution:null,failureCount24h:null,aiUsage:sample()}}};
  assert.ok(parseOperation(record));assert.equal(await storeOperation(db,parseOperation(record)),true);assert.equal(await storeOperation(db,parseOperation(record)),false);
  const result=await readOperations(db);assert.deepEqual(result.surfaces.recovery.latest.data.automation.aiUsage,sample());assert.deepEqual(result.surfaces.recovery.latestAiUsage,sample());
  const failed=structuredClone(record);failed.observedAt=failed.data.generatedAt=failed.data.automation.measuredAt='2026-09-30T12:05:00.000Z';failed.data.automation.aiUsage={status:'unavailable',measuredAt:failed.observedAt,errorCode:'usage_unavailable'};

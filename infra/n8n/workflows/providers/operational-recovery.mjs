@@ -32,7 +32,7 @@ function projectRecoveryResponse(response, errorObservedAt = new Date().toISOStr
     if (!exact(body, ["schemaVersion", "generatedAt", "backupFolder", "restoreChecks", "automation", "backupCatalog"]) || body.schemaVersion !== 1) throw new Error("invalid");
     const generatedAt = iso(body.generatedAt);
     const folder = body.backupFolder;
-    if (!generatedAt || !exact(folder, ["name", "bytes", "objects", "measuredAt"]) || folder.name !== "Dupdash Backups") throw new Error("invalid");
+    if (!generatedAt || !exact(folder, ["name", "bytes", "objects", "measuredAt"]) || folder.name !== "SecDash Backups") throw new Error("invalid");
     const bytes = integer(folder.bytes), objects = integer(folder.objects), measuredAt = iso(folder.measuredAt);
     if (bytes === null || objects === null || !measuredAt || !Array.isArray(body.restoreChecks) || body.restoreChecks.length > 1000) throw new Error("invalid");
     const restoreChecks = body.restoreChecks.map(raw => {
@@ -54,7 +54,7 @@ function projectRecoveryResponse(response, errorObservedAt = new Date().toISOStr
     const automation = body.automation;
     if (!exact(automation, ["measuredAt", "workflows", "executionHistoryAvailable", "lastExecution", "failureCount24h", "aiUsage"])) throw new Error("invalid");
     const automationMeasuredAt = iso(automation.measuredAt);
-    const workflowIds = ["DupdashRecoveryOperational", "DupdashCloudflareOperational", "DupdashAzureOperational", "DupdashGoDaddyOperational", "DupdashLemonSqueezyOperational", "DupdashGoogleDriveStorage", "DupdashMailboxContinuityPrepared", "DupdashMailboxRoutingDrain"];
+    const workflowIds = ["SecDashRecoveryOperational", "SecDashCloudflareOperational", "SecDashAzureOperational", "SecDashGoDaddyOperational", "SecDashLemonSqueezyOperational", "SecDashGoogleDriveStorage", "SecDashMailboxContinuityPrepared", "SecDashMailboxRoutingDrain"];
     if (!automationMeasuredAt || !Array.isArray(automation.workflows) || automation.workflows.length > workflowIds.length || typeof automation.executionHistoryAvailable !== "boolean") throw new Error("invalid");
     const workflows = automation.workflows.map(item => {
       if (!exact(item, ["id", "name", "active"]) || !workflowIds.includes(item.id) || typeof item.name !== "string" || !item.name || typeof item.active !== "boolean") throw new Error("invalid");
@@ -96,14 +96,14 @@ function projectRecoveryResponse(response, errorObservedAt = new Date().toISOStr
       if (new Set(libraries.map(item=>item.id)).size !== 2) throw new Error("invalid");
       backupCatalog = {schemaVersion:1,generatedAt:iso(catalog.generatedAt),libraries};
     }
-    return { surface: "recovery", observedAt: generatedAt, status: "ok", data: { schemaVersion: 1, generatedAt, backupFolder: { name: "Dupdash Backups", bytes, objects, measuredAt }, restoreChecks, automation: cleanAutomation, ...(backupCatalog ? {backupCatalog} : {}) } };
+    return { surface: "recovery", observedAt: generatedAt, status: "ok", data: { schemaVersion: 1, generatedAt, backupFolder: { name: "SecDash Backups", bytes, objects, measuredAt }, restoreChecks, automation: cleanAutomation, ...(backupCatalog ? {backupCatalog} : {}) } };
   } catch {
     return { surface: "recovery", observedAt: new Date(errorObservedAt).toISOString(), status: "error", errorCode: "invalid_response" };
   }
 }
 
 const source = `${sanitizeAiUsage.toString()}\n${projectRecoveryResponse.toString()}\nreturn [{json: projectRecoveryResponse($json)}];`;
-export const definition = workflow("DupdashRecoveryOperational", "Dupdash — recovery operations (5 min)", [
+export const definition = workflow("SecDashRecoveryOperational", "SecDash — recovery operations (5 min)", [
   schedule, manualNode, read, codeNode("project", "Sanitize recovery telemetry", source, [-100, 40]), deliveryNode([160, 40]),
 ], {
   "Every 5 minutes": { main: [[{ node: "Read internal recovery feed", type: "main", index: 0 }]] },

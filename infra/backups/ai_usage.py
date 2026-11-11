@@ -12,9 +12,9 @@ from typing import Any
 
 
 MODEL = "gpt-5.6-luna"
-BUDGET_TABLE_NAME = "dupdash_mail_routing_budget"
-LEDGER_TABLE_NAME = "dupdash_mail_continuity_ledger"
-ROUTING_WORKFLOW_ID = "DupdashMailboxRoutingDrain"
+BUDGET_TABLE_NAME = "secdash_mail_routing_budget"
+LEDGER_TABLE_NAME = "secdash_mail_continuity_ledger"
+ROUTING_WORKFLOW_ID = "SecDashMailboxRoutingDrain"
 LIMITS_NODE_NAME = "Demo routing limits"
 MAX_SAFE_INTEGER = 9_007_199_254_740_991
 LIMIT_KEYS = {
@@ -187,7 +187,7 @@ def psql_command(config: dict[str, str]) -> list[str]:
         "sh", "-ceu", 'exec psql --no-psqlrc --quiet --tuples-only --no-align '
         '--set=ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" '
         '--file=-',
-        "dupdash-ai-usage",
+        "secdash-ai-usage",
     ]
 
 

@@ -1,6 +1,6 @@
 {
-  "id": "DupdashGoDaddyOperational",
-  "name": "Dupdash — GoDaddy operations (15 min)",
+  "id": "SecDashGoDaddyOperational",
+  "name": "SecDash — GoDaddy operations (15 min)",
   "active": false,
   "nodes": [
     {
@@ -36,7 +36,7 @@
     },
     {
       "parameters": {
-        "url": "https://domains.dupdash.invalid/v3/domains/domain-names/example.invalid",
+        "url": "https://domains.secdash.invalid/v3/domains/domain-names/example.invalid",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendQuery": false,
@@ -71,8 +71,8 @@
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashGoDaddyRead",
-          "name": "Dupdash GoDaddy read"
+          "id": "SecDashGoDaddyRead",
+          "name": "SecDash GoDaddy read"
         }
       }
     },
@@ -118,8 +118,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashDashboardIngest",
-          "name": "Dupdash dashboard intake"
+          "id": "SecDashDashboardIngest",
+          "name": "SecDash dashboard intake"
         }
       },
       "retryOnFail": true,

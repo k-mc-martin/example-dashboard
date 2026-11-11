@@ -6,8 +6,8 @@ const operatorToken = "operator-token-with-at-least-thirty-two-characters";
 const ingestToken = "ingest-token-with-at-least-thirty-two-characters";
 
 function configureTokens(operator = operatorToken, ingest = ingestToken) {
-  process.env.DUPDASH_OPERATOR_TOKEN = operator;
-  process.env.DUPDASH_INGEST_TOKEN = ingest;
+  process.env.SECDASH_OPERATOR_TOKEN = operator;
+  process.env.SECDASH_INGEST_TOKEN = ingest;
 }
 
 function request({
@@ -25,8 +25,8 @@ function request({
 
 test.beforeEach(() => configureTokens());
 test.after(() => {
-  delete process.env.DUPDASH_OPERATOR_TOKEN;
-  delete process.env.DUPDASH_INGEST_TOKEN;
+  delete process.env.SECDASH_OPERATOR_TOKEN;
+  delete process.env.SECDASH_INGEST_TOKEN;
 });
 
 test("keeps operator and ingest credentials in separate roles", () => {
@@ -38,7 +38,7 @@ test("keeps operator and ingest credentials in separate roles", () => {
 });
 
 test("rejects missing or equal configured credentials", () => {
-  delete process.env.DUPDASH_OPERATOR_TOKEN;
+  delete process.env.SECDASH_OPERATOR_TOKEN;
   assert.equal(authorized(request(), "operator"), false);
   configureTokens(operatorToken, operatorToken);
   assert.equal(authorized(request(), "operator"), false);

@@ -1,6 +1,6 @@
 {
-  "id": "DupdashLemonSqueezyConnectionCheck",
-  "name": "Dupdash — Lemon Squeezy connection check (manual)",
+  "id": "SecDashLemonSqueezyConnectionCheck",
+  "name": "SecDash — Lemon Squeezy connection check (manual)",
   "active": false,
   "nodes": [
     {
@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "url": "https://sales.dupdash.invalid/v1/stores",
+        "url": "https://sales.secdash.invalid/v1/stores",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
@@ -59,8 +59,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashLemonSqueezy",
-          "name": "Dupdash Lemon Squeezy"
+          "id": "SecDashLemonSqueezy",
+          "name": "SecDash Lemon Squeezy"
         }
       }
     },
@@ -105,8 +105,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashDashboardIngest",
-          "name": "Dupdash dashboard intake"
+          "id": "SecDashDashboardIngest",
+          "name": "SecDash dashboard intake"
         }
       }
     }

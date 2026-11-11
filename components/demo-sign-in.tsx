@@ -34,7 +34,7 @@ export function DemoSignIn() {
   }, []);
   useEffect(() => {
     const initial = window.setTimeout(() => void load(), 0);
-    const updates = new BroadcastChannel('dupdash-login');
+    const updates = new BroadcastChannel('secdash-login');
     channel.current = updates;
     updates.onmessage = () => { setSession(null); void load(); };
     const onVisible = () => { if (document.visibilityState === 'visible') void load(); };

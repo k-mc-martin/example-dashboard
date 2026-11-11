@@ -16,7 +16,7 @@ for await (const line of createInterface({ input: process.stdin })) {
       supportedVersions: ['2026-07-28'],
       ttlMs: 0, cacheScope: 'private',
       capabilities: { tools: {} },
-      _meta: { 'io.modelcontextprotocol/serverInfo': { name: 'dupdash-stdio-fixture', version: '1' } },
+      _meta: { 'io.modelcontextprotocol/serverInfo': { name: 'secdash-stdio-fixture', version: '1' } },
     };
   } else if (method === 'tools/list') {
     result = { resultType: 'complete', ttlMs: 0, cacheScope: 'private', tools: [tool] };

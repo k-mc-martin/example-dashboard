@@ -19,13 +19,13 @@ function cookie(response, name) {
 
 export default function () {
   const role = roles[__VU - 1];
-  const workspace = cookie(http.get(base), '__Host-dupdash_workspace');
+  const workspace = cookie(http.get(base), '__Host-secdash_workspace');
   const choices = http.get(base + '/api/demo/session', { headers: { Cookie: workspace } }).json('choices');
   const { id, pass } = choices.find(choice => choice.role === role);
   const login = http.post(base + '/api/demo/session', JSON.stringify({ id, pass }), {
     headers: { Cookie: workspace, Origin: base, 'Content-Type': 'application/json' },
   });
-  const session = workspace + '; ' + cookie(login, '__Host-dupdash_login');
+  const session = workspace + '; ' + cookie(login, '__Host-secdash_login');
   for (const [path, expected] of [
     ['/api/dashboard', 200],
     ['/api/drive-storage', role === 'Employee' ? 403 : 200],

@@ -10,7 +10,7 @@ export async function withDashboardDb<T>(
 ): Promise<T> {
   if (!demoEnabled()) return use(getDb());
   const id = workspaceId(request);
-  const dir = process.env.DUPDASH_WORKSPACES;
+  const dir = process.env.SECDASH_WORKSPACES;
   if (!id || !dir || !isAbsolute(dir)) throw Error('Demo workspace unavailable');
   mkdirSync(dir, { recursive: true, mode: 0o700 });
   const now = Date.now();

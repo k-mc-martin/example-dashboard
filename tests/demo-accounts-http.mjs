@@ -59,7 +59,7 @@ test(cases.login.test, async () => {
   assert.equal((await request(a, '/api/demo/session')).status, 401);
   const recovery = await request(a, '/');
   const replacement = recovery.headers.get('set-cookie')?.split(';')[0];
-  assert.match(replacement, /^__Host-dupdash_workspace=/);
+  assert.match(replacement, /^__Host-secdash_workspace=/);
   assert.notEqual(replacement, a);
   const fresh = await signIn(replacement, 'Owner');
   assert.deepEqual((await json(fresh, '/api/dashboard')).messages, []);

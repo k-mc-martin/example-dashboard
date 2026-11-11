@@ -34,9 +34,9 @@ test("accepts only the strict bounded Drive payload contract", () => {
 
 test("stores observations idempotently and preserves latest success after a newer error", async (t) => {
   closeDb();
-  const directory = mkdtempSync(join(tmpdir(), "dupdash-drive-"));
+  const directory = mkdtempSync(join(tmpdir(), "secdash-drive-"));
   t.after(() => { closeDb(); rmSync(directory, { recursive: true }); });
-  process.env.DUPDASH_DATABASE_PATH = join(directory, "dashboard.sqlite");
+  process.env.SECDASH_DATABASE_PATH = join(directory, "dashboard.sqlite");
   const db = getDb();
   const firstAt = "2026-09-30T16:00:00.000Z";
   const errorAt = "2026-09-30T16:05:00.000Z";
@@ -57,9 +57,9 @@ test("stores observations idempotently and preserves latest success after a newe
 
 test("returns at most 288 recent samples without deleting older rows", async (t) => {
   closeDb();
-  const directory = mkdtempSync(join(tmpdir(), "dupdash-drive-"));
+  const directory = mkdtempSync(join(tmpdir(), "secdash-drive-"));
   t.after(() => { closeDb(); rmSync(directory, { recursive: true }); });
-  process.env.DUPDASH_DATABASE_PATH = join(directory, "dashboard.sqlite");
+  process.env.SECDASH_DATABASE_PATH = join(directory, "dashboard.sqlite");
   const db = getDb();
   const base = Date.parse("2026-09-29T00:00:00.000Z");
   for (let index = 0; index < 290; index += 1) {

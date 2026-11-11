@@ -1,6 +1,6 @@
 {
-  "id": "DupdashAzureConnectionCheck",
-  "name": "Dupdash — Azure Artifact Signing connection check (manual)",
+  "id": "SecDashAzureConnectionCheck",
+  "name": "SecDash — Azure Artifact Signing connection check (manual)",
   "active": false,
   "nodes": [
     {
@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "url": "https://signing.dupdash.invalid/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing",
+        "url": "https://signing.secdash.invalid/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
@@ -55,8 +55,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashAzureInventory",
-          "name": "Dupdash Azure inventory"
+          "id": "SecDashAzureInventory",
+          "name": "SecDash Azure inventory"
         }
       }
     },
@@ -101,8 +101,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "DupdashDashboardIngest",
-          "name": "Dupdash dashboard intake"
+          "id": "SecDashDashboardIngest",
+          "name": "SecDash dashboard intake"
         }
       }
     }

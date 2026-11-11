@@ -27,8 +27,8 @@ export function authorized(request: Request, role: "operator" | "ingest"): boole
   const site = request.headers.get("sec-fetch-site");
   if (role === "ingest" && (request.method !== "POST" || origin || site)) return false;
   if (role === "operator" && ((origin && origin !== `http://${host}`) || (site && !["same-origin", "none"].includes(site)))) return false;
-  const operator = process.env.DUPDASH_OPERATOR_TOKEN;
-  const ingest = process.env.DUPDASH_INGEST_TOKEN;
+  const operator = process.env.SECDASH_OPERATOR_TOKEN;
+  const ingest = process.env.SECDASH_INGEST_TOKEN;
   if (!operator || !ingest || operator === ingest) return false;
   const authorization = request.headers.get("authorization") || "";
   return authorization.startsWith("Bearer ") && matches(authorization.slice(7), role === "operator" ? operator : ingest);

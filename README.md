@@ -10,7 +10,9 @@ SecDash is an interactive security dashboard for testing connector permissions w
 
 With Docker Compose running, use `npm run demo:up` from this directory, then open [the local dashboard](http://127.0.0.1:5286). The stack builds from this checkout and uses a dedicated n8n instance. Only the dashboard publishes a loopback port. No provider accounts or keys are needed. Run `npm run demo:down` to stop the stack. The workspaces and demo credentials are temporary and reset when their containers restart.
 
-If the default port is occupied, run `DUPDASH_DEMO_PORT=5287 npm run demo:up` and open [the demo on port 5287](http://127.0.0.1:5287). Use the same environment variable when running HTTP verification. Member tabs use separate `*.localhost` hosts on the same loopback port.
+If the default port is occupied, run `SECDASH_DEMO_PORT=5287 npm run demo:up` and open [the demo on port 5287](http://127.0.0.1:5287). Use the same environment variable when running HTTP verification. Member tabs use separate `*.localhost` hosts on the same loopback port.
+
+Existing local installs can copy their settings to the corresponding `SECDASH_*` variables and keep the same database path. Stop the previous simulation project before reusing its port. The first visit after the rename starts a fresh demo workspace.
 
 ## Data flow
 
