@@ -2,6 +2,9 @@
 services:
   suite-runner:
     restart: unless-stopped
+    # OVH resolves its own hostname to loopback locally. The browser needs the public TLS entry point.
+    extra_hosts:
+      - "vps-ca027b84.vps.ovh.us:15.204.123.246"
     environment:
       SECDASH_REVISION: ${SECDASH_REVISION:?Set the deployed revision}
       SECDASH_BROWSER_TARGET: https://vps-ca027b84.vps.ovh.us
