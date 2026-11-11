@@ -7,6 +7,9 @@ COPY . .
 RUN npm run build:node
 
 FROM node:24.21.0-bookworm-slim AS runtime
+ARG DUPDASH_REVISION=local
+ENV DUPDASH_REVISION=$DUPDASH_REVISION
+LABEL org.opencontainers.image.revision=$DUPDASH_REVISION
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000
 COPY --from=build --chown=node:node /app/.next/standalone ./

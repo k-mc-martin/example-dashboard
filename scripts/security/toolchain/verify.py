@@ -350,7 +350,7 @@ def main():
                     return "passed", ", ".join(s[2:] for s in lines)
                 return "passed", "Verified provider delivery, retries, workspace isolation and backup completion"
             record(live[0], harness, ["tests/demo-accounts-http.mjs", "tests/demo-login.test.mjs",
-                "tests/demo-isolation.test.mjs", "tests/fictional-providers.test.mjs"], True)
+                "tests/hosted-sessions.test.mjs", "tests/demo-isolation.test.mjs", "tests/fictional-providers.test.mjs"], True)
             record(live[1], harness, ["tests/fictional-providers-http.mjs"])
             record(live[2], k6, network, scratch("k6"))
             record(live[3], zap, network, scratch("zap"), build_img, mounts)

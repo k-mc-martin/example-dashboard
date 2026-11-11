@@ -1,0 +1,14 @@
+# Overlay for the isolated simulation stack on the public demo VPS.
+services:
+  dashboard:
+    build:
+      args:
+        DUPDASH_REVISION: ${DUPDASH_REVISION:?Set the commit used to build the visitor image}
+    restart: unless-stopped
+    environment:
+      DUPDASH_PUBLIC_HOST: vps-ca027b84.vps.ovh.us
+      DUPDASH_MEMBER_DOMAIN: 15-204-123-246.sslip.io
+  n8n:
+    restart: unless-stopped
+  providers:
+    restart: unless-stopped

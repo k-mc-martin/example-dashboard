@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { createMemberTab } from '@/lib/demo-login';
 import { demoAccounts } from '@/lib/demo-permissions';
-import { demoEnabled, workspaceId } from '@/lib/demo-session';
+import { demoEnabled, demoScheme, workspaceId } from '@/lib/demo-session';
 import { authorized, denied } from '@/lib/server-auth';
 
 export async function POST(request: Request) {
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   if (!member) return Response.json({ error: 'Choose a team member.' }, { status: 400 });
   if (!authorized(request, 'operator')) return denied(request);
   const { host, ticket } = createMemberTab(workspaceId(request)!, member.id);
-  const destination = 'http://' + host;
+  const destination = demoScheme() + host;
   const nonce = randomBytes(16).toString('base64');
   // The short-lived one-use ticket travels in the request body, outside URLs and browser history.
   return new Response(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="referrer" content="origin"><title>Open member session</title>

@@ -23,7 +23,7 @@ The server owns session identity, workspace membership, and effective permission
 
 The server issues a sign-in pass for each fictional identity in a signed-out workspace. It checks the workspace, identity and pass, then issues a new random 256-bit login token. SQLite records the token hash and its account. Both cookie names carry the `__Host-` prefix and are host-only with Secure, HttpOnly and SameSite=Strict. Mutating browser requests require the allowed origin. Every dashboard data request checks the active login against its workspace and the server's permission policy.
 
-Tabs opened at the main dashboard address share its primary sign-in. Teams opens each member on a separate, random loopback hostname. An Owner-authorized form hands off a host-bound, one-use ticket in its POST body. Redemption expires after one minute and establishes fresh host-only cookies. The member’s workspace signature and login are bound to that member host. Each request resolves the current permissions from the visitor’s own team settings. An open dashboard rechecks access on focus and every four seconds while visible. Signing out revokes just that session. Other tabs with independent logins can continue to use the shared fictional records. The login ends no later than the workspace's eight-hour expiry, even when the visitor signs in late. This local exercise uses a fixed absolute lifetime. Inactivity handling and public HTTPS deployment have separate verification scope.
+Tabs opened at the main dashboard address share its primary sign-in. In the local demo, Teams opens each member tab on a random loopback hostname. The public demo gives Mira and Theo separate HTTPS hostnames. Each visitor gets distinct tickets and login tokens. Reopening the same member in the same browser shares that member’s current cookies. An Owner-authorized form hands off a host-bound, one-use ticket in its POST body. Redemption expires after one minute and establishes fresh host-only cookies. The member’s workspace signature and login are bound to that member host. Each request resolves the current permissions from the visitor’s own team settings. An open dashboard rechecks access on focus and every four seconds while visible. Signing out revokes just that session. Other tabs with independent logins can continue to use the shared fictional records. The login ends no later than the workspace's eight-hour expiry, even when the visitor signs in late. The demo uses a fixed absolute lifetime. The account workflow tests the loopback build. The manual worksheet identifies the running public revision and includes the HTTPS walkthrough.
 
 ## Try two tabs
 
@@ -31,6 +31,8 @@ Tabs opened at the main dashboard address share its primary sign-in. Teams opens
 2. In Teams, grant deployment access and save. Open Deployments as the member. Revoke that access and refresh the feed in the member tab. The server returns a denial. Restoring the permission reopens the view.
 3. Grant storage viewing with **Start backups** unchecked. Use **Back Up Now** in the member tab, inspect the denial, and compare the backup history. Grant the action and try again in the same tab.
 4. Continue exploring either tab or sign out independently.
+
+[Worksheet for the four open ASVS reviews](manual-review.md)
 
 ## Manual verification log
 

@@ -1,10 +1,31 @@
 import { randomBytes } from 'node:crypto';
-import { demoEnabled, demoOriginAllowed, memberHost, demoCookie, newDemoCookie, workspaceId, lifetimeSeconds } from './lib/demo-session';
+import { demoEnabled, demoOriginAllowed, primaryHost, memberHost, demoCookie, newDemoCookie, workspaceId, lifetimeSeconds } from './lib/demo-session';
 import { currentAccount, hasActiveLogin } from "./lib/demo-login";
 import { NextResponse, type NextRequest } from "next/server";
 import { authorized, denied } from "./lib/server-auth";
 
 export function proxy(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  const site = request.headers.get('sec-fetch-site');
+  if (path === '/version' && demoEnabled() && primaryHost(request.headers.get('host')) &&
+      ['GET', 'HEAD'].includes(request.method)) {
+    const commit = process.env.DUPDASH_REVISION ?? '';
+    if (!/^[a-f0-9]{40}$/.test(commit)) return new NextResponse(null, { status: 404 });
+    return NextResponse.json({ commit, source: 'https://github.com/k-mc-martin/example-dashboard/tree/' + commit },
+      { headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' } });
+  }
+  if (demoEnabled() && primaryHost(request.headers.get('host')) && ['GET', 'HEAD'].includes(request.method) &&
+      (path === '/launch' || (path === '/' && (site === 'cross-site' || site === 'same-site')))) {
+    // Commit a first-party page before reading Strict cookies. Returning visitors
+    // retain their existing workspace when they follow an external link.
+    const nonce = randomBytes(16).toString('base64');
+    return new NextResponse(request.method === 'HEAD' ? null : `<!doctype html><html lang="en"><meta charset="utf-8"><title>Launch Dupdash</title>
+      <a href="/">Open Dupdash</a><script nonce="${nonce}">location.replace('/')</script></html>`, {headers: {
+      'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store',
+      'Content-Security-Policy': `default-src 'none'; script-src 'nonce-${nonce}'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'`,
+      'Referrer-Policy': 'no-referrer', 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY',
+    }});
+  }
   const role = ["/api/n8n/messages", "/api/n8n/provider-connections", "/api/n8n/drive-storage", "/api/n8n/operations"].includes(request.nextUrl.pathname) ? "ingest" : "operator";
   const localDemo = demoEnabled() && demoOriginAllowed(request);
   const workspace = localDemo ? workspaceId(request) : null;
@@ -12,7 +33,6 @@ export function proxy(request: NextRequest) {
   const handoff = member && request.method === 'POST' && request.nextUrl.pathname === '/api/demo/enter';
   const entering = !member && localDemo && request.method === "GET" && request.nextUrl.pathname === "/" &&
     (!workspace || (hasActiveLogin(workspace) && !currentAccount(request)));
-  const path = request.nextUrl.pathname;
   const publicAsset = path.startsWith("/_next/static/") || path === "/favicon.svg" || path.startsWith("/brand/");
   const publicRead = (request.method === "GET" || request.method === "HEAD") && (path === "/" || publicAsset);
   const sessionRoute = path === "/api/demo/session" && !!workspace;

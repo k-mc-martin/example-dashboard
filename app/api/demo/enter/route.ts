@@ -1,12 +1,12 @@
 import { randomBytes } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { enterMemberTab, loginCookie } from '@/lib/demo-login';
-import { demoCookie, demoEnabled, memberHost, primaryHost, signedWorkspace } from '@/lib/demo-session';
+import { demoCookie, demoEnabled, demoScheme, memberHost, primaryHost, signedWorkspace } from '@/lib/demo-session';
 
 export async function POST(request: Request) {
   const host = request.headers.get('host');
   const origin = request.headers.get('origin') ?? '';
-  if (!demoEnabled() || !memberHost(host) || !origin.startsWith('http://') || !primaryHost(origin.slice(7)))
+  if (!demoEnabled() || !memberHost(host) || !origin.startsWith(demoScheme()) || !primaryHost(origin.slice(demoScheme().length)))
     return new Response('Open a member session from Teams.', { status: 403 });
   const form = await request.formData().catch(() => null);
   const ticket = form?.get('ticket');
