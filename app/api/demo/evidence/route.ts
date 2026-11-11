@@ -1,3 +1,4 @@
+import { observed } from '@/lib/review/manual';
 import { readFile } from 'node:fs/promises';
 import {
   demoEnabled,
@@ -9,7 +10,7 @@ import { retiredWorkspace } from '@/lib/demo-login';
 import { runFor } from '@/lib/security-lab/store';
 import { exerciseByNumber } from '@/lib/security-lab/catalog';
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const workspace = workspaceId(request);
   if (
     !demoEnabled() ||
@@ -45,3 +46,5 @@ export async function GET(request: Request) {
   }
   return Response.json({ commit, runs: [], checks: [] });
 }
+
+export function GET(req:Request){return observed(req, handleGET);}

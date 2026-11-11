@@ -6,6 +6,10 @@
 
 [Earlier account review results](docs/security/accounts.md#hosted-account-review-november-10-2026) · [Repeat the account checks (optional)](docs/security/manual-review.md) · [Browse the source in VS Code](https://github.dev/k-mc-martin/example-dashboard) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version)
 
+**Run all 19 exercises** starts an independent automated review from the exercise picker. You can watch its progress and download one PDF with the assertion results and redacted HTTP responses for every exercise. The runner executes the dashboard in Chromium. Exercises 8, 13 and 15 retrieve this build’s published evidence. The suite report stays available to the same browser for eight hours.
+
+**Explore an exercise yourself** opens its dashboard controls. Choose **Download exercise report (PDF)** to keep the receipts recorded by the backend. Each receipt identifies the operation, role, HTTP decision, and relevant response fields. Payment operations also report the resulting ledger state and provider refund count. Download before starting another exercise.
+
 SecDash is an interactive security dashboard for testing connector permissions with fictional business activity. Each browser session gets its own eight-hour workspace. Choose an exercise to open its dashboard screens. For **Account permissions**, sign in as Mira and select **Submit refund** in **Payments & refunds**. Use **Sign out** to switch to Inez and approve the same refund. The three evidence reviews open directly in **Verification results**. Choose **Generate new activity** in a signed-in dashboard to trigger a provider update. An open, visible dashboard also requests activity once a minute.
 
 [![SecDash exercise picker showing independent security exercises](docs/security/campaign/exercise-picker.png)](https://vps-ca027b84.vps.ovh.us/launch)

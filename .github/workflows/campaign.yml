@@ -39,6 +39,10 @@ jobs:
           set -o pipefail
           npm ci --prefix tests/browser --ignore-scripts --no-audit --no-fund
           npm test --prefix tests/browser | tee artifacts/campaign/dashboard-browser.tap
+      - name: Verify both visitor PDF downloads and report isolation
+        run: |
+          if ! command -v pdftotext >/dev/null; then sudo apt-get update && sudo apt-get install -y poppler-utils; fi
+          node --test tests/browser/downloads.test.mjs
       - name: Publish observations
         if: always()
         run: |

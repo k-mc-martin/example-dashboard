@@ -6,6 +6,8 @@ Choose a card, then a fictional role for interactive exercises. The dashboard op
 
 For each review, record the deployed commit, date, browser, role, request or steps, expected and actual result, and evidence. Download observations from a dashboard screen where you ran a check before signing out. Do not include passwords, raw cookies, access tokens or activation codes. Use [the blank results sheet](manual-results.csv) for a private working copy; publish only redacted observations. Opening a card or receiving an error alone is not a passing grade. Confirm a positive control and the resulting data or absence of a side effect.
 
+Use **Download exercise report (PDF)** on an exercise screen to export the backend receipts. The Owner can collect receipts across roles in the same workspace. To run the automated scenarios, use **Run all 19 exercises** on the picker. The suite PDF includes the actual HTTP responses, assertion outcomes, and build revision.
+
 ## Exercise directory
 
 | # | Exercise | Dashboard screens | What to try |

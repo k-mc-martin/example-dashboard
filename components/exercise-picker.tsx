@@ -1,4 +1,5 @@
 'use client';
+import { SuiteReview } from './suite-review';
 import { useState } from 'react';
 import { catalog, type Exercise } from '@/lib/security-lab/catalog';
 export function ExercisePicker({
@@ -23,6 +24,9 @@ export function ExercisePicker({
           starts a fresh workspace. You decide which actions to try.
         </p>
       </header>
+      <SuiteReview />
+      <h2>Explore an exercise yourself</h2>
+      <p>Choose a card below. Each exercise includes a downloadable report of its server responses.</p>
       <nav aria-label="Filter exercises">
         {['All', 'Dashboard', 'Connector', 'Evidence'].map((f) => (
           <button

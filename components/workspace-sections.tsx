@@ -417,6 +417,7 @@ export function ExerciseActions({ screen }: { screen: WorkspaceScreen }) {
       )}
       {screen === 'staff' && <StaffAccess />}
       {screen === 'evidence' && <VerificationResults />}
+      <a className="outline-button" href="/api/demo/report" download>Download exercise report (PDF)</a>
       {latest && <ActionResult observation={latest} />}
       {obs.length > 0 && (
         <div className="workspace-receipts">

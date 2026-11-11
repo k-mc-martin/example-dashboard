@@ -1,3 +1,4 @@
+import {recordOutsideDenial} from './lib/review/manual';
 import { randomBytes } from 'node:crypto';
 import { demoEnabled, demoOriginAllowed, primaryHost, attackHost, memberHost, demoCookie, newDemoCookie, workspaceId, lifetimeSeconds } from './lib/demo-session';
 import { currentAccount, retiredWorkspace, hasActiveLogin } from "./lib/demo-login";
@@ -36,14 +37,20 @@ export function proxy(request: NextRequest) {
   const publicAsset = path.startsWith("/_next/static/") || path === "/favicon.svg" || path.startsWith("/brand/");
   const publicRead = (request.method === "GET" || request.method === "HEAD") && (path === "/" || publicAsset);
   const sessionRoute = path === "/api/demo/session" && !!workspace;
+  const reviewReport = path === '/api/demo/report' && request.method === 'GET' && !!workspace;
+  const suiteJob = path === '/api/demo/suite' && ['GET', 'POST'].includes(request.method) && !!workspace && primaryHost(request.headers.get('host'));
   const exerciseEvidence = path === '/api/demo/evidence' && request.method === 'GET' && !!workspace;
   const exerciseSetup = path === '/api/demo/exercise' && request.method === 'POST' && !!workspace;
   const authenticatedLab = path === '/api/demo/lab' && !!workspace && !!currentAccount(request);
   const resource = path === '/api/demo/mcp' && demoEnabled() && (primaryHost(request.headers.get('host')) || member) && (!request.headers.has('origin') || localDemo);
   if(path==='/api/demo/mcp' && demoEnabled() && !resource)return new NextResponse(null,{status:403});
   const hostilePage = demoEnabled() && path === '/attack-site' && request.headers.get('host')===attackHost() && request.method === 'GET';
-  const demoEntry = resource || hostilePage || (localDemo && (publicRead || sessionRoute || exerciseEvidence || exerciseSetup || authenticatedLab));
-  if (!handoff && !demoEntry && !authorized(request, role)) return denied(request);
+  const demoEntry = resource || hostilePage || (localDemo && (publicRead || sessionRoute || reviewReport || suiteJob || exerciseEvidence || exerciseSetup || authenticatedLab));
+  if (!handoff && !demoEntry && !authorized(request, role)) {
+    const result=denied(request);
+    if(demoEnabled()&&path==='/api/demo/lab') recordOutsideDenial(request,result);
+    return result;
+  }
   let response;
   if (path === "/") {
     const nonce = randomBytes(16).toString("base64");

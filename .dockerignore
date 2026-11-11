@@ -57,3 +57,12 @@
 **/credentials/
 
 !lib/security-lab/common-passwords.json
+
+!tests/
+!tests/browser/
+!tests/browser/package*.json
+!tests/browser/dashboard.test.mjs
+!tests/browser/suite-observer.mjs
+!infra/
+!infra/suite/
+!infra/suite/worker.mjs

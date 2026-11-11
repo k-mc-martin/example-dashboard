@@ -1,3 +1,4 @@
+import { observed, outsideProof } from '@/lib/review/manual';
 import { compareReceipts } from '@/lib/security-lab/receipts';
 import { issueAccess } from '@/lib/security-lab/access-token';
 import { NextResponse } from 'next/server';
@@ -20,7 +21,7 @@ import {
 } from '@/lib/security-lab/store';
 import { authorize, exchange } from '@/lib/security-lab/connector';
 import { staff, staffCookie } from '@/lib/security-lab/staff';
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   if (!demoEnabled() || !demoOriginAllowed(req))
     return new Response(null, { status: 403 });
   if (req.headers.get('content-type')?.split(';')[0] !== 'application/json')
@@ -206,7 +207,7 @@ export async function POST(req: Request) {
             demoScheme() +
             attackHost() +
             '/attack-site?entry=' +
-            encodeURIComponent(req.headers.get('host')!),
+            encodeURIComponent(req.headers.get('host')!)+'&probe='+outsideProof(w,a.id),
         };
         break;
       case 'isolation':
@@ -274,3 +275,5 @@ export async function POST(req: Request) {
     throw e;
   }
 }
+
+export function POST(req:Request){return observed(req, handlePOST);}

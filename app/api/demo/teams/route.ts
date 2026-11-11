@@ -1,3 +1,4 @@
+import { observed } from '@/lib/review/manual';
 import { changeTeamAccess, effectiveAccount } from '@/lib/demo-login';
 import { demoAccounts, validPermissions } from '@/lib/demo-permissions';
 import { demoEnabled, workspaceId } from '@/lib/demo-session';
@@ -13,7 +14,7 @@ export function GET(request: Request) {
   if (!canManage(request)) return denied(request);
   return Response.json({ members: members(workspaceId(request)!) });
 }
-export async function PUT(request: Request) {
+async function handlePUT(request: Request) {
   if (!canManage(request)) return denied(request);
   const edit = await request.json().catch(() => null);
   if (!edit || typeof edit !== 'object' || !('id' in edit) || !('role' in edit) || !('permissions' in edit))
@@ -26,3 +27,5 @@ export async function PUT(request: Request) {
   changeTeamAccess(workspace, identity.id, edit.role, edit.permissions);
   return Response.json({ members: members(workspace) });
 }
+
+export function PUT(req:Request){return observed(req, handlePUT);}

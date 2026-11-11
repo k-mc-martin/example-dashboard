@@ -1,3 +1,4 @@
+import {beginCase,finishCase,observeContext} from './suite-observer.mjs';
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { chromium } from 'playwright-core';
@@ -14,13 +15,14 @@ const hosted = new URL(origin).protocol === 'https:';
 const diagnostics = new WeakMap();
 let browser;
 before(async () => {
-  browser = await chromium.launch({ channel: 'chrome' });
+  browser = await chromium.launch(process.env.SECDASH_CHROME_PATH ? {executablePath:process.env.SECDASH_CHROME_PATH} : {channel:'chrome'});
 });
 after(async () => {
   await browser?.close();
 });
 
 async function start(page, number, role = 'Owner') {
+  observeContext(page.context());
   // The public launch endpoint accepts twelve workspaces per minute.
   if (hosted) await new Promise((resolve) => setTimeout(resolve, 5500));
   await page.goto(origin + '/launch');
@@ -167,6 +169,8 @@ function scenario(n, role, description, perform) {
       ' — ' +
       description,
     async (t) => {
+      beginCase(n,exercise.title,description);
+      let passed=false;
       const page = await browser.newPage({
         viewport:
           n === 19 ? { width: 390, height: 844 } : { width: 980, height: 850 },
@@ -196,7 +200,9 @@ function scenario(n, role, description, perform) {
         }
         await openScreen(page, workspaceScreens[screens[0]].title);
         await perform(page);
+        passed=true;
       } finally {
+        await finishCase(passed,passed?undefined:"An assertion or browser step did not complete. Inspect the preceding responses and retry.");
         await page.close();
       }
     },
@@ -596,7 +602,7 @@ scenario(
         'response',
         (r) =>
           r.request().method() === 'POST' &&
-          r.url() === origin + '/api/demo/lab',
+          new URL(r.url()).origin === origin && new URL(r.url()).pathname === '/api/demo/lab',
       );
     await outside
       .getByRole('button', { name: 'Send a cross-site form' })

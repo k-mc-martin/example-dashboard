@@ -1,3 +1,4 @@
+import { observed } from '@/lib/review/manual';
 import { callTool } from '@/lib/security-lab/connector';
 import { LabError } from '@/lib/security-lab/store';
 import {
@@ -10,7 +11,7 @@ import {
 export function GET() {
   return new Response(null, { status: 405, headers: { Allow: 'POST' } });
 }
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   const host = req.headers.get('host');
   if (
     !demoEnabled() ||
@@ -49,3 +50,5 @@ export async function POST(req: Request) {
     throw e;
   }
 }
+
+export function POST(req:Request){return observed(req, handlePOST);}

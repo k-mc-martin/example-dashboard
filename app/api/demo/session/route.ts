@@ -1,3 +1,4 @@
+import { observed, memberEnded } from '@/lib/review/manual';
 import { runFor } from '@/lib/security-lab/store';
 import { NextResponse } from 'next/server';
 import {
@@ -52,7 +53,7 @@ export function GET(request: Request) {
       expiresAt: Number(id.slice(0, 13)) + lifetimeSeconds * 1000,
     });
   if (memberHost(request.headers.get('host')))
-    return NextResponse.json({ account: null, choices: [], memberTab: true });
+    return memberEnded(id, NextResponse.json({ account: null, choices: [], memberTab: true }));
   if (hasActiveLogin(id)) return refused();
   return NextResponse.json({
     account: null,
@@ -66,7 +67,7 @@ export function GET(request: Request) {
       })),
   });
 }
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const id = workspace(request);
   if (!id) return refused();
   if (currentAccount(request))
@@ -100,7 +101,7 @@ export async function POST(request: Request) {
   });
   return response;
 }
-export function DELETE(request: Request) {
+function handleDELETE(request: Request) {
   const id = workspace(request);
   if (!id) return refused();
   if (hasActiveLogin(id) && !currentAccount(request)) return refused();
@@ -109,3 +110,7 @@ export function DELETE(request: Request) {
   response.cookies.set(loginCookie, '', { ...options, maxAge: 0 });
   return response;
 }
+
+export function POST(req:Request){return observed(req, handlePOST);}
+
+export function DELETE(req:Request){return observed(req, handleDELETE);}
