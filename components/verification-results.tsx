@@ -30,8 +30,13 @@ const subjects = {
     title: 'Build verification',
     action: 'Inspect this build’s runs',
     workflow: 'campaign',
-    checks: /^(Browser|Server) checks$/,
-    runs: ['Exercise campaign', 'Security tools', 'Hosted boundary'],
+    checks: /^(Browser checks$|Server checks$|Exercise \d+ —)/,
+    runs: [
+      'Exercise campaign',
+      'Hosted dashboard exercises',
+      'Security tools',
+      'Hosted boundary',
+    ],
   },
 } as const;
 

@@ -2,7 +2,7 @@
 
 [![Launch SecDash](docs/launch-secdash.svg)](https://vps-ca027b84.vps.ovh.us/launch)
 
-[Repeat the security checks (optional)](docs/security/campaign/README.md) · [Campaign checks](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml)
+[Repeat the security checks (optional)](docs/security/campaign/README.md) · [Hosted results by exercise](https://github.com/k-mc-martin/example-dashboard/actions/workflows/hosted-exercises.yml) · [Campaign checks](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml)
 
 [Earlier account review results](docs/security/accounts.md#hosted-account-review-november-10-2026) · [Repeat the account checks (optional)](docs/security/manual-review.md) · [Browse the source in VS Code](https://github.dev/k-mc-martin/example-dashboard) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version)
 

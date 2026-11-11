@@ -6,10 +6,13 @@ import re
 import subprocess
 import tempfile
 
+from dashboard_browser_results import browser_results
+
 REPO = "k-mc-martin/example-dashboard"
 WORKFLOWS = (
     ("security-tools.yml", "Security tools", "security-tool-evidence", "summary.json"),
     ("campaign.yml", "Exercise campaign", "security-exercise-campaign", "report.json"),
+    ("hosted-exercises.yml", "Hosted dashboard exercises", None, None),
     ("hosted-boundary.yml", "Hosted boundary", "hosted-boundary", "report.json"),
 )
 
@@ -30,7 +33,7 @@ def collect(commit):
         result["runs"].append({"title": title, "id": run["databaseId"],
                                "status": run["conclusion"] or run["status"],
                                "updatedAt": run["updatedAt"]})
-        if run["status"] != "completed" or run["conclusion"] != "success":
+        if not artifact or run["status"] != "completed" or run["conclusion"] != "success":
             continue
         with tempfile.TemporaryDirectory() as tmp:
             gh("run", "download", str(run["databaseId"]), "--name", artifact, "--dir", tmp)
@@ -45,6 +48,8 @@ def collect(commit):
             if workflow == "campaign.yml":
                 for filename, label in (("checks.tap", "Server checks"), ("dashboard-browser.tap", "Browser checks")):
                     tap = (Path(tmp) / filename).read_text()
+                    if label == "Browser checks":
+                        result["checks"].extend(browser_results(tap))
                     counts = dict(re.findall(r"^# (pass|fail|skipped) (\d+)$", tap, re.M))
                     result["checks"].append({"name": label, "status": run["conclusion"],
                                              "detail": ", ".join(f"{v} {k}" for k, v in counts.items())})

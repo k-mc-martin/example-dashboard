@@ -66,3 +66,6 @@ ssh "$DEMO_SSH" "mv /opt/secdash-evidence/$REVISION.json.tmp /opt/secdash-eviden
 ```
 
 A fresh deployment displays its revision and the pending-evidence message until its summary is available. Local builds can inspect live headers and open the public workflow sources.
+
+
+The campaign run summary lists one browser scenario per exercise. Its TAP artifact records the actions and expected server responses. After publishing this revision’s evidence, run **Hosted dashboard exercises** from GitHub Actions to repeat those 19 scenarios on the public demo. That workflow checks the deployed revision before and after the walkthrough and uses fresh fictional visitors.

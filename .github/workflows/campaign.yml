@@ -43,6 +43,7 @@ jobs:
         if: always()
         run: |
           echo "Commit: \`$GITHUB_SHA\`" >> "$GITHUB_STEP_SUMMARY"
+          python3 scripts/security/dashboard_browser_results.py artifacts/campaign/dashboard-browser.tap >> "$GITHUB_STEP_SUMMARY"
           echo 'See checks.tap for individual outcomes, report.json for coverage and source checks. Human verdicts are recorded separately.' >> "$GITHUB_STEP_SUMMARY"
           if test -f artifacts/campaign/checks.tap; then tail -n 10 artifacts/campaign/checks.tap >> "$GITHUB_STEP_SUMMARY"; fi
       - if: always()
