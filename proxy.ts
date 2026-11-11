@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { demoEnabled, demoOriginAllowed, memberHost, demoCookie, newDemoCookie, workspaceId, lifetimeSeconds } from './lib/demo-session';
 import { currentAccount, hasActiveLogin } from "./lib/demo-login";
 import { NextResponse, type NextRequest } from "next/server";
@@ -17,7 +18,25 @@ export function proxy(request: NextRequest) {
   const sessionRoute = path === "/api/demo/session" && !!workspace;
   const demoEntry = localDemo && (publicRead || sessionRoute);
   if (!handoff && !demoEntry && !authorized(request, role)) return denied(request);
-  const response = NextResponse.next();
+  let response;
+  if (path === "/") {
+    const nonce = randomBytes(16).toString("base64");
+    const dev = process.env.NODE_ENV === "development";
+    const policy = [
+      "default-src 'none'",
+      `script-src 'nonce-${nonce}' 'strict-dynamic'${dev ? " 'unsafe-eval'" : ""}`,
+      dev ? "style-src 'self' 'unsafe-inline'" : `style-src 'self' 'nonce-${nonce}'`,
+      "img-src 'self' data:", "font-src 'self'", "connect-src 'self'",
+      "base-uri 'none'", "object-src 'none'", "frame-ancestors 'none'", "form-action 'self'",
+    ].join("; ");
+    // Next reads the request policy to nonce its bootstrap and streamed scripts.
+    const headers = new Headers(request.headers);
+    headers.set("Content-Security-Policy", policy);
+    response = NextResponse.next({ request: { headers } });
+    response.headers.set("Content-Security-Policy", policy);
+  } else {
+    response = NextResponse.next();
+  }
   if (entering) {
     // Preserve a signed, pre-login workspace from the earlier loopback preview.
     const previous = !workspace && workspaceId(request, "dupdash_workspace");

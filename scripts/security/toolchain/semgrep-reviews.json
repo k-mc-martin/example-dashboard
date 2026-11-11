@@ -1,0 +1,23 @@
+[
+  {
+    "path": "lib/feedback-store.ts",
+    "sha256": "f57b78d5def11b3519e9c8a8e3dab8aeb337bafc80bb0881b21de67fe47d758e",
+    "rule": "unescaped-sql-interpolation",
+    "lines": [
+      144,
+      151
+    ],
+    "reason": "Only fixed SQL clauses form the query. Environment, message ID and search terms are bound as parameters."
+  },
+  {
+    "path": "lib/inbound-drive-storage.ts",
+    "sha256": "051673092a9feb056ecb64ba6316d452f482b9c0feec7f3698671c03159679a8",
+    "rule": "unescaped-sql-interpolation",
+    "lines": [
+      72,
+      73,
+      74
+    ],
+    "reason": "The column list and history limit are constants defined in the same file."
+  }
+]

@@ -152,21 +152,19 @@ function envelope<S extends ProviderSurface>(surface: S) {
     surface: z.literal(surface),
     observedAt: isoTimestamp,
     data: dataBySurface[surface],
-  }).and(statusFields).superRefine((value, context) => {
-    const incomplete = surface === "cloudflare"
-      ? !(value.data as z.infer<typeof cloudflareTelemetryDataSchema>).r2.complete || (value.data as z.infer<typeof cloudflareTelemetryDataSchema>).pages.some(page => !page.complete)
-      : surface === "azure"
-        ? !(value.data as z.infer<typeof azureTelemetryDataSchema>).profilesComplete || !(value.data as z.infer<typeof azureTelemetryDataSchema>).roleAssignmentsComplete
-        : surface === "lemonsqueezy"
-          ? !(value.data as z.infer<typeof lemonSqueezyTelemetryDataSchema>).complete
-          : false;
-    if (value.status === "ok" && incomplete) context.addIssue({ code: "custom", message: "Incomplete collections cannot have ok status" });
-  });
+  }).and(statusFields);
 }
 
 const providerTelemetrySchema = z.union([
   envelope("cloudflare"), envelope("azure"), envelope("godaddy"), envelope("lemonsqueezy"),
-]);
+]).superRefine((value, context) => {
+  if (value.status !== "ok") return;
+  const incomplete =
+    (value.surface === "cloudflare" && (!value.data.r2.complete || value.data.pages.some(page => !page.complete))) ||
+    (value.surface === "azure" && (!value.data.profilesComplete || !value.data.roleAssignmentsComplete)) ||
+    (value.surface === "lemonsqueezy" && !value.data.complete);
+  if (incomplete) context.addIssue({ code: "custom", message: "Incomplete collections cannot have ok status" });
+});
 
 export type CloudflareTelemetryData = z.infer<typeof cloudflareTelemetryDataSchema>;
 export type AzureTelemetryData = z.infer<typeof azureTelemetryDataSchema>;

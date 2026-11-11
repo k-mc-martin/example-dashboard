@@ -29,6 +29,18 @@ On November 10, 2026, the account and provider harness passed 29 tests, the simu
 
 OSV reported 80 distinct advisories across 22 of the 849 resolved package versions it scanned, including Next.js. Semgrep reported five SQL interpolation sites. The feedback queries build clauses from fixed fragments and bind the search values. The drive queries interpolate a fixed column list and a numeric constant. The five matches remain visible for review. ZAP reported a missing Content Security Policy on the landing page and disclosure of the framework through the X-Powered-By header. [Generated baseline and advisory IDs](evidence/tools/baseline.json)
 
+## Remediation of the first published findings
+
+The first hosted run reproduced the local findings and scanned the initial Git history without a secret match. Its account verification passed all eight scenarios. [Initial security run](https://github.com/k-mc-martin/example-dashboard/actions/runs/42939085408) · [Initial account report](https://github.com/k-mc-martin/example-dashboard/actions/runs/42939085147)
+
+| Finding | Resolution and repeatable check |
+|---|---|
+| OSV reported 80 advisory IDs across 22 dependency versions. | Updated the runtime and development dependency graph. The revised lockfile contains 803 scanned package versions. OSV reported zero matching advisories in the remediation run. New runs query the advisory database again. |
+| ZAP reported a missing Content Security Policy and the framework disclosure header. | Next applies a fresh nonce to the main document and its bootstrap scripts. The server omits X-Powered-By. The HTTP test checks the rendered scripts and nonce rotation. A browser walkthrough also verified Owner sign-in, Teams and the separate Employee tab under the production policy. |
+| Semgrep flagged five interpolated SQL expressions. | Source review traced the feedback inputs to bound parameters and the storage inputs to constants. The scanner still reports every match. The runner recognizes only the reviewed rule, file, line and exact file digest. A changed file reopens its matches. [Review records](../../scripts/security/toolchain/semgrep-reviews.json) |
+
+The **Security tools** workflow publishes each commit’s scan results, including informational ZAP observations and reviewed Semgrep matches. The **Account permissions evidence** workflow checks the same commit’s account behavior. [Security runs](https://github.com/k-mc-martin/example-dashboard/actions/workflows/security-tools.yml) · [Account runs](https://github.com/k-mc-martin/example-dashboard/actions/workflows/account-permissions.yml)
+
 ## Reading the evidence
 
 Open `artifacts/security-tools/summary.json` after a local run. Its neighboring JSON files contain rule IDs and locations, package versions and advisory IDs, ZAP alerts, k6 counts, Inspector replies and OWASP mappings. A run with findings, a failed tool, or a pending check returns a nonzero exit. Published GitHub releases attach the evidence ZIP to the tag. The full local failure log stays outside the upload directory.

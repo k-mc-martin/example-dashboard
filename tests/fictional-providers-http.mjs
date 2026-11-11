@@ -5,6 +5,23 @@ const advance = (cookie, step) =>
     method: 'POST',
     headers: { Origin: base, 'If-Match': String(step) },
   });
+// A fresh policy must reach both the browser and Next's rendered bootstrap scripts.
+async function dashboardNonce() {
+  const response = await fetch(base, {headers: {'Content-Security-Policy': "script-src 'nonce-caller'" }});
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('x-powered-by'), null);
+  const policy = response.headers.get('content-security-policy') ?? '';
+  const nonce = policy.match(/script-src 'nonce-([A-Za-z0-9+/=]+)' 'strict-dynamic'/)?.[1];
+  assert.ok(nonce && nonce !== 'caller', 'Dashboard must provide its own nonce');
+  const html = await response.text();
+  const scripts = [...html.matchAll(/<script\b([^>]*)>/gi)].map(([, attributes]) => attributes);
+  assert.ok(scripts.length > 0);
+  for (const attributes of scripts) {
+    assert.ok(attributes.includes('nonce="' + nonce + '"'), 'Bootstrap script must match the response policy');
+  }
+  return nonce;
+}
+assert.notEqual(await dashboardNonce(), await dashboardNonce());
 const [a, b] = await Promise.all([visitor(), visitor()].map(async workspace => signIn(await workspace, 'Owner')));
 await Promise.all([advance(a, 0), advance(b, 0)]);
 const before = await json(b, '/api/dashboard');

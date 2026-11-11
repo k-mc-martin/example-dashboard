@@ -138,8 +138,20 @@ def semgrep(source):
 
 def source_rules(source):
     count, found = semgrep(source)
-    write("semgrep.json", {"filesScanned": count, "matches": found})
-    return ("findings" if found else "passed"), f"{count} source files, {len(found)} rule matches"
+    reviews = json.loads((HERE / "semgrep-reviews.json").read_text())
+    accepted = {}
+    for review in reviews:
+        file = source / review["path"]
+        if file.is_file() and hashlib.sha256(file.read_bytes()).hexdigest() == review["sha256"]:
+            for line in review["lines"]:
+                accepted[(review["rule"], "/src/" + review["path"], line)] = review["reason"]
+    for match in found:
+        reason = accepted.get((match["rule"], match["path"], match["line"]))
+        if reason:
+            match["review"] = reason
+    open_matches = sum("review" not in match for match in found)
+    write("semgrep.json", {"filesScanned": count, "matches": found, "open": open_matches})
+    return ("findings" if open_matches else "passed"), f"{count} source files, {len(found)} matches, {open_matches} open"
 
 
 def rule_control(work):
