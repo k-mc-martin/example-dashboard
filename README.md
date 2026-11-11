@@ -2,9 +2,9 @@
 
 [![Launch SecDash](docs/launch-secdash.svg)](https://vps-ca027b84.vps.ovh.us/launch)
 
-[Choose from 19 exercises and review all 70 ASVS Level 1 requirements](docs/security/campaign/README.md) · [Campaign checks](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml)
+[Repeat the security checks (optional)](docs/security/campaign/README.md) · [Campaign checks](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml)
 
-[Earlier account review results](docs/security/accounts.md#hosted-account-review-november-10-2026) · [Repeat the review](docs/security/manual-review.md) · [Browse the source in VS Code](https://github.dev/k-mc-martin/example-dashboard) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version)
+[Earlier account review results](docs/security/accounts.md#hosted-account-review-november-10-2026) · [Repeat the account checks (optional)](docs/security/manual-review.md) · [Browse the source in VS Code](https://github.dev/k-mc-martin/example-dashboard) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version)
 
 SecDash is an interactive security dashboard for testing connector permissions with fictional business activity. Each browser session gets its own eight-hour workspace. Choose an exercise and sign in with a fictional account and choose **Generate new activity** to trigger a provider update. An open, visible dashboard also requests activity once a minute.
 
