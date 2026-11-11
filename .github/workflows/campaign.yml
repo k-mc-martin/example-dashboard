@@ -1,0 +1,63 @@
+name: Security exercise campaign
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  release:
+    types: [published]
+permissions:
+  contents: read
+jobs:
+  exercise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Check review worksheet and official Level 1 coverage
+        run: |
+          node scripts/security/campaign-guide.mjs --check
+          python3 scripts/security/campaign-report.py
+      - name: Start isolated target
+        run: npm run demo:up
+      - name: Verify the running image has no source-control metadata
+        run: docker compose -f infra/simulation/compose.yml exec -T dashboard sh -ec 'test -z "$(find /app -name .git -o -name .svn)"'
+      - name: Exercise real HTTP controls
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/campaign
+          node --test --test-reporter=tap tests/campaign-crypto.test.mjs tests/security-campaign-http.mjs | tee artifacts/campaign/checks.tap
+      - name: Publish observations
+        if: always()
+        run: |
+          echo "Commit: \`$GITHUB_SHA\`" >> "$GITHUB_STEP_SUMMARY"
+          echo 'See checks.tap for individual outcomes, report.json for coverage and source checks. Human verdicts are recorded separately.' >> "$GITHUB_STEP_SUMMARY"
+          if test -f artifacts/campaign/checks.tap; then tail -n 10 artifacts/campaign/checks.tap >> "$GITHUB_STEP_SUMMARY"; fi
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: security-exercise-campaign
+          path: artifacts/campaign/
+      - if: always()
+        run: docker compose -f infra/simulation/compose.yml down -v
+  release-evidence:
+    needs: exercise
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name security-exercise-campaign --dir evidence
+          zip -j security-exercise-campaign.zip evidence/*
+          gh release upload "$RELEASE_TAG" security-exercise-campaign.zip --repo "$GITHUB_REPOSITORY" --clobber

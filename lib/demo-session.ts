@@ -70,3 +70,7 @@ export function workspaceId(request: Request, name = demoCookie) {
     ? match[1]
     : null;
 }
+
+export function attackHost(){
+ return process.env.SECDASH_PUBLIC_HOST?'attack.'+process.env.SECDASH_MEMBER_DOMAIN:'outside.localhost:'+demoPort();
+}

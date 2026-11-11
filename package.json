@@ -26,7 +26,8 @@
     "test:providers:http": "node tests/fictional-providers-http.mjs",
     "test:accounts:http": "node --test tests/demo-accounts-http.mjs",
     "verify:accounts": "node scripts/security/verify-accounts.mjs",
-    "verify:tools": "python3 scripts/security/toolchain/verify.py"
+    "verify:tools": "python3 scripts/security/toolchain/verify.py",
+    "verify:campaign": "node --test tests/campaign-crypto.test.mjs tests/security-campaign-http.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

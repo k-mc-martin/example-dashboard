@@ -2,7 +2,7 @@
 
 [Launch SecDash](https://vps-ca027b84.vps.ovh.us/launch) and open the [deployed commit](https://vps-ca027b84.vps.ovh.us/version). Follow the source link in that response to inspect the exact deployed version. On GitHub, press the period key to open that revision in the browser editor. For desktop VS Code, open the cloned repository and compare its checked-out commit with the deployed SHA.
 
-Start with **Sign in as Owner**. Wait for the fictional records to load. Under **Teams**, select Mira and open her session in a second tab. You can keep Owner open and use Mira’s tab to check what an employee sees. Theo provides an Administrator comparison. A private browser window gives you a second visitor workspace.
+Choose **Account permissions**, then **Sign in as Owner**. Wait for the fictional records to load. Under **Teams**, select Mira and open her session in a second tab. You can keep Owner open and use Mira’s tab to check what an employee sees. Theo provides an Administrator comparison. A private browser window gives you a second visitor workspace.
 
 | ASVS 5.0.0 | What to do | Evidence to record |
 |---|---|---|

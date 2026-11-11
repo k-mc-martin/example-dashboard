@@ -21,6 +21,8 @@ function sessions() {
       host TEXT NOT NULL, workspace TEXT NOT NULL, account TEXT NOT NULL, ticket_hash TEXT UNIQUE,
       redeem_by INTEGER NOT NULL, token_hash TEXT UNIQUE, expires INTEGER NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS retired_workspaces(workspace TEXT PRIMARY KEY,expires INTEGER NOT NULL);
+    CREATE TABLE IF NOT EXISTS disabled_members(workspace TEXT NOT NULL, account TEXT NOT NULL, expires INTEGER NOT NULL,PRIMARY KEY(workspace,account));
     CREATE TABLE IF NOT EXISTS team_access (
       workspace TEXT NOT NULL, account TEXT NOT NULL, role TEXT NOT NULL, permissions TEXT NOT NULL,
       expires INTEGER NOT NULL, PRIMARY KEY(workspace, account)
@@ -63,7 +65,7 @@ export function currentAccount(request: Request): DemoAccount | undefined {
     ? sessions().prepare('SELECT account FROM member_sessions WHERE workspace=? AND host=? AND token_hash=? AND expires>?').get(workspace, host!, hash, Date.now())
     : sessions().prepare('SELECT account FROM logins WHERE workspace=? AND token_hash=? AND expires>?').get(workspace, hash, Date.now());
   const identity = demoAccounts.find(account => account.id === row?.account);
-  return identity && effectiveAccount(workspace, identity);
+  return identity && !isDisabled(workspace, identity.id) ? effectiveAccount(workspace, identity) : undefined;
 }
 
 export function effectiveAccount(workspace: string, identity: DemoIdentity): DemoAccount {
@@ -86,6 +88,7 @@ function workspaceExpiry(workspace: string) {
 
 export function createMemberTab(workspace: string, id: string) {
   const ticket = randomBytes(32).toString('hex');
+  if(isDisabled(workspace,id)) throw Error("This member is disabled.");
   const host = newMemberHost(id);
   sessions().prepare('INSERT INTO member_sessions(host,workspace,account,ticket_hash,redeem_by,expires) VALUES(?,?,?,?,?,?)')
     .run(host, workspace, id, digest(ticket), Date.now() + 60000, workspaceExpiry(workspace));
@@ -107,7 +110,7 @@ export function demoPass(workspace: string, account: DemoIdentity) {
 }
 export function issueLogin(workspace: string, id: unknown, pass: unknown) {
   const account = demoAccounts.find(entry => entry.id === id);
-  if (!account || typeof pass !== 'string' || !/^[a-f0-9]{64}$/.test(pass)) return;
+  if (!account || isDisabled(workspace,account.id) || typeof pass !== 'string' || !/^[a-f0-9]{64}$/.test(pass)) return;
   if (!timingSafeEqual(Buffer.from(pass, 'hex'), Buffer.from(demoPass(workspace, account), 'hex'))) return;
   const token = randomBytes(32).toString('hex');
   const db = sessions();
@@ -127,4 +130,27 @@ export function revokeLogin(request: Request, workspace: string) {
     return;
   }
   sessions().prepare('DELETE FROM logins WHERE workspace=? AND token_hash=?').run(workspace, hash);
+}
+
+export function isDisabled(w:string,id:string){return !!sessions().prepare('SELECT 1 FROM disabled_members WHERE workspace=? AND account=? AND expires>?').get(w,id,Date.now())}
+export function disableMember(w:string,id:string,disabled:boolean){
+ const db=sessions(); if(!demoAccounts.some(a=>a.id===id&&a.role!=='Owner'))throw Error('Unknown member');
+ db.exec('BEGIN IMMEDIATE');try{
+ if(disabled){
+ db.prepare('DELETE FROM disabled_members WHERE expires<=?').run(Date.now());
+ db.prepare('INSERT OR REPLACE INTO disabled_members VALUES(?,?,?)').run(w,id,workspaceExpiry(w));
+ db.prepare('DELETE FROM member_sessions WHERE workspace=? AND account=?').run(w,id);
+ db.prepare('DELETE FROM logins WHERE workspace=? AND account=?').run(w,id);
+ }else db.prepare('DELETE FROM disabled_members WHERE workspace=? AND account=?').run(w,id);
+ db.exec('COMMIT');}catch(e){db.exec('ROLLBACK');throw e}
+}
+export function retiredWorkspace(w:string){return !!sessions().prepare('SELECT 1 FROM retired_workspaces WHERE workspace=? AND expires>?').get(w,Date.now());}
+export function endWorkspace(w:string){const d=sessions();d.prepare('DELETE FROM retired_workspaces WHERE expires<=?').run(Date.now());d.prepare('INSERT OR REPLACE INTO retired_workspaces VALUES(?,?)').run(w,workspaceExpiry(w));d.prepare('DELETE FROM logins WHERE workspace=?').run(w);d.prepare('DELETE FROM member_sessions WHERE workspace=?').run(w);}
+
+export function loginBinding(request:Request){return cookieHash(request)||'';}
+export function boundIdentity(w:string,id:string,binding:string){
+ const db=sessions(),now=Date.now();
+ const row=db.prepare('SELECT account FROM logins WHERE workspace=? AND token_hash=? AND expires>? UNION ALL SELECT account FROM member_sessions WHERE workspace=? AND token_hash=? AND expires>?').get(w,binding,now,w,binding,now);
+ const who=demoAccounts.find(a=>a.id===id&&a.id===row?.account);
+ return who&&!isDisabled(w,id)?effectiveAccount(w,who):undefined;
 }

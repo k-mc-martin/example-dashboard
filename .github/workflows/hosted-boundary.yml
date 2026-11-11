@@ -1,0 +1,20 @@
+name: Hosted boundary evidence
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - run: python3 scripts/security/campaign-report.py --hosted
+      - name: Check hosted revision matches this run
+        run: python3 -c "import json,os; r=json.load(open('artifacts/campaign/report.json')); assert r['deployedCommit']==os.environ['GITHUB_SHA']"
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: hosted-boundary
+          path: artifacts/campaign/report.json

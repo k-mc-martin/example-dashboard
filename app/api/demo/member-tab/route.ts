@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { createMemberTab } from '@/lib/demo-login';
+import { createMemberTab, isDisabled } from '@/lib/demo-login';
 import { demoAccounts } from '@/lib/demo-permissions';
 import { demoEnabled, demoScheme, workspaceId } from '@/lib/demo-session';
 import { authorized, denied } from '@/lib/server-auth';
@@ -10,6 +10,7 @@ export async function POST(request: Request) {
   const member = demoAccounts.find(account => account.id === form?.get('member') && account.role !== 'Owner');
   if (!member) return Response.json({ error: 'Choose a team member.' }, { status: 400 });
   if (!authorized(request, 'operator')) return denied(request);
+  if(isDisabled(workspaceId(request)!,member.id)) return Response.json({error:"This member is disabled."},{status:403});
   const { host, ticket } = createMemberTab(workspaceId(request)!, member.id);
   const destination = demoScheme() + host;
   const nonce = randomBytes(16).toString('base64');

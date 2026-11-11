@@ -1,0 +1,177 @@
+export type Exercise = {
+  n: number;
+  title: string;
+  question: string;
+  guide: string;
+  actions: string[];
+  category: 'Dashboard' | 'Connector' | 'Evidence';
+};
+const row = (
+  n: number,
+  title: string,
+  question: string,
+  guide: string,
+  actions: string[],
+  category: Exercise['category'] = 'Dashboard',
+): Exercise => ({ n, title, question, guide, actions, category });
+export const catalog = [
+  row(
+    1,
+    'Account permissions',
+    'Who can open the ledger and who can change it?',
+    'Try a payment as Mira and as Inez. Use Sign out to compare roles without losing the ledger.',
+    ['ledger', 'submit', 'approve'],
+  ),
+  row(
+    2,
+    'Access another person’s records',
+    'Can an employee open someone else’s client file or approve a refund?',
+    'As Mira open both client files, then attempt approval. As Owner repeat the same requests, including approval after submission.',
+    ['mine', 'other', 'submit', 'approve', 'ledger'],
+  ),
+  row(
+    3,
+    'Agent tool permissions',
+    'Can an agent call a tool it was never granted?',
+    'Consent to a read grant. List the tools, then call the write tool directly. Try a write grant as Owner for comparison.',
+    ['grant', 'writegrant', 'exchange', 'tools', 'toolread', 'toolwrite'],
+    'Connector',
+  ),
+  row(
+    4,
+    'Credential lifecycle',
+    'What happens to expired, revoked and replayed credentials?',
+    'Issue a code, exchange it, rotate the refresh token, then replay it. Try the old access token. A short-lived grant lets you test expiry.',
+    [
+      'grant',
+      'shortgrant',
+      'exchange',
+      'rotate',
+      'replayRefresh',
+      'toolread',
+      'unsigned',
+      'tampered',
+      'revoke',
+    ],
+    'Connector',
+  ),
+  row(
+    5,
+    'Concurrent requests',
+    'Can simultaneous employees and managers race the same action?',
+    'Open Mira or Theo from Teams. Run a burst in each tab. Compare the allowed and denied attempts and count the refunds in the ledger.',
+    ['submit', 'approve', 'burst', 'ledger', 'audit'],
+  ),
+  row(
+    6,
+    'Remove access mid-session',
+    'Does disabling an employee end their open sessions?',
+    'As Owner open Mira from Teams. Load her record, disable her, and try again in her tab. Re-enabling her should require a new login.',
+    ['mine', 'disable', 'enable', 'audit'],
+  ),
+  row(
+    7,
+    'Failure and recovery',
+    'Does a retry after an interrupted operation repeat the payment?',
+    'Submit, approve, then interrupt the provider response. Inspect the ledger before retrying. Also try an outage before delivery.',
+    ['submit', 'approve', 'outage', 'interrupt', 'settle', 'ledger'],
+  ),
+  row(
+    8,
+    'Server and dependency checks',
+    'Which checks ran against this revision?',
+    'Open the build evidence. Inspect the dependency results, TLS configuration and response headers, then compare the revision with the deployed version.',
+    [],
+    'Evidence',
+  ),
+  row(
+    9,
+    'Detect a planted fault',
+    'Will the verification detect a broken refund calculation?',
+    'Run the same invariant against a healthy fixture and a deliberately duplicated receipt. The fixture never changes your ledger.',
+    ['control', 'mutant', 'ledger'],
+  ),
+  row(
+    10,
+    'Audit and reproduce',
+    'Can you reconstruct who tried a change and what actually happened?',
+    'As Owner submit a refund, approve it, then repeat the approval. Inspect the ordered audit trail; download the observations for this run.',
+    ['submit', 'approve', 'audit', 'ledger'],
+  ),
+  row(
+    11,
+    'Untrusted agent content',
+    'Can a message trick a read-only connector into issuing a refund?',
+    'Grant read access, fetch the planted message, then try the action it asks for. Inspect the ledger afterward.',
+    ['grant', 'exchange', 'injection', 'toolwrite', 'ledger'],
+    'Connector',
+  ),
+  row(
+    12,
+    'Confused deputy and token passthrough',
+    'Will the connector accept another service’s token or spend authority it was never granted?',
+    'Try a redirect outside the registered client, then try an invalid audience and an upstream token. Compare with an expressly consented read.',
+    [
+      'badredirect',
+      'grant',
+      'exchange',
+      'toolread',
+      'wrongaudience',
+      'foreign',
+      'toolwrite',
+    ],
+    'Connector',
+  ),
+  row(
+    13,
+    'Secrets and source scanning',
+    'Can reviewers inspect the findings and prove a scanner can catch a leak?',
+    'Open the source and history scans. Compare their results to the seeded fixture that commits and deletes a synthetic secret.',
+    [],
+    'Evidence',
+  ),
+  row(
+    14,
+    'Environment isolation',
+    'Could a visitor reach another visitor’s data or a production provider?',
+    'Open an independent private browser window. Copy a record ID between workspaces and compare the response to a local record. Inspect the isolated provider configuration.',
+    ['mine', 'lookup', 'isolation'],
+  ),
+  row(
+    15,
+    'Continuous verification',
+    'Can someone reproduce the checks from the public repository?',
+    'Inspect a run for this build, the workflow source and the downloadable results. A fork can run the workflow without production credentials.',
+    [],
+    'Evidence',
+  ),
+  row(
+    16,
+    'Bad-input attacks',
+    'What happens when a message contains markup or a search contains SQL?',
+    'Edit the sample text and send it. Compare a legitimate search to a poisoned one. Try adding an unexpected field to a payment request.',
+    ['message', 'search', 'tamper', 'submit', 'ledger'],
+  ),
+  row(
+    17,
+    'Attacks from another website',
+    'Can a hostile page spend your signed-in authority?',
+    'Check the payment state, launch the separate test site and try its form and script. Return here and read the ledger again.',
+    ['ledger', 'hostile', 'submit'],
+  ),
+  row(
+    18,
+    'Staff sign-in',
+    'Can a guessed or reused secret open a staff record?',
+    'Enroll a fictional staff login. Try the protected record before and after signing in, change the password, and test repeated wrong guesses.',
+    ['staff'],
+  ),
+  row(
+    19,
+    'Sensitive records and approvals',
+    'Can staff see payment details or skip approval?',
+    'Compare the two client records as Employee and Owner. Try settling a refund first, then submit, approve and settle in order.',
+    ['mine', 'other', 'ledger', 'submit', 'approve', 'settle'],
+  ),
+];
+export const exerciseByNumber = (n: unknown) => catalog.find((x) => x.n === n);

@@ -11,8 +11,8 @@ The runner builds a disposable dashboard, n8n and nine fictional provider feeds.
 | Codex / coding agent | Develops application-specific tests in the checkout. The checked-in tests run in CI without a model account or key. |
 | OWASP ASVS 5.0.0 | Each account scenario carries versioned requirement IDs. The suite checks both automated and manual mappings against the official release. The [account report](evidence/accounts/report.md) gives an outcome and method for each requirement in scope. |
 | OWASP WSTG 4.2 | Four published procedures are tied to specific account tests for authorization bypass, privilege escalation, cross-visitor object access and logout. See `owasp-mappings.json` in the run evidence. |
-| MCP Authorization Specification | The dashboard currently exposes a browser navigation helper. For a future remote MCP endpoint, exercise resource discovery, audience binding, scopes and token expiry against the protected resource. [Versioned authorization specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/index.md) |
-| MCP Security Best Practices | The remote connector exercise will need evidence for confused-deputy consent, token passthrough prevention and session isolation. These checks are pending. [Versioned security guidance](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices.md) |
+| MCP Authorization Specification | The dashboard currently exposes a browser navigation helper. The original tool baseline did not exercise resource discovery, audience binding, scopes and token expiry against the protected resource. [Versioned authorization specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/index.md) |
+| MCP Security Best Practices | The original tool baseline did not test confused-deputy consent, token passthrough prevention and session isolation. See the current visitor campaign below. [Versioned security guidance](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices.md) |
 | MCP Inspector | Negotiates the July 2026 protocol over stdio, lists a synthetic tool and calls it. Validates the response with networking disabled. The result covers Inspector setup. |
 | OWASP ZAP Automation Framework | Sends five bounded requests as a signed-out visitor and a signed-in Employee, checks the expected 200/401/403 responses, waits for passive scanning and records alert IDs and risk. Medium or high alerts flag the run. Coverage comprises the landing page and two protected API routes. |
 | OSV-Scanner | Checks resolved versions in `package-lock.json` against current advisory data, including development dependencies. The report lists affected versions and advisory IDs. Runtime reachability needs separate triage. |
@@ -22,6 +22,9 @@ The runner builds a disposable dashboard, n8n and nine fictional provider feeds.
 | Custom application harness | Runs the account, independent-tab, revocation, isolation and provider suites, including a seeded response fault. The [manual verification log](accounts.md#manual-verification-log) records the owner’s browser observations. |
 | Provider stubs | A separate HTTP test drives fictional data through n8n and checks delivery, safe retries, isolation and simulated backup completion. |
 | GitHub Actions | Runs on pushes, pull requests, manual dispatch and published releases. The README badge follows `main`. The workflow publishes sanitized evidence even if a scanner flags a finding. [Workflow](../../.github/workflows/security-tools.yml) |
+
+## Current visitor campaign
+The [19-exercise guide](campaign/README.md) covers the deployed connector, consent, token rotation, replay and tool calls. The original Inspector baseline below used a stdio fixture; it is not evidence for the remote HTTP resource. See the [campaign workflow](../../.github/workflows/campaign.yml) for direct transport and authorization tests and the [hosted boundary workflow](../../.github/workflows/hosted-boundary.yml) for post-deployment observations.
 
 ## First local baseline
 

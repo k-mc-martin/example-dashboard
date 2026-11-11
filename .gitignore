@@ -81,3 +81,5 @@ rclone.conf
 *.sql.gz
 *.db3
 *.sqlite3
+
+/tsconfig.tsbuildinfo
