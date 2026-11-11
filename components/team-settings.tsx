@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { ExerciseActions } from './workspace-sections';
 import { ExternalLink } from 'lucide-react';
 import { defaultPermissions, permissionLabels, type DemoAccount, type TeamPermissions } from '@/lib/demo-permissions';
 
@@ -58,7 +59,7 @@ function MemberAccess({ member, onSaved }: { member: DemoAccount; onSaved: (memb
   </section>;
 }
 
-export function TeamSettings() {
+export function TeamSettings({ exerciseAccess = false }: { exerciseAccess?: boolean }) {
   const [members, setMembers] = useState<DemoAccount[]>([]);
   const [id, setId] = useState('');
   const [error, setError] = useState('');
@@ -78,6 +79,6 @@ export function TeamSettings() {
     {error ? <p role="alert">{error} <button className="text-link" onClick={() => setRetry(value => value + 1)}>Retry</button></p>
       : member ? <><label className="team-select">Team member <select value={member.id} onChange={event => setId(event.target.value)}>
         {members.map(person => <option value={person.id} key={person.id}>{person.name}</option>)}
-      </select></label><MemberAccess key={member.id} member={member} onSaved={setMembers} /></> : <p role="status">Loading team…</p>}
+      </select></label><MemberAccess key={member.id} member={member} onSaved={setMembers} />{exerciseAccess && member.id === "mira" && <ExerciseActions screen="teams" />}</> : <p role="status">Loading team…</p>}
   </div>;
 }

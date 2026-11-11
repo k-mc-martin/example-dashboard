@@ -19,7 +19,7 @@ export const catalog = [
     1,
     'Account permissions',
     'Who can open the ledger and who can change it?',
-    'Try a payment as Mira and as Inez. Use Sign out to compare roles without losing the ledger.',
+    'In Payments & refunds, select Submit refund as Mira, then try Approve refund. Read the payment ledger to check the state. Sign out and select Inez to approve the same refund.',
     ['ledger', 'submit', 'approve'],
   ),
   row(
@@ -33,7 +33,7 @@ export const catalog = [
     3,
     'Agent tool permissions',
     'Can an agent call a tool it was never granted?',
-    'Consent to a read grant. List the tools, then call the write tool directly. Try a write grant as Owner for comparison.',
+    'In Connectors, consent to read mail, then exchange the code. List the tools and call refund_request directly. As Owner, consent to request refunds and exchange that code before trying the same tool.',
     ['grant', 'writegrant', 'exchange', 'tools', 'toolread', 'toolwrite'],
     'Connector',
   ),
@@ -48,6 +48,7 @@ export const catalog = [
       'exchange',
       'rotate',
       'replayRefresh',
+      'previousAccess',
       'toolread',
       'unsigned',
       'tampered',
@@ -59,7 +60,7 @@ export const catalog = [
     5,
     'Concurrent requests',
     'Can simultaneous employees and managers race the same action?',
-    'Open Mira or Theo from Teams. Run a burst in each tab. Compare the allowed and denied attempts and count the refunds in the ledger.',
+    'As Inez, submit a refund in Payments & refunds. From Teams, open Mira’s session. Send four approval requests together from each tab, then compare the responses, payment ledger and Owner’s audit log.',
     ['submit', 'approve', 'burst', 'ledger', 'audit'],
   ),
   row(
@@ -67,7 +68,7 @@ export const catalog = [
     'Remove access mid-session',
     'Does disabling an employee end their open sessions?',
     'As Owner open Mira from Teams. Load her record, disable her, and try again in her tab. Re-enabling her should require a new login.',
-    ['mine', 'disable', 'enable', 'audit'],
+    ['disable', 'enable', 'mine', 'audit'],
   ),
   row(
     7,
@@ -80,7 +81,7 @@ export const catalog = [
     8,
     'Server and dependency checks',
     'Which checks ran against this revision?',
-    'Open the build evidence. Inspect the dependency results, TLS configuration and response headers, then compare the revision with the deployed version.',
+    'In Verification results, select Inspect server and dependency checks. Compare the scanner findings and live response headers, then open the Hosted boundary run to inspect TLS.',
     [],
     'Evidence',
   ),
@@ -88,21 +89,21 @@ export const catalog = [
     9,
     'Detect a planted fault',
     'Will the verification detect a broken refund calculation?',
-    'Run the same invariant against a healthy fixture and a deliberately duplicated receipt. The fixture never changes your ledger.',
+    'In Payments & refunds, open Receipt reconciliation. Check the healthy receipt, then the duplicated receipt. Read the ledger to see whether either check changed the payment.',
     ['control', 'mutant', 'ledger'],
   ),
   row(
     10,
     'Audit and reproduce',
     'Can you reconstruct who tried a change and what actually happened?',
-    'As Owner submit a refund, approve it, then repeat the approval. Inspect the ordered audit trail; download the observations for this run.',
+    'As Owner submit a refund, approve it, then repeat the approval. Open Audit log to inspect the ordered events and download the observations for this run.',
     ['submit', 'approve', 'audit', 'ledger'],
   ),
   row(
     11,
     'Untrusted agent content',
     'Can a message trick a read-only connector into issuing a refund?',
-    'Grant read access, fetch the planted message, then try the action it asks for. Inspect the ledger afterward.',
+    'In Connectors, consent to read mail and exchange the code. Read the untrusted message, then call the refund tool it asks for. Open Payments & refunds and inspect the ledger.',
     ['grant', 'exchange', 'injection', 'toolwrite', 'ledger'],
     'Connector',
   ),
@@ -126,7 +127,7 @@ export const catalog = [
     13,
     'Secrets and source scanning',
     'Can reviewers inspect the findings and prove a scanner can catch a leak?',
-    'Open the source and history scans. Compare their results to the seeded fixture that commits and deletes a synthetic secret.',
+    'In Verification results, select Inspect source scan results. Compare the source and full-history scans with the deleted-secret and Semgrep rule controls.',
     [],
     'Evidence',
   ),
@@ -141,7 +142,7 @@ export const catalog = [
     15,
     'Continuous verification',
     'Can someone reproduce the checks from the public repository?',
-    'Inspect a run for this build, the workflow source and the downloadable results. A fork can run the workflow without production credentials.',
+    'In Verification results, select Inspect this build’s runs. Compare the deployed revision and browser and server checks with their linked GitHub runs. Open the workflow source to see how to repeat them.',
     [],
     'Evidence',
   ),
@@ -175,3 +176,67 @@ export const catalog = [
   ),
 ];
 export const exerciseByNumber = (n: unknown) => catalog.find((x) => x.n === n);
+
+export const workspaceScreens = {
+  payments: {
+    title: 'Payments & refunds',
+    actions: [
+      'ledger',
+      'submit',
+      'approve',
+      'settle',
+      'outage',
+      'interrupt',
+      'burst',
+      'control',
+      'mutant',
+      'tamper',
+      'hostile',
+    ],
+  },
+  clients: {
+    title: 'Client records',
+    actions: ['mine', 'other', 'lookup', 'search', 'isolation'],
+  },
+  connectors: {
+    title: 'Connectors',
+    actions: [
+      'grant',
+      'shortgrant',
+      'writegrant',
+      'badredirect',
+      'wrongaudience',
+      'exchange',
+      'rotate',
+      'replayRefresh',
+      'previousAccess',
+      'tools',
+      'injection',
+      'toolread',
+      'toolwrite',
+      'foreign',
+      'unsigned',
+      'tampered',
+      'revoke',
+    ],
+  },
+  audit: { title: 'Audit log', actions: ['audit'] },
+  teams: { title: 'Teams', actions: ['disable', 'enable'] },
+  communications: { title: 'Communications', actions: ['message'] },
+  staff: { title: 'Staff access', actions: ['staff'] },
+  evidence: { title: 'Verification results', actions: [] },
+} satisfies Record<string, { title: string; actions: string[] }>;
+export type WorkspaceScreen = keyof typeof workspaceScreens;
+
+export function screensForExercise(exercise: Exercise): WorkspaceScreen[] {
+  if (exercise.category === 'Evidence') return ['evidence'];
+  const screens = new Set<WorkspaceScreen>();
+  for (const action of exercise.actions) {
+    const screen = (Object.keys(workspaceScreens) as WorkspaceScreen[]).find(
+      (id) => (workspaceScreens[id].actions as string[]).includes(action),
+    );
+    if (!screen) throw Error('No dashboard screen for ' + action);
+    screens.add(screen);
+  }
+  return [...screens];
+}

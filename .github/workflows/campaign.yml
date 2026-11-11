@@ -33,6 +33,12 @@ jobs:
           set -o pipefail
           mkdir -p artifacts/campaign
           node --test --test-reporter=tap tests/campaign-crypto.test.mjs tests/security-campaign-http.mjs | tee artifacts/campaign/checks.tap
+      - name: Check the visitor dashboard in Chrome
+        shell: bash
+        run: |
+          set -o pipefail
+          npm ci --prefix tests/browser --ignore-scripts --no-audit --no-fund
+          npm test --prefix tests/browser | tee artifacts/campaign/dashboard-browser.tap
       - name: Publish observations
         if: always()
         run: |

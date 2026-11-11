@@ -16,6 +16,8 @@ import { releaseSites } from "@/lib/release-sites";
 import { PublishedRelease } from "@/components/published-release";
 import { FeedbackEnvironment } from "@/components/feedback-environment";
 
+import { screensForExercise, workspaceScreens, type Exercise } from "@/lib/security-lab/catalog";
+import { ExerciseActions } from "./workspace-sections";
 import { TeamSettings } from "./team-settings";
 import { accountSections, type DemoAccount } from "@/lib/demo-permissions";
 const privateSections = ["command", "communications", "feedback", "accounts", "website", "storage", "operations"];
@@ -28,12 +30,17 @@ function subscribeRailLayout(listener: () => void) {
 function readRailLayout() { return window.matchMedia(railMediaQuery).matches; }
 function serverRailLayout() { return true; }
 
-export default function Dashboard({ revision = 0, account }: { revision?: number; account?: DemoAccount } = {}) {
+export default function Dashboard({ revision = 0, account, exercise }: { revision?: number; account?: DemoAccount; exercise?: Exercise } = {}) {
   const verticalRail = useSyncExternalStore(subscribeRailLayout, readRailLayout, serverRailLayout);
   const role = account?.role;
-  const sections: readonly string[] = useMemo(() => account ? accountSections(account) : privateSections, [account]);
-  const home = sections.includes("command") ? "command" : "communications";
-  const [view, selectView] = useState(home);
+  const evidenceOnly = exercise?.category === 'Evidence' && !account;
+  const exerciseScreens = useMemo(() => exercise ? screensForExercise(exercise).filter(screen => screen !== 'teams' || role === 'Owner') : [], [exercise, role]);
+  const sections: readonly string[] = useMemo(() => {
+    const base = account ? accountSections(account) : evidenceOnly ? [] : privateSections;
+    return [...new Set([...exerciseScreens, ...base])];
+  }, [account, exerciseScreens, evidenceOnly]);
+  const home = exerciseScreens[0] ?? (sections.includes("command") ? "command" : "communications");
+  const [view, selectView] = useState<string>(home);
   const [accessResult, setAccessResult] = useState('');
   const lostSection = !sections.includes(view);
   async function refreshRestricted() {
@@ -106,7 +113,7 @@ export default function Dashboard({ revision = 0, account }: { revision?: number
     } catch (e) { setError(e instanceof Error ? e.message : "Could not load the inbox."); }
     finally { setLoading(false); }
   }
-  useEffect(() => { const timer = window.setTimeout(() => void refresh(), 0); return () => window.clearTimeout(timer); }, [revision]);
+  useEffect(() => { if (evidenceOnly) return; const timer = window.setTimeout(() => void refresh(), 0); return () => window.clearTimeout(timer); }, [revision, evidenceOnly]);
   useEffect(() => {
     if (!canUseStorage) return;
     const timer = window.setTimeout(() => void refreshBackup(), 0);
@@ -132,14 +139,20 @@ export default function Dashboard({ revision = 0, account }: { revision?: number
   const currentChannel = channels.find(c => c.id === channel)!;
   const hasData = lastSync !== null;
   const chosenAccount = displayAccounts.find(a => a.id === help);
+  const addedScreens = exerciseScreens.filter(screen => screen !== 'communications' && screen !== 'teams');
+  const screenIcons = { payments: CreditCard, clients: FolderOpen, connectors: Workflow, audit: ShieldCheck, staff: KeyRound, evidence: ShieldCheck };
   return <main data-view={view} className={`cockpit ${["command", "feedback", "storage", "operations", "deployments"].includes(view) ? "storage-focused" : ""}`}>
     <header className="masthead">
       <button className="wordmark" onClick={() => setView(home)} aria-label="SecDash home"><Layers size={34} aria-hidden="true" /><span>SecDash<span className="wordmark-small">SECURITY DASHBOARD</span></span></button>
-      <div className="session"><span className="indicator" /> {revision ? "DEMO WORKSPACE" : "PRIVATE / MAC ACCESS"} <span className="session-divider">/</span> <span>01</span></div>
+      <div className="session"><span className="indicator" /> {exercise || account || revision ? "DEMO WORKSPACE" : "PRIVATE / MAC ACCESS"} <span className="session-divider">/</span> <span>01</span></div>
     </header>
     <Tabs value={view} onValueChange={next => { if (next === "feedback") setFeedbackTarget(null); setView(next); }} orientation={verticalRail ? "vertical" : "horizontal"} className="main-tabs">
       <TabsList className="navigation" aria-label="SecDash sections">
         <div className="rail-caption" aria-hidden="true"><span>SecDash</span><strong>SECURITY<br />DASHBOARD</strong><i /></div>
+        {addedScreens.map(screen => {
+          const Icon = screenIcons[screen];
+          return <TabsTrigger key={screen} value={screen}><Icon aria-hidden="true" /><span className="nav-label">{workspaceScreens[screen].title}</span></TabsTrigger>;
+        })}
         {sections.includes("command") && <TabsTrigger value="command"><span className="nav-index">00 / OVERVIEW</span><Radar aria-hidden="true" /><span className="nav-label">Overview</span></TabsTrigger>}
         {sections.includes("communications") && <TabsTrigger value="communications"><span className="nav-index">01 / MAIL</span><Mail aria-hidden="true" /><span className="nav-label">Communications</span></TabsTrigger>}
         {sections.includes("feedback") && <TabsTrigger value="feedback"><span className="nav-index">01B / FEEDBACK</span><MessageSquareText aria-hidden="true" /><span className="nav-label">Feedback</span></TabsTrigger>}
@@ -149,9 +162,13 @@ export default function Dashboard({ revision = 0, account }: { revision?: number
         {sections.includes("storage") && <TabsTrigger value="storage"><span className="nav-index">04 / RECOVERY</span><HardDrive aria-hidden="true" /><span className="nav-label">Storage &amp; recovery</span></TabsTrigger>}
         {sections.includes("operations") && <TabsTrigger value="operations"><span className="nav-index">05 / TELEMETRY</span><Gauge aria-hidden="true" /><span className="nav-label">Operations</span></TabsTrigger>}
         {sections.includes("teams") && <TabsTrigger value="teams"><Users aria-hidden="true" /><span className="nav-label">Teams</span></TabsTrigger>}
-        <div className="rail-foot" aria-hidden="true"><span>LOCAL INTERFACE</span><b>{revision ? "SIMULATION" : "PRIVATE EDITION"}</b><i /></div>
+        <div className="rail-foot" aria-hidden="true"><span>LOCAL INTERFACE</span><b>{exercise || account || revision ? "SIMULATION" : "PRIVATE EDITION"}</b><i /></div>
       </TabsList>
-      {sections.includes("teams") && <TabsContent value="teams" className="view"><TeamSettings /></TabsContent>}
+      {addedScreens.map(screen => <TabsContent key={screen} value={screen} className="view">
+        <div className="view-heading"><h1>{workspaceScreens[screen].title}</h1></div>
+        <ExerciseActions screen={screen} />
+      </TabsContent>)}
+      {sections.includes("teams") && <TabsContent value="teams" className="view"><TeamSettings exerciseAccess={exerciseScreens.includes('teams')} /></TabsContent>}
       {lostSection && <section className="view" role="region" aria-label="Access changed">
         <h1>Access changed</h1><p>Your access to {view === 'deployments' ? 'Deployments' : 'Storage & recovery'} has changed.</p>
         <button className="outline-button" onClick={() => void refreshRestricted()}>Refresh feed</button>
@@ -162,6 +179,7 @@ export default function Dashboard({ revision = 0, account }: { revision?: number
       </TabsContent>}
       {sections.includes("communications") && <TabsContent value="communications" className="view">
         <div className="view-heading"><div><p className="eyebrow">CONTACT@EXAMPLE.INVALID</p><h1>COMMUNICATIONS<span className="heading-dot">.</span></h1></div><button className="outline-button" onClick={() => void refresh()} disabled={loading}><RefreshCw size={16} className={loading ? "spin" : ""} />{loading ? "Refreshing" : "Refresh"}</button></div>
+        {exerciseScreens.includes('communications') && <ExerciseActions screen="communications" />}
         <div className="signal-strip"><div><Radio size={16} /><span>{hasData ? `Last received ${new Date(lastSync!).toLocaleString()}` : "Awaiting first dashboard delivery"}</span></div><button onClick={() => setHelp("mail")}>Connection details<ArrowUpRight size={15} /></button></div>
         {error && <div className="error" role="alert"><AlertTriangle size={18} />{error}</div>}
         <button className="text-link feedback-entry" onClick={() => setView("feedback")}><MessageSquareText size={18} /> Open Feedback · beta experience &amp; customer evidence <ArrowRight size={17} /></button>
@@ -209,7 +227,7 @@ export default function Dashboard({ revision = 0, account }: { revision?: number
         {operation === "n8n" ? <N8nEnvironment active={view === "operations"} /> : <OperationsEnvironment surface={operation} active={view === "operations"} />}
       </TabsContent>}
     </Tabs>
-    <footer className="footer"><span><ShieldCheck size={14} /> SecDash / {role ?? "OPERATOR ONLY"}</span><button onClick={() => setHelp("about")}><CircleHelp size={14} /> About SecDash</button><span>{revision ? "SIMULATION" : "PRIVATE EDITION"} / 01</span></footer>
+    <footer className="footer"><span><ShieldCheck size={14} /> SecDash / {role ?? (evidenceOnly ? "PUBLIC EVIDENCE" : "OPERATOR ONLY")}</span><button onClick={() => setHelp("about")}><CircleHelp size={14} /> About SecDash</button><span>{exercise || account || revision ? "SIMULATION" : "PRIVATE EDITION"} / 01</span></footer>
     <Dialog open={help !== null} onOpenChange={open => { if (!open) setHelp(null); }}><DialogContent className="connection-dialog"><DialogHeader><p className="eyebrow">CONNECTION DETAILS</p><DialogTitle>{chosenAccount?.name || (help === "website" ? "Website editing & releases" : "SecDash")}</DialogTitle><DialogDescription>{chosenAccount?.purpose || "Security dashboard for a fictional business."}</DialogDescription></DialogHeader><div className="connection-body">{chosenAccount ? <><div className="setup-status"><span className="indicator muted" /> {chosenAccount.status}</div>{chosenAccount.checkedAt && <p className="footnote">Manually verified {new Date(chosenAccount.checkedAt).toLocaleString()}.</p>}<p>{chosenAccount.setup}</p><p className="footnote">{"provider" in chosenAccount ? "This records the original identity check. Open the provider environment for the latest operational observation, collection time and connection health." : "Signing in to a service in another browser tab does not automatically connect its data here."}</p>{chosenAccount.url && <a className="primary-button" href={chosenAccount.url} target="_blank" rel="noreferrer">Open {chosenAccount.name}<ArrowUpRight size={17} /></a>}</> : help === "website" ? <><p>The release cards in this dashboard use fictional data and download sample manifests.</p><p>Copy and pictures are currently edited in the website source. A visual editor and a release cleanup flow will be added here after the account connections are established.</p><p>Cleanup will need to identify every live download and retained rollback before offering an installer for deletion.</p></> : <><p>SecDash brings together communications, business accounts, and the recorded ExampleApp release.</p><p>The demo uses fictional provider data.</p></>}</div></DialogContent></Dialog>
   </main>;
 }

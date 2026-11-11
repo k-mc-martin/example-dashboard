@@ -10,7 +10,8 @@ import { SimulationWorkspace } from './simulation-dashboard';
 import type { DemoAccount, DemoRole } from '@/lib/demo-permissions';
 
 import { ExercisePicker, ExerciseHeading } from './exercise-picker';
-import { ExerciseConsole } from './exercise-console';
+import { ExerciseProvider } from './workspace-activity';
+import Dashboard from './dashboard';
 import { exerciseByNumber } from '@/lib/security-lab/catalog';
 type Choice = DemoAccount & { pass: string };
 type Session = (
@@ -166,16 +167,34 @@ export function DemoSignIn() {
     );
   if (exercise?.category === 'Evidence' && !session?.account)
     return (
-      <main className="exercise-picker">
-        <ExerciseConsole
-          key={exercise.n}
-          exercise={exercise}
-          member={false}
-          choose={() => setChoosing(true)}
-        />
-      </main>
+      <ExerciseProvider
+        key={exercise.n}
+        exercise={exercise}
+        revision={session?.revision}
+      >
+        <section
+          className="simulation-toolbar"
+          aria-label="Exercise navigation"
+        >
+          <strong>{exercise.title}</strong>
+          <button className="outline-button" onClick={() => setChoosing(true)}>
+            Choose another exercise
+          </button>
+        </section>
+        <Dashboard exercise={exercise} />
+      </ExerciseProvider>
     );
-  if (session?.account)
+  if (session?.account) {
+    const workspace = (
+      <SimulationWorkspace
+        account={session.account}
+        exercise={exercise}
+        chooseExercise={session.memberTab ? undefined : () => setChoosing(true)}
+        signOut={() => void change()}
+        signingOut={pending}
+        checkSession={load}
+      />
+    );
     return (
       <>
         {error && (
@@ -183,25 +202,21 @@ export function DemoSignIn() {
             {error}
           </p>
         )}
-        {exercise && (
-          <ExerciseConsole
-            key={exercise.n + session.account.id}
+        {exercise ? (
+          <ExerciseProvider
+            key={exercise.n + ':' + session.account.id}
             exercise={exercise}
-            revision={session.revision}
             actor={session.account.name + ' · ' + session.account.role}
-            member={!!session.memberTab}
-            choose={() => setChoosing(true)}
-          />
+            revision={session.revision}
+          >
+            {workspace}
+          </ExerciseProvider>
+        ) : (
+          workspace
         )}
-        <SimulationWorkspace
-          key={session.account.id}
-          account={session.account}
-          signOut={() => void change()}
-          signingOut={pending}
-          checkSession={load}
-        />
       </>
     );
+  }
   if (session && !session.account && session.memberTab)
     return (
       <main className="demo-entry">

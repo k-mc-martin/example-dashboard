@@ -1,9 +1,11 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { Exercise } from '@/lib/security-lab/catalog';
 import Dashboard from './dashboard';
 import type { DemoAccount } from '@/lib/demo-permissions';
 
-export function SimulationWorkspace({ account, signOut, signingOut, checkSession }: {
+export function SimulationWorkspace({ account, signOut, signingOut, checkSession, exercise, chooseExercise }: {
+  exercise?: Exercise; chooseExercise?: () => void;
   account: DemoAccount; signOut: () => void; signingOut: boolean; checkSession: () => void;
 }) {
   const [step, setStep] = useState(0);
@@ -52,13 +54,15 @@ export function SimulationWorkspace({ account, signOut, signingOut, checkSession
             {error || (updated ? 'Your workspace · Updated ' + updated : 'Preparing your workspace…')}
           </span>
         </div>
-        <div className="demo-actions"><button className="outline-button" disabled={busy} onClick={() => void advance()}>
+        <div className="demo-actions">
+          {chooseExercise && <button className="outline-button" onClick={chooseExercise}>Choose another exercise</button>}
+          <button className="outline-button" disabled={busy} onClick={() => void advance()}>
           {busy ? 'Updating…' : 'Generate new activity'}
         </button>
           <button className="outline-button" onClick={signOut} disabled={signingOut}>Sign out</button>
         </div>
       </section>
-      {step > 0 && <Dashboard account={account} revision={step} />}
+      {(exercise || step > 0) && <Dashboard account={account} revision={step} exercise={exercise} />}
     </>
   );
 }

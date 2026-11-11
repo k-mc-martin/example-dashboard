@@ -1,5 +1,9 @@
 import fs from 'node:fs';
-import { catalog } from '../../lib/security-lab/catalog.ts';
+import {
+  catalog,
+  screensForExercise,
+  workspaceScreens,
+} from '../../lib/security-lab/catalog.ts';
 const dir = 'docs/security/campaign/',
   rows = JSON.parse(fs.readFileSync(dir + 'requirements.json', 'utf8'));
 const spec = 'https://github.com/OWASP/ASVS/tree/v5.0.0_release';
@@ -16,15 +20,28 @@ const lines = [
   '',
   '[Launch the exercise picker](https://vps-ca027b84.vps.ovh.us/launch) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version) · [Campaign CI](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml) · [Scanner evidence](https://github.com/k-mc-martin/example-dashboard/actions/workflows/security-tools.yml) · [Rules and limits](policy.md)',
   '',
-  'Choose a card, then a fictional role. **Sign out** changes identity inside the same exercise. **Choose another exercise** starts a fresh workspace and ends the old dashboard logins when you select a card. A private browser window is a second, independent visitor. Owner → Teams opens a second member in the same workspace. Only the example dashboard and its fictional providers are in scope.',
+  'Choose a card, then a fictional role for interactive exercises. The dashboard opens to the first relevant screen. Use the dashboard navigation to reach the other screens listed below. Verification results open directly for evidence reviews. **Sign out** changes identity inside the same exercise. **Choose another exercise** starts a fresh workspace and ends the old dashboard logins when you select a card. A private browser window is a second, independent visitor. Owner → Teams opens a second member in the same workspace. Only the example dashboard and its fictional providers are in scope.',
   '',
-  'For each review, record the deployed commit, date, browser, role, request or steps, expected and actual result, and evidence. Download observations from the exercise panel before signing out. Do not include passwords, raw cookies, access tokens or activation codes. Use [the blank results sheet](manual-results.csv) for a private working copy; publish only redacted observations. Opening a card or receiving an error alone is not a passing grade. Confirm a positive control and the resulting data or absence of a side effect.',
+  'For each review, record the deployed commit, date, browser, role, request or steps, expected and actual result, and evidence. Download observations from a dashboard screen where you ran a check before signing out. Do not include passwords, raw cookies, access tokens or activation codes. Use [the blank results sheet](manual-results.csv) for a private working copy; publish only redacted observations. Opening a card or receiving an error alone is not a passing grade. Confirm a positive control and the resulting data or absence of a side effect.',
   '',
   '## Exercise directory',
   '',
-  '| # | Exercise | What to try |',
-  '|---|---|---|',
-  ...catalog.map((e) => '| ' + e.n + ' | ' + e.title + ' | ' + e.guide + ' |'),
+  '| # | Exercise | Dashboard screens | What to try |',
+  '|---|---|---|---|',
+  ...catalog.map(
+    (e) =>
+      '| ' +
+      e.n +
+      ' | ' +
+      e.title +
+      ' | ' +
+      screensForExercise(e)
+        .map((id) => workspaceScreens[id].title)
+        .join(', ') +
+      ' | ' +
+      e.guide +
+      ' |',
+  ),
   '',
   '## ASVS requirement checklist',
   '',

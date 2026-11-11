@@ -36,12 +36,13 @@ export function proxy(request: NextRequest) {
   const publicAsset = path.startsWith("/_next/static/") || path === "/favicon.svg" || path.startsWith("/brand/");
   const publicRead = (request.method === "GET" || request.method === "HEAD") && (path === "/" || publicAsset);
   const sessionRoute = path === "/api/demo/session" && !!workspace;
+  const exerciseEvidence = path === '/api/demo/evidence' && request.method === 'GET' && !!workspace;
   const exerciseSetup = path === '/api/demo/exercise' && request.method === 'POST' && !!workspace;
   const authenticatedLab = path === '/api/demo/lab' && !!workspace && !!currentAccount(request);
   const resource = path === '/api/demo/mcp' && demoEnabled() && (primaryHost(request.headers.get('host')) || member) && (!request.headers.has('origin') || localDemo);
   if(path==='/api/demo/mcp' && demoEnabled() && !resource)return new NextResponse(null,{status:403});
   const hostilePage = demoEnabled() && path === '/attack-site' && request.headers.get('host')===attackHost() && request.method === 'GET';
-  const demoEntry = resource || hostilePage || (localDemo && (publicRead || sessionRoute || exerciseSetup || authenticatedLab));
+  const demoEntry = resource || hostilePage || (localDemo && (publicRead || sessionRoute || exerciseEvidence || exerciseSetup || authenticatedLab));
   if (!handoff && !demoEntry && !authorized(request, role)) return denied(request);
   let response;
   if (path === "/") {

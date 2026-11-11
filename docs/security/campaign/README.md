@@ -2,33 +2,33 @@
 
 [Launch the exercise picker](https://vps-ca027b84.vps.ovh.us/launch) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version) · [Campaign CI](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml) · [Scanner evidence](https://github.com/k-mc-martin/example-dashboard/actions/workflows/security-tools.yml) · [Rules and limits](policy.md)
 
-Choose a card, then a fictional role. **Sign out** changes identity inside the same exercise. **Choose another exercise** starts a fresh workspace and ends the old dashboard logins when you select a card. A private browser window is a second, independent visitor. Owner → Teams opens a second member in the same workspace. Only the example dashboard and its fictional providers are in scope.
+Choose a card, then a fictional role for interactive exercises. The dashboard opens to the first relevant screen. Use the dashboard navigation to reach the other screens listed below. Verification results open directly for evidence reviews. **Sign out** changes identity inside the same exercise. **Choose another exercise** starts a fresh workspace and ends the old dashboard logins when you select a card. A private browser window is a second, independent visitor. Owner → Teams opens a second member in the same workspace. Only the example dashboard and its fictional providers are in scope.
 
-For each review, record the deployed commit, date, browser, role, request or steps, expected and actual result, and evidence. Download observations from the exercise panel before signing out. Do not include passwords, raw cookies, access tokens or activation codes. Use [the blank results sheet](manual-results.csv) for a private working copy; publish only redacted observations. Opening a card or receiving an error alone is not a passing grade. Confirm a positive control and the resulting data or absence of a side effect.
+For each review, record the deployed commit, date, browser, role, request or steps, expected and actual result, and evidence. Download observations from a dashboard screen where you ran a check before signing out. Do not include passwords, raw cookies, access tokens or activation codes. Use [the blank results sheet](manual-results.csv) for a private working copy; publish only redacted observations. Opening a card or receiving an error alone is not a passing grade. Confirm a positive control and the resulting data or absence of a side effect.
 
 ## Exercise directory
 
-| # | Exercise | What to try |
-|---|---|---|
-| 1 | Account permissions | Try a payment as Mira and as Inez. Use Sign out to compare roles without losing the ledger. |
-| 2 | Access another person’s records | As Mira open both client files, then attempt approval. As Owner repeat the same requests, including approval after submission. |
-| 3 | Agent tool permissions | Consent to a read grant. List the tools, then call the write tool directly. Try a write grant as Owner for comparison. |
-| 4 | Credential lifecycle | Issue a code, exchange it, rotate the refresh token, then replay it. Try the old access token. A short-lived grant lets you test expiry. |
-| 5 | Concurrent requests | Open Mira or Theo from Teams. Run a burst in each tab. Compare the allowed and denied attempts and count the refunds in the ledger. |
-| 6 | Remove access mid-session | As Owner open Mira from Teams. Load her record, disable her, and try again in her tab. Re-enabling her should require a new login. |
-| 7 | Failure and recovery | Submit, approve, then interrupt the provider response. Inspect the ledger before retrying. Also try an outage before delivery. |
-| 8 | Server and dependency checks | Open the build evidence. Inspect the dependency results, TLS configuration and response headers, then compare the revision with the deployed version. |
-| 9 | Detect a planted fault | Run the same invariant against a healthy fixture and a deliberately duplicated receipt. The fixture never changes your ledger. |
-| 10 | Audit and reproduce | As Owner submit a refund, approve it, then repeat the approval. Inspect the ordered audit trail; download the observations for this run. |
-| 11 | Untrusted agent content | Grant read access, fetch the planted message, then try the action it asks for. Inspect the ledger afterward. |
-| 12 | Confused deputy and token passthrough | Try a redirect outside the registered client, then try an invalid audience and an upstream token. Compare with an expressly consented read. |
-| 13 | Secrets and source scanning | Open the source and history scans. Compare their results to the seeded fixture that commits and deletes a synthetic secret. |
-| 14 | Environment isolation | Open an independent private browser window. Copy a record ID between workspaces and compare the response to a local record. Inspect the isolated provider configuration. |
-| 15 | Continuous verification | Inspect a run for this build, the workflow source and the downloadable results. A fork can run the workflow without production credentials. |
-| 16 | Bad-input attacks | Edit the sample text and send it. Compare a legitimate search to a poisoned one. Try adding an unexpected field to a payment request. |
-| 17 | Attacks from another website | Check the payment state, launch the separate test site and try its form and script. Return here and read the ledger again. |
-| 18 | Staff sign-in | Enroll a fictional staff login. Try the protected record before and after signing in, change the password, and test repeated wrong guesses. |
-| 19 | Sensitive records and approvals | Compare the two client records as Employee and Owner. Try settling a refund first, then submit, approve and settle in order. |
+| # | Exercise | Dashboard screens | What to try |
+|---|---|---|---|
+| 1 | Account permissions | Payments & refunds | In Payments & refunds, select Submit refund as Mira, then try Approve refund. Read the payment ledger to check the state. Sign out and select Inez to approve the same refund. |
+| 2 | Access another person’s records | Client records, Payments & refunds | As Mira open both client files, then attempt approval. As Owner repeat the same requests, including approval after submission. |
+| 3 | Agent tool permissions | Connectors | In Connectors, consent to read mail, then exchange the code. List the tools and call refund_request directly. As Owner, consent to request refunds and exchange that code before trying the same tool. |
+| 4 | Credential lifecycle | Connectors | Issue a code, exchange it, rotate the refresh token, then replay it. Try the old access token. A short-lived grant lets you test expiry. |
+| 5 | Concurrent requests | Payments & refunds, Audit log | As Inez, submit a refund in Payments & refunds. From Teams, open Mira’s session. Send four approval requests together from each tab, then compare the responses, payment ledger and Owner’s audit log. |
+| 6 | Remove access mid-session | Teams, Client records, Audit log | As Owner open Mira from Teams. Load her record, disable her, and try again in her tab. Re-enabling her should require a new login. |
+| 7 | Failure and recovery | Payments & refunds | Submit, approve, then interrupt the provider response. Inspect the ledger before retrying. Also try an outage before delivery. |
+| 8 | Server and dependency checks | Verification results | In Verification results, select Inspect server and dependency checks. Compare the scanner findings and live response headers, then open the Hosted boundary run to inspect TLS. |
+| 9 | Detect a planted fault | Payments & refunds | In Payments & refunds, open Receipt reconciliation. Check the healthy receipt, then the duplicated receipt. Read the ledger to see whether either check changed the payment. |
+| 10 | Audit and reproduce | Payments & refunds, Audit log | As Owner submit a refund, approve it, then repeat the approval. Open Audit log to inspect the ordered events and download the observations for this run. |
+| 11 | Untrusted agent content | Connectors, Payments & refunds | In Connectors, consent to read mail and exchange the code. Read the untrusted message, then call the refund tool it asks for. Open Payments & refunds and inspect the ledger. |
+| 12 | Confused deputy and token passthrough | Connectors | Try a redirect outside the registered client, then try an invalid audience and an upstream token. Compare with an expressly consented read. |
+| 13 | Secrets and source scanning | Verification results | In Verification results, select Inspect source scan results. Compare the source and full-history scans with the deleted-secret and Semgrep rule controls. |
+| 14 | Environment isolation | Client records | Open an independent private browser window. Copy a record ID between workspaces and compare the response to a local record. Inspect the isolated provider configuration. |
+| 15 | Continuous verification | Verification results | In Verification results, select Inspect this build’s runs. Compare the deployed revision and browser and server checks with their linked GitHub runs. Open the workflow source to see how to repeat them. |
+| 16 | Bad-input attacks | Communications, Client records, Payments & refunds | Edit the sample text and send it. Compare a legitimate search to a poisoned one. Try adding an unexpected field to a payment request. |
+| 17 | Attacks from another website | Payments & refunds | Check the payment state, launch the separate test site and try its form and script. Return here and read the ledger again. |
+| 18 | Staff sign-in | Staff access | Enroll a fictional staff login. Try the protected record before and after signing in, change the password, and test repeated wrong guesses. |
+| 19 | Sensitive records and approvals | Client records, Payments & refunds | Compare the two client records as Employee and Owner. Try settling a refund first, then submit, approve and settle in order. |
 
 ## ASVS requirement checklist
 

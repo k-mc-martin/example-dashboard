@@ -53,3 +53,16 @@ Open `artifacts/security-tools/summary.json` after a local run. Its neighboring 
 To record a new reviewable baseline, run `npm run verify:tools -- --save-baseline`. The evidence file is excluded from its own source fingerprint.
 
 The account report and its manual checks cover the account exercise. Overall ASVS level, broader authenticated API coverage, remote MCP authorization and deployment security each need their own evidence. A new exercise can add cases, map them to its requirements and include its outputs with the same workflow.
+
+
+## Evidence in the visitor dashboard
+
+Exercises 8, 13 and 15 read a public summary of GitHub Actions runs for the deployed Git commit. The server mounts `/opt/secdash-evidence` read-only. Each result links to its source run. After the campaign, scanner and hosted-boundary runs finish, run the following from an authenticated maintainer checkout, using the full deployed commit for `REVISION`. Publish the completed file with a rename so visitors always read a complete snapshot.
+
+```sh
+python3 scripts/security/dashboard-evidence.py "$REVISION" > "$REVISION.json"
+scp "$REVISION.json" "$DEMO_SSH:/opt/secdash-evidence/$REVISION.json.tmp"
+ssh "$DEMO_SSH" "mv /opt/secdash-evidence/$REVISION.json.tmp /opt/secdash-evidence/$REVISION.json"
+```
+
+A fresh deployment displays its revision and the pending-evidence message until its summary is available. Local builds can inspect live headers and open the public workflow sources.

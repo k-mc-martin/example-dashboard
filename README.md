@@ -6,7 +6,7 @@
 
 [Earlier account review results](docs/security/accounts.md#hosted-account-review-november-10-2026) · [Repeat the account checks (optional)](docs/security/manual-review.md) · [Browse the source in VS Code](https://github.dev/k-mc-martin/example-dashboard) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version)
 
-SecDash is an interactive security dashboard for testing connector permissions with fictional business activity. Each browser session gets its own eight-hour workspace. Choose an exercise and sign in with a fictional account and choose **Generate new activity** to trigger a provider update. An open, visible dashboard also requests activity once a minute.
+SecDash is an interactive security dashboard for testing connector permissions with fictional business activity. Each browser session gets its own eight-hour workspace. Choose an exercise to open its dashboard screens. For **Account permissions**, sign in as Mira and select **Submit refund** in **Payments & refunds**. Use **Sign out** to switch to Inez and approve the same refund. The three evidence reviews open directly in **Verification results**. Choose **Generate new activity** in a signed-in dashboard to trigger a provider update. An open, visible dashboard also requests activity once a minute.
 
 [![SecDash exercise picker showing independent security exercises](docs/security/campaign/exercise-picker.png)](https://vps-ca027b84.vps.ovh.us/launch)
 

@@ -1,0 +1,7 @@
+{
+  "name": "secdash-browser-checks",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test --test-reporter=tap dashboard.test.mjs" },
+  "dependencies": { "playwright-core": "1.65.0" }
+}
