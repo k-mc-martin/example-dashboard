@@ -70,7 +70,7 @@ All eight automated scenarios also passed in GitHub Actions on the reviewed comm
 
 ### November 10, 2026 · Live deployment access
 
-**Passed.** The project owner tested the local Dupdash demo in a browser, using the Owner’s Teams page and Mira Chen’s Employee dashboard in separate tabs.
+**Passed.** The project owner tested the local SecDash demo in a browser, using the Owner’s Teams page and Mira Chen’s Employee dashboard in separate tabs.
 
 | Owner action in Teams | Observation in Mira’s open tab |
 |---|---|

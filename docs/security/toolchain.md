@@ -29,6 +29,8 @@ On November 10, 2026, the account and provider harness passed 29 tests, the simu
 
 OSV reported 80 distinct advisories across 22 of the 849 resolved package versions it scanned, including Next.js. Semgrep reported five SQL interpolation sites. The feedback queries build clauses from fixed fragments and bind the search values. The drive queries interpolate a fixed column list and a numeric constant. The five matches remain visible for review. ZAP reported a missing Content Security Policy on the landing page and disclosure of the framework through the X-Powered-By header. [Generated baseline and advisory IDs](evidence/tools/baseline.json)
 
+The Inspector entry in the published baseline was reproduced on November 11, 2026 with the `secdash-stdio-fixture` server.
+
 ## Remediation of the first published findings
 
 The first hosted run reproduced the local findings and scanned the initial Git history without a secret match. Its account verification passed all eight scenarios. [Initial security run](https://github.com/k-mc-martin/example-dashboard/actions/runs/42939085408) · [Initial account report](https://github.com/k-mc-martin/example-dashboard/actions/runs/42939085147)

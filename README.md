@@ -12,8 +12,6 @@ With Docker Compose running, use `npm run demo:up` from this directory, then ope
 
 If the default port is occupied, run `SECDASH_DEMO_PORT=5287 npm run demo:up` and open [the demo on port 5287](http://127.0.0.1:5287). Use the same environment variable when running HTTP verification. Member tabs use separate `*.localhost` hosts on the same loopback port.
 
-Existing local installs can copy their settings to the corresponding `SECDASH_*` variables and keep the same database path. Stop the previous simulation project before reusing its port. The first visit after the rename starts a fresh demo workspace.
-
 ## Data flow
 
 Each update sends a server-selected scenario to the [n8n workflow](infra/n8n/workflows/demo-events.json). n8n makes nine HTTP requests to the internal [fictional providers](infra/simulation/providers.mjs) and delivers their results together. The dashboard validates the results and saves the complete update in the visitor's own SQLite database. A repeated request for the same revision advances the workspace once. Failed updates preserve the previous revision.
