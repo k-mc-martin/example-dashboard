@@ -1,4 +1,4 @@
-# SecDash manual review
+# SecDash manual review (optional)
 
 [Launch the exercise picker](https://vps-ca027b84.vps.ovh.us/launch) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version) · [Campaign CI](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml) · [Scanner evidence](https://github.com/k-mc-martin/example-dashboard/actions/workflows/security-tools.yml) · [Rules and limits](policy.md)
 
