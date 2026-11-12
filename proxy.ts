@@ -1,4 +1,4 @@
-import {recordOutsideDenial,launchHeaderReceipt} from './lib/review/manual';
+import {recordOutsideDenial,launchHeaderReceipt,observedOperations} from './lib/review/manual';
 import { randomBytes } from 'node:crypto';
 import { demoEnabled, demoOriginAllowed, primaryHost, attackHost, memberHost, demoCookie, newDemoCookie, workspaceId, lifetimeSeconds } from './lib/demo-session';
 import { currentAccount, retiredWorkspace, hasActiveLogin } from "./lib/demo-login";
@@ -51,7 +51,7 @@ export function proxy(request: NextRequest) {
   if (!handoff && !demoEntry && !authorized(request, role)) {
     const result=denied(request);
     if(demoEnabled()&&path==='/api/demo/lab') recordOutsideDenial(request,result);
-    return result;
+    return localDemo && workspace ? observedOperations(request, () => result) : result;
   }
   let response;
   if (path === "/") {

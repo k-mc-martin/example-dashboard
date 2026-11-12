@@ -1,3 +1,4 @@
+import { observedOperations } from '@/lib/review/manual';
 import { demoEnabled } from "@/lib/demo-session";
 import { withDashboardDb } from "@/lib/demo-db";
 import { backupStatus } from "@/lib/demo-events";
@@ -47,7 +48,7 @@ async function controller(method: "GET" | "POST") {
   }
 }
 
-export async function GET(request: Request) {
+async function read(request: Request) {
   if (!authorized(request, "operator")) return denied(request);
   if (demoEnabled()) {
     try { return Response.json(await withDashboardDb(request, db => backupStatus(db, request.method === "POST"))); }
@@ -56,7 +57,7 @@ export async function GET(request: Request) {
   return controller("GET");
 }
 
-export async function POST(request: Request) {
+async function start(request: Request) {
   if (!authorized(request, "operator")) return denied(request);
   if (demoEnabled()) {
     try { return Response.json(await withDashboardDb(request, db => backupStatus(db, request.method === "POST"))); }
@@ -66,3 +67,6 @@ export async function POST(request: Request) {
   if (!origin || origin !== new URL(request.url).origin) return Response.json({ error: "Same-origin request required." }, { status: 403, headers: responseHeaders });
   return controller("POST");
 }
+
+export function GET(request: Request) { return observedOperations(request, read); }
+export function POST(request: Request) { return observedOperations(request, start); }

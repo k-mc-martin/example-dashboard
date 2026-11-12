@@ -87,11 +87,26 @@ async function switchRole(page, role) {
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await page.getByRole('button', { name: 'Sign in as ' + role }).click();
 }
-async function openMira(owner) {
+async function nativeAction(page, button, path, method, status) {
+  const [response] = await Promise.all([
+    page.waitForResponse(r => new URL(r.url()).pathname === path && r.request().method() === method &&
+      (method !== 'GET' || r.request().headers()['x-secdash-review'] === '1')),
+    page.getByRole('tabpanel').getByRole('button', { name: button, exact: true }).click(),
+  ]);
+  assert.equal(response.status(), status, button);
+  assert.ok(response.headers()['x-secdash-receipt'], button + ' backend receipt');
+  diagnostics.get(page.context())?.diagnostic(button + ' → HTTP ' + status);
+  return response.ok() ? response.json() : undefined;
+}
+const preview = (page, launch, status = 200) => nativeAction(page,
+  launch ? 'Launch preview deployment' : 'Check deployed release', '/api/demo/deployments', launch ? 'POST' : 'GET', status);
+
+async function openMember(owner, id = 'mira') {
   const teams = await openScreen(owner, 'Teams');
+  await teams.getByLabel('Team member').selectOption(id);
   const [member] = await Promise.all([
     owner.context().waitForEvent('page'),
-    teams.getByRole('button', { name: 'Open Mira’s session' }).click(),
+    teams.getByRole('button', { name: id === 'theo' ? 'Open Theo’s session' : 'Open Mira’s session' }).click(),
   ]);
   return member;
 }
@@ -184,7 +199,7 @@ function scenario(n, role, description, perform) {
         viewport:
           n === 19 ? { width: 390, height: 844 } : { width: 980, height: 850 },
       });
-      page.setDefaultTimeout(15000);
+      page.context().setDefaultTimeout(15000);
       diagnostics.set(page.context(), t);
       try {
         await start(page, n, role);
@@ -235,17 +250,42 @@ function scenario(n, role, description, perform) {
 
 scenario(
   1,
-  'Employee',
-  'Mira submits and Inez approves the same refund',
+  'Administrator',
+  'Theo deploys and backs up; only Inez approves the refund',
   async (p) => {
+    await openScreen(p, 'Deployments');
+    assert.equal((await preview(p, false)).deploymentCount, 0);
+    const launched = await preview(p, true, 201);
+    assert.equal(launched.deployment.launchedBy, 'Theo Reed');
+    assert.equal(launched.deploymentCount, 1);
+    assert.equal((await preview(p, false)).current.id, launched.deployment.id);
+    const repeated = await preview(p, true);
+    assert.equal(repeated.replayed, true);
+    assert.equal(repeated.deploymentCount, 1);
+    const feed = await nativeAction(p, 'Refresh feed', '/api/operations', 'GET', 200);
+    assert.deepEqual(Object.keys(feed.surfaces), ['cloudflare']);
+    assert.ok(feed.surfaces.cloudflare.history.length > 0);
+    await openScreen(p, 'Storage & recovery');
+    const job = await nativeAction(p, 'Back Up Now', '/api/backups', 'POST', 200);
+    assert.equal(job.state, 'running');
+    await switchRole(p, 'Employee');
+    await openScreen(p, 'Website & releases');
+    await preview(p, true, 403);
+    await openScreen(p, payments);
     const payment = p.getByRole('region', { name: 'Payment details' });
     await payment.getByText('No refund requested').waitFor();
     assert.equal(await payment.getByText('Payment amount').count(), 0);
     await submit(p);
     await approve(p, 403);
     assert.equal((await ledger(p)).state, 'submitted');
-    await openScreen(p, 'Website & releases');
+    await switchRole(p, 'Administrator');
+    await openScreen(p, 'Deployments');
+    const afterDenial = await preview(p, false);
+    assert.equal(afterDenial.deploymentCount, 1);
+    assert.equal(afterDenial.current.id, launched.deployment.id);
     await openScreen(p, payments);
+    await approve(p, 403);
+    assert.equal((await ledger(p)).state, 'submitted');
     await switchRole(p, 'Owner');
     await payment.getByText('INV-410').waitFor();
     await approve(p);
@@ -267,6 +307,13 @@ scenario(
     await submit(p);
     await approve(p, 403);
     assert.equal((await ledger(p)).state, 'submitted');
+    await switchRole(p, 'Administrator');
+    await openScreen(p, clients);
+    const file = await action(p, 'Open my client', 200);
+    assert.equal(file.client, 'Moss Works');
+    assert.equal(file.assigned, 'theo');
+    assert.equal('billingReference' in file, false);
+    assert.equal((await action(p, 'Open the other client', 404)).client, undefined);
     await switchRole(p, 'Owner');
     await openScreen(p, clients);
     assert.equal(
@@ -328,11 +375,28 @@ scenario(
 
 scenario(
   5,
-  'Owner',
-  'overlapping employee and Owner approvals produce one state change',
+  'Administrator',
+  'two simultaneous launches by Theo create one deployment; overlapping refund approvals change state once',
   async (p) => {
+    await openScreen(p, 'Deployments');
+    const replies = [];
+    const capture = response => {
+      if (response.url().endsWith('/api/demo/deployments') && response.request().method() === 'POST') replies.push(response);
+    };
+    p.on('response', capture);
+    await p.getByRole('button', { name: 'Launch the same release twice' }).click();
+    await p.getByRole('region', { name: 'Preview deployment' }).getByRole('status').filter({ hasText: 'Already deployed' }).waitFor();
+    p.off('response', capture);
+    assert.deepEqual(replies.map(r => r.status()).sort(), [200, 201]);
+    const [first, second] = await Promise.all(replies.map(r => r.json()));
+    assert.equal(first.deployment.id, second.deployment.id);
+    const deployed = await preview(p, false);
+    assert.equal(deployed.deploymentCount, 1);
+    assert.equal(deployed.current.launchedBy, 'Theo Reed');
+    await switchRole(p, 'Owner');
+    await openScreen(p, payments);
     await submit(p);
-    const mira = await openMira(p);
+    const mira = await openMember(p);
     await openScreen(p, payments);
     await openScreen(mira, payments);
     // Arrival order is nondeterministic. Read each of the four returned statuses.
@@ -374,9 +438,30 @@ scenario(
 scenario(
   6,
   'Owner',
-  'disabling Mira invalidates her open tab through re-enablement',
+  'Theo loses sync authority but keeps storage and backup access; disabling Mira ends her session',
   async (p) => {
-    const mira = await openMira(p);
+    const theo = await openMember(p, 'theo');
+    await openScreen(theo, 'Storage & recovery');
+    const catalog = '/api/backup-catalog';
+    const first = await nativeAction(theo, 'Update backups', catalog, 'POST', 200);
+    assert.equal(first.update.state, 'running');
+    const teams = p.getByRole('tabpanel');
+    await teams.getByLabel('Sync backup libraries').uncheck();
+    const [saved] = await Promise.all([
+      p.waitForResponse(r => r.url().endsWith('/api/demo/teams') && r.request().method() === 'PUT'),
+      teams.getByRole('button', { name: 'Save access' }).click(),
+    ]);
+    assert.equal(saved.status(), 200);
+    assert.equal((await saved.json()).members.find(m => m.id === 'theo').permissions.syncBackups, false);
+    const before = await nativeAction(theo, 'Refresh library', catalog, 'GET', 200);
+    assert.equal(before.update.jobId, first.update.jobId);
+    await nativeAction(theo, 'Update backups', catalog, 'POST', 403);
+    await theo.getByText('Access denied (403). You need permission to sync backups.', { exact: true }).waitFor();
+    const after = await nativeAction(theo, 'Refresh library', catalog, 'GET', 200);
+    assert.equal(after.update.jobId, first.update.jobId);
+    assert.equal((await nativeAction(theo, 'Back Up Now', '/api/backups', 'POST', 200)).state, 'running');
+    await theo.close();
+    const mira = await openMember(p);
     await openScreen(mira, clients);
     await action(mira, 'Open my client', 200);
     await action(p, 'Disable Mira', 200);

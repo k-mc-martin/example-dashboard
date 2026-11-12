@@ -40,6 +40,7 @@ export function requestSection(request: Request): DemoSection | undefined {
   const path = url.pathname;
   const method = request.method === 'HEAD' ? 'GET' : request.method;
   if (path === '/api/demo/teams' && ['GET', 'PUT'].includes(method)) return 'teams';
+  if (path === '/api/demo/deployments' && ['GET', 'POST'].includes(method)) return 'deployments';
   if (method === 'POST') {
     if (path === '/api/demo/member-tab') return 'teams';
     if (path === '/api/demo/events') return 'communications';

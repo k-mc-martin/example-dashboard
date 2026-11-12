@@ -15,6 +15,7 @@ export function authorized(request: Request, role: "operator" | "ingest"): boole
     const account = currentAccount(request);
     const section = requestSection(request);
     if (!account || !section || !accountSections(account).includes(section)) return false;
+    if (request.method === 'POST' && section === 'deployments') return account.role === 'Administrator' || account.role === 'Owner';
     if (request.method === 'POST' && section === 'storage') {
       return new URL(request.url).pathname === '/api/backups' ? account.permissions.startBackup : account.permissions.syncBackups;
     }

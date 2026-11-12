@@ -66,6 +66,41 @@ test('Independent exercise runs enforce row and field access; reject valid privi
   assert.equal((await lab(fresh, 'ledger')).state, 'open');
   await lab(fresh, 'settle', {}, 409);
 });
+test('Preview launch is workspace-bound and requires deployment access and an authorized role', async () => {
+  const { w, s: owner } = await role(1);
+  const path = '/api/demo/deployments';
+  assert.equal((await post(owner, '/api/demo/events', {}, { 'If-Match': '0' })).status, 200);
+  const { version } = await (await request(owner, '/api/releases')).json();
+  const { members } = await (await request(owner, '/api/demo/teams')).json();
+  const grant = async (id, deployments) => {
+    const member = members.find(m => m.id === id);
+    const edit = await request(owner, '/api/demo/teams', {
+      method: 'PUT', headers: { Origin: base, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, role: member.role, permissions: { ...member.permissions, deployments } }),
+    });
+    assert.equal(edit.status, 200);
+  };
+  await grant('mira', true);
+  await grant('theo', false);
+  await signOut(owner);
+  const mira = await signIn(w, 'Employee');
+  assert.equal((await request(mira, path)).status, 200);
+  assert.equal((await post(mira, path, { version }, { 'X-Role': 'Owner' })).status, 403);
+  await signOut(mira);
+  const theo = await signIn(w, 'Administrator');
+  assert.equal((await request(theo, path)).status, 403);
+  assert.equal((await post(theo, path, { version })).status, 403);
+  await signOut(theo);
+  const inez = await signIn(w, 'Owner');
+  assert.equal((await post(inez, path, { version, environment: 'production' })).status, 400);
+  assert.equal((await post(inez, path, { version: '9.9.9' })).status, 409);
+  assert.equal((await post(inez, path, { version }, { Origin: 'https://outside.invalid' })).status, 401);
+  assert.equal((await (await request(inez, path)).json()).deploymentCount, 0);
+  assert.equal((await post(inez, path, { version })).status, 201);
+  assert.equal((await (await request(inez, path)).json()).current.launchedBy, 'Inez Park');
+  const independent = await role(1, 'Administrator');
+  assert.equal((await (await request(independent.s, path)).json()).deploymentCount, 0);
+});
 test('Concurrent approval and interrupted delivery record one receipt; audit and fault detection retain scope', async () => {
   const { s } = await role(5);
   await lab(s, 'submit');

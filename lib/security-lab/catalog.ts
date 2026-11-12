@@ -18,15 +18,15 @@ export const catalog = [
   row(
     1,
     'Account permissions',
-    'Who can open the ledger and who can change it?',
-    'In Payments & refunds, select Submit refund as Mira, then try Approve refund. Read the payment ledger to check the state. Sign out and select Inez to approve the same refund.',
+    'Can Theo launch a release and run a backup? Who can approve a refund?',
+    'As Theo, open Deployments, check the deployed release, launch a preview, and check again. Start a backup in Storage & recovery. As Mira, try the same launch from Website & releases, then submit a refund. Try approval as Mira, Theo, and finally Inez. Use Sign out between roles to keep the same records.',
     ['ledger', 'submit', 'approve'],
   ),
   row(
     2,
     'Access another person’s records',
     'Can an employee open someone else’s client file or approve a refund?',
-    'As Mira open both client files, then attempt approval. As Owner repeat the same requests, including approval after submission.',
+    'Open both client files as Mira, then as Theo. Each should see only their own assignment. Try refund approval as Mira after submission, then open both files and approve as Inez.',
     ['mine', 'other', 'submit', 'approve', 'ledger'],
   ),
   row(
@@ -59,15 +59,15 @@ export const catalog = [
   row(
     5,
     'Concurrent requests',
-    'Can simultaneous employees and managers race the same action?',
-    'As Inez, submit a refund in Payments & refunds. From Teams, open Mira’s session. Send four approval requests together from each tab, then compare the responses, payment ledger and Owner’s audit log.',
+    'What happens when Theo launches a release twice or two people race to approve a refund?',
+    'As Theo in Deployments, launch the same release twice together and check the deployed release. Sign out. As Inez, submit a refund in Payments & refunds. From Teams, open Mira’s session. Send four approval requests together from each tab, then compare the responses, payment ledger and Owner’s audit log.',
     ['submit', 'approve', 'burst', 'ledger', 'audit'],
   ),
   row(
     6,
     'Remove access mid-session',
-    'Does disabling an employee end their open sessions?',
-    'As Owner open Mira from Teams. Load her record, disable her, and try again in her tab. Re-enabling her should require a new login.',
+    'Can Inez revoke Theo’s sync access during a session and end Mira’s access entirely?',
+    'As Inez in Teams, open Theo’s session. As Theo, sync the backup libraries. Revoke only Sync backup libraries as Inez and retry from Theo’s open Storage & recovery tab. Compare the job before and after, then start a single backup. Back in Teams, open Mira, disable her, and re-enable her. Her old session should stay signed out.',
     ['disable', 'enable', 'mine', 'audit'],
   ),
   row(

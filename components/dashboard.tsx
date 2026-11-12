@@ -13,6 +13,7 @@ import type { ProviderSurface } from "@/lib/provider-telemetry";
 import { DriveEnvironment } from "@/components/drive-environment";
 import { CommandDeck } from "@/components/command-deck";
 import { releaseSites } from "@/lib/release-sites";
+import { PreviewDeployment } from "@/components/preview-deployment";
 import { PublishedRelease } from "@/components/published-release";
 import { FeedbackEnvironment } from "@/components/feedback-environment";
 
@@ -39,7 +40,8 @@ export default function Dashboard({ revision = 0, account, exercise }: { revisio
     const base = account ? accountSections(account) : evidenceOnly ? [] : privateSections;
     return [...new Set([...exerciseScreens, ...base])];
   }, [account, exerciseScreens, evidenceOnly]);
-  const home = exerciseScreens[0] ?? (sections.includes("command") ? "command" : "communications");
+  const home = exercise && [1, 5].includes(exercise.n) && role === "Administrator" && sections.includes("deployments")
+    ? "deployments" : exerciseScreens[0] ?? (sections.includes("command") ? "command" : "communications");
   const [view, selectView] = useState<string>(home);
   const [accessResult, setAccessResult] = useState('');
   const lostSection = !sections.includes(view);
@@ -140,6 +142,10 @@ export default function Dashboard({ revision = 0, account, exercise }: { revisio
   const hasData = lastSync !== null;
   const chosenAccount = displayAccounts.find(a => a.id === help);
   const addedScreens = exerciseScreens.filter(screen => screen !== 'communications' && screen !== 'teams');
+  const operationalGuide = exercise && [1, 5, 6].includes(exercise.n) && <>
+    <details className="workspace-guide"><summary>Exercise {exercise.n} · {exercise.title}</summary><p>{exercise.guide}</p></details>
+    <a className="text-link" href="/api/demo/report" download>Download exercise report (PDF)</a>
+  </>;
   const screenIcons = { payments: CreditCard, clients: FolderOpen, connectors: Workflow, audit: ShieldCheck, staff: KeyRound, evidence: ShieldCheck };
   return <main data-view={view} className={`cockpit ${["command", "feedback", "storage", "operations", "deployments"].includes(view) ? "storage-focused" : ""}`}>
     <header className="masthead">
@@ -205,7 +211,9 @@ export default function Dashboard({ revision = 0, account, exercise }: { revisio
       </TabsContent>}
       {sections.includes("website") && <TabsContent value="website" className="view">
         <div className="view-heading"><div><h1>WEBSITE & RELEASES<span className="heading-dot">.</span></h1></div></div>
+        {operationalGuide}
         <PublishedRelease revision={revision} active={view === "website"} openEdge={canUseStorage ? () => openOperation("cloudflare") : undefined} />
+        {account && (sections.includes("deployments") || exercise?.n === 1 || exercise?.n === 6) && <PreviewDeployment active={view === "website"} revision={revision} showHistory={false} />}
         <div className="website-grid">
           <section className="web-panel">
             <Globe size={23} /><h2>Websites</h2>
@@ -215,10 +223,14 @@ export default function Dashboard({ revision = 0, account, exercise }: { revisio
           <section className="web-panel"><KeyRound size={23} /><h2>Editing & cleanup</h2><p>Next: edit copy and images, preview changes, and manage previous installers from here.</p><p className="footnote">Publishing and deletion are not connected yet. Current installers and rollback copies remain in place.</p><button className="text-link" onClick={() => setHelp("website")}>See the current setup <ArrowRight size={16} /></button></section></div>
       </TabsContent>}
       {sections.includes("storage") && <TabsContent value="storage" className="view">
+        {operationalGuide}
         <DriveEnvironment permissions={account?.permissions} active={view === "storage"} backup={backup} backupLoading={backupLoading} backupError={backupError} onStartBackup={() => void startBackup()} />
       </TabsContent>}
       {sections.includes("deployments") && <TabsContent value="deployments" className="view">
-        <OperationsEnvironment surface="cloudflare" active={view === "deployments"} />
+        <OperationsEnvironment surface="cloudflare" active={view === "deployments"}>
+          {operationalGuide}
+          {account && <PreviewDeployment active={view === "deployments"} revision={revision} showHistory concurrent={exercise?.n === 5} />}
+        </OperationsEnvironment>
       </TabsContent>}
       {sections.includes("operations") && <TabsContent value="operations" className="view">
         <nav className="domain-navigation" aria-label="Operational environments">

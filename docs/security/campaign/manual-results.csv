@@ -69,7 +69,7 @@
 "v5.0.0-15.1.1","8","Not yet tested","","","","Verify that application documentation defines risk based remediation time frames for 3rd party component versions with vulnerabilities and for updating libraries in general, to minimize the risk from these components.","",""
 "v5.0.0-15.2.1","8","Not yet tested","","","","Verify that the application only contains components which have not breached the documented update and remediation time frames.","",""
 "v5.0.0-15.3.1","1","Not yet tested","","","","Verify that the application only returns the required subset of fields from a data object. For example, it should not return an entire data object, as some individual fields should not be accessible to users.","",""
-"scenario-5","5","Not yet tested","","","","Can simultaneous employees and managers race the same action?","",""
+"scenario-5","5","Not yet tested","","","","What happens when Theo launches a release twice or two people race to approve a refund?","",""
 "scenario-7","7","Not yet tested","","","","Does a retry after an interrupted operation repeat the payment?","",""
 "scenario-9","9","Not yet tested","","","","Will the verification detect a broken refund calculation?","",""
 "scenario-10","10","Not yet tested","","","","Can you reconstruct who tried a change and what actually happened?","",""

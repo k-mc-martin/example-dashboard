@@ -1,3 +1,4 @@
+import { observedOperations } from '@/lib/review/manual';
 import { authorized, denied } from '@/lib/server-auth';
 import { demoEnabled } from '@/lib/demo-session';
 import { withDashboardDb } from '@/lib/demo-db';
@@ -18,4 +19,5 @@ async function catalog(request: Request) {
     return Response.json({ error: 'Waiting for the first fictional snapshot.' }, { status: 503 });
   }
 }
-export { catalog as GET, catalog as POST };
+function handle(request: Request) { return observedOperations(request, catalog); }
+export { handle as GET, handle as POST };

@@ -43,11 +43,25 @@ export function receipts(w: string, actor: string, all: boolean): Receipt[] {
     .all(w, Number(all), actor)
     .map((r) => JSON.parse(String(r.payload)));
 }
+// Polls refresh the dashboard continuously. Keep receipts for deliberate reads and
+// writes on the operational screens used by the account and revocation exercises.
+export function observedOperations(req: Request, handler: (req: Request) => Response | Promise<Response>) {
+  const url = new URL(req.url);
+  const deployment = url.pathname === '/api/operations' && url.search === '?surface=cloudflare';
+  const storage = url.pathname === '/api/backups' || url.pathname === '/api/backup-catalog';
+  const explicitRead = req.method === 'GET' && req.headers.get('X-SecDash-Review') === '1';
+  const preview = url.pathname === '/api/demo/deployments';
+  if (((deployment || storage || preview) && explicitRead) || ((storage || preview) && req.method === 'POST'))
+    return observed(req, handler, true);
+  return handler(req);
+}
+
 // Label the submitted operation separately from the actor, status and outcome, which
 // come from the authenticated session, actual response and server-side ledger.
 export async function observed(
   req: Request,
   handler: (req: Request) => Response | Promise<Response>,
+  operational = false,
 ) {
   if (!demoEnabled()) return handler(req);
   const path = new URL(req.url).pathname;
@@ -78,7 +92,7 @@ export async function observed(
   const row = w && runFor(w);
   if (!w || !row) return handler(req);
   const exercise = exerciseByNumber(Number(row.n));
-  if (!exercise) return handler(req);
+  if (!exercise || (operational && (!actor || ![1, 5, 6].includes(exercise.n)))) return handler(req);
   const body =
     req.method === 'POST' && (path.endsWith('/lab') || path.endsWith('/mcp'))
       ? ((await req
@@ -91,7 +105,7 @@ export async function observed(
           params?: { name?: string };
         } | null)
       : null;
-  let action = '';
+  let action = operational && path === '/api/operations' ? 'cloudflare' : '';
   if (body?.action && exercise.actions.includes(body.action))
     action = body.action;
   if (action === 'staff' && body?.operation && names.has(body.operation))

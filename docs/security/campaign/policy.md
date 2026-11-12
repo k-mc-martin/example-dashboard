@@ -5,6 +5,7 @@ Each exercise starts a new signed workspace, with independent client IDs, role a
 | Resource | Reads | Writes / authority |
 |---|---|---|
 | Client files | Employee and Administrator see their own assignment. Owner sees both and the billing reference. An absent or inaccessible ID returns 404. | No visitor edits to client records. |
+| Preview deployments | Members with deployment access can inspect the deployed version, launcher and count in their workspace. | An Administrator with deployment access or the Owner can launch the published ExampleApp version. Repeating a launch for the same version returns the existing record. |
 | Payment ledger | Current exercise, state and receipt count for all roles. Billing reference and amount for Owner alone. | Staff may submit; only Owner approves or delivers. Open → submitted → approved → settled. The atomic state transition records one receipt, including after a dropped reply. |
 | Team status | Owner manages member access. | Disable removes all of that member’s logins and unused invitations. Re-enable does not restore them. Connector grants depend on the authorizing session remaining valid. |
 | Audit trail | Owner reads the most recent 100 lab events in this workspace. | Only the server writes events. No passwords, payloads, bearer tokens, activation secrets or raw cookies in event records. The browser export is an observation aid, not a signed audit log. |

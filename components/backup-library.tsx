@@ -85,7 +85,7 @@ export function BackupLibrary({ active, canSync = true }: { active: boolean; can
     if (visible) setRefreshing(true);
     const timeout = window.setTimeout(() => nextController.abort(), 8_000);
     try {
-      const response = await fetch("/api/backup-catalog", { cache: "no-store", signal: nextController.signal });
+      const response = await fetch("/api/backup-catalog", { cache: "no-store", signal: nextController.signal, headers: visible ? { "X-SecDash-Review": "1" } : undefined });
       if (!response.ok) throw new Error("Backup library endpoint is unavailable.");
       const parsed = parseBackupCatalogResponse(await response.json());
       if (!parsed) throw new Error("Backup library returned an invalid response.");

@@ -27,7 +27,7 @@ const details = {
   Administrator: {
     icon: ShieldCheck,
     access:
-      'Employee access, plus deployment history, storage, and backup actions.',
+      'Launch preview deployments, inspect deployment history, start backups, and sync the backup library.',
   },
   Owner: {
     icon: KeyRound,

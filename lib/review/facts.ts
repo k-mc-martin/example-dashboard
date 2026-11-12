@@ -44,6 +44,27 @@ export function responseFacts(
   const error =
     typeof body.error === 'string' ? body.error : object(body.error).message;
   if (typeof error === 'string') facts.push(error.slice(0, 200));
+  if (path === '/api/demo/deployments') {
+    if (typeof body.deploymentCount === 'number') facts.push('Preview deployments=' + body.deploymentCount);
+    const release = object(body.deployment ?? body.current);
+    if (typeof release.version === 'string')
+      facts.push('ExampleApp ' + release.version + ' | launched by ' + release.launchedBy);
+    if (body.replayed === true) facts.push('Already deployed; no additional deployment.');
+    return facts;
+  }
+  if (path === '/api/backups' || path === '/api/backup-catalog') {
+    const job = path === '/api/backups' ? body : object(body.update);
+    if (typeof job.jobId === 'string' && /^sample-\d+$/.test(job.jobId))
+      facts.push('Job ' + job.jobId + ' | ' + job.state);
+    if (Array.isArray(body.libraries)) facts.push('Libraries returned: ' + body.libraries.length);
+    return facts;
+  }
+  if (path === '/api/operations') {
+    const deployment = object(object(body.surfaces).cloudflare);
+    if (Array.isArray(deployment.history))
+      facts.push('Deployment history returned: ' + deployment.history.length + ' observations');
+    return facts;
+  }
   if (path.endsWith('/evidence')) {
     const checks =
       exercise === 8

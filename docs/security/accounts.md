@@ -6,6 +6,7 @@ Each visitor starts with an isolated fictional workspace. The sign-in screen off
 |---|---|---|---|
 | Communications and message details, feedback, websites and sample releases | Allow | Allow | Allow |
 | Deployment history and object storage | Deny | Allow | Allow |
+| Launch the published release to the fictional preview environment | Deny | Allow with Deployments access | Allow |
 | Drive usage, backup catalog, simulated backup and sync | Deny | Allow | Allow |
 | Overview, attention dismissals and provider accounts | Deny | Deny | Allow |
 | Revenue, signing, domains and workflow telemetry | Deny | Deny | Allow |

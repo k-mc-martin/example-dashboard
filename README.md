@@ -30,7 +30,7 @@ The other workflow exports are inactive templates with reserved fictional addres
 
 ## Demo accounts
 
-**Mira Chen (Employee)** starts with Communications, Feedback, and Website & releases. **Theo Reed (Administrator)** also has Deployments and Storage & recovery. **Inez Park (Owner)** can manage the team and approve or deliver refunds. Each exercise adds its own dashboard actions. **Sign out** lets you change roles and keep the same records. To test two active identities, use **Teams** as Inez and open Mira’s session in a second tab. Choosing another exercise starts a fresh workspace. [Account policy and OWASP test mapping](docs/security/accounts.md)
+**Mira Chen (Employee)** starts with Communications, Feedback, and Website & releases. **Theo Reed (Administrator)** can launch the published release to preview and run backups in exercise 1. In exercise 2 he can open his own client file. In exercise 5 he launches the same release twice concurrently and checks that only one deployment was recorded. Exercise 6 lets the Owner revoke his library-sync permission while he keeps working in the same tab. **Inez Park (Owner)** can manage the team and approve or deliver refunds. Each exercise adds its own dashboard actions. **Sign out** lets you change roles and keep the same records. To test two active identities, use **Teams** as Inez and open Mira’s session in a second tab. Choosing another exercise starts a fresh workspace. [Account policy and OWASP test mapping](docs/security/accounts.md)
 
 ## Verification
 

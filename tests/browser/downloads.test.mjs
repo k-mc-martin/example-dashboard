@@ -90,6 +90,19 @@ test(
       await other
         .getByRole('button', { name: 'Sign out', exact: true })
         .click();
+      await other.getByRole('button', { name: 'Sign in as Administrator' }).click();
+      const [deployed] = await Promise.all([
+        other.waitForResponse(r => r.url().endsWith('/api/demo/deployments') && r.request().method() === 'POST'),
+        other.getByRole('button', { name: 'Launch preview deployment', exact: true }).click(),
+      ]);
+      const deployReceipt = deployed.headers()['x-secdash-receipt'];
+      assert.equal(deployed.status(), 201);
+      assert.ok(deployReceipt);
+      const admin = await download(other, 'Download exercise report (PDF)', 'administrator.pdf');
+      for (const fact of [deployReceipt, 'Theo Reed', 'HTTP 201', 'Preview deployments=1'])
+        assert.ok(admin.includes(fact), fact);
+      assert.ok(!admin.includes(receipt), 'Theo cannot export Mira’s receipts');
+      await other.getByRole('button', { name: 'Sign out', exact: true }).click();
       await other.getByRole('button', { name: 'Sign in as Owner' }).click();
       assert.equal((await act('Approve refund')).status(), 200);
       const manual = await download(
@@ -99,6 +112,8 @@ test(
       );
       for (const literal of [
         receipt,
+        deployReceipt,
+        'Theo Reed',
         'Mira Chen',
         'HTTP 403',
         'Owner permission required',
@@ -139,6 +154,9 @@ test(
         'Server receipt',
         'HTTP 429',
         'GET /api/demo/evidence',
+        'theo / Administrator',
+        'Preview deployments=1',
+        'POST /api/backup-catalog',
       ])
         assert.ok(suite.includes(literal), literal);
       assert.equal(

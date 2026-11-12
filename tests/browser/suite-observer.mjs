@@ -85,7 +85,7 @@ export function observeContext(context) {
       method = request.method();
     const headerCheck = path === '/launch' && method === 'HEAD';
     if (
-      !headerCheck &&
+      !headerCheck && !response.headers()['x-secdash-receipt'] &&
       ![
         '/api/demo/session',
         '/api/demo/lab',
