@@ -6,23 +6,23 @@
 
 [Earlier account review results](docs/security/accounts.md#hosted-account-review-november-10-2026) · [Repeat the account checks (optional)](docs/security/manual-review.md) · [Browse the source in VS Code](https://github.dev/k-mc-martin/example-dashboard) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version)
 
-**Run all 19 exercises** starts an independent automated review from the exercise picker. You can watch its progress and download one PDF with the assertion results and redacted HTTP responses for every exercise. The runner executes the dashboard in Chromium. Exercises 8, 13 and 15 retrieve this build’s published evidence. The suite report stays available to the same browser for eight hours.
+Under **Automated security review**, select **Run all 19 exercises**. The hosted runner opens the dashboard in Chromium, performs each scenario in a fresh workspace, and checks the server responses and their effects. When it finishes, select **Download suite results (PDF)**. The report identifies the tested build and shows which exercises passed, failed, or were incomplete, with the operations and evidence for each. Exercises 8, 13, and 15 inspect published checks for that build. You can refresh the picker to check progress and retrieve the report in the same browser for up to eight hours from the start of your run.
 
-**Explore an exercise yourself** opens its dashboard controls. Choose **Download exercise report (PDF)** to keep the receipts recorded by the backend. Each receipt identifies the operation, role, HTTP decision, and relevant response fields. Payment operations also report the resulting ledger state and provider refund count. Download before starting another exercise.
+Under **Explore an exercise yourself**, pick a card. For an interactive exercise, select **Start exercise**, choose a fictional role, and try the actions in the dashboard. Expand **Latest server response** to inspect a decision. On an evidence card, select **Inspect evidence** to open **Verification results**. Select **Download exercise report (PDF)** before choosing another exercise. For example, the report can show that the server refused Mira’s refund approval with HTTP 403, the ledger stayed at `submitted`, and the provider issued zero refunds. As Owner, you can download receipts for both roles after approving the same refund as Inez.
 
-SecDash is an interactive security dashboard for testing connector permissions with fictional business activity. Each browser session gets its own eight-hour workspace. Choose an exercise to open its dashboard screens. For **Account permissions**, sign in as Mira and select **Submit refund** in **Payments & refunds**. Use **Sign out** to switch to Inez and approve the same refund. The three evidence reviews open directly in **Verification results**. Choose **Generate new activity** in a signed-in dashboard to trigger a provider update. An open, visible dashboard also requests activity once a minute.
+SecDash lets you test how a business dashboard enforces security. You can try to approve a refund as an employee, revoke a team member’s access while they are signed in, or give a connector permission to read mail and then ask it to issue a refund. Each visitor gets a separate workspace with fictional accounts, records, and providers. Workspaces expire after eight hours. The optional manual review page gives the starting role, controls, and expected outcome for each exercise.
 
 [![SecDash exercise picker showing independent security exercises](docs/security/campaign/exercise-picker.png)](https://vps-ca027b84.vps.ovh.us/launch)
 
 ## Run locally
 
-With Docker Compose running, use `npm run demo:up` from this directory, then open [the local dashboard](http://127.0.0.1:5286). The stack builds from this checkout and uses a dedicated n8n instance. Only the dashboard publishes a loopback port. No provider accounts or keys are needed. Run `npm run demo:down` to stop the stack. The workspaces and demo credentials are temporary and reset when their containers restart.
+From a checkout with npm and Docker Compose available, run `npm run demo:up`, then open [the local dashboard](http://127.0.0.1:5286). Compose starts the dashboard, the automated runner, n8n, and the fictional providers. Only the dashboard publishes a port, bound to loopback. The demo supplies its own data and credentials. Run `npm run demo:down` to stop it.
 
 If the default port is occupied, run `SECDASH_DEMO_PORT=5287 npm run demo:up` and open [the demo on port 5287](http://127.0.0.1:5287). Use the same environment variable when running HTTP verification. Member tabs use separate `*.localhost` hosts on the same loopback port.
 
 ## Data flow
 
-Each update sends a server-selected scenario to the [n8n workflow](infra/n8n/workflows/demo-events.json). n8n makes nine HTTP requests to the internal [fictional providers](infra/simulation/providers.mjs) and delivers their results together. The dashboard validates the results and saves the complete update in the visitor's own SQLite database. A repeated request for the same revision advances the workspace once. Failed updates preserve the previous revision.
+**Generate new activity** asks the dashboard server for the next fictional update. n8n calls nine provider endpoints and returns their results together. The server validates the update and commits it to the visitor’s SQLite workspace. A retry of the same revision advances the workspace only once. If an update fails, the previous revision stays available. [n8n workflow](infra/n8n/workflows/demo-events.json) · [Fictional providers](infra/simulation/providers.mjs)
 
 The feeds cover mail and feedback, accounts, sales and refunds, public and beta releases, deployment and object storage, signing, domains, drive usage, and recovery. Recovery includes backup libraries, restore checks, simulated automation executions and estimated model usage. Backup actions record simulated jobs. Download links serve sample manifests.
 
@@ -30,14 +30,14 @@ The other workflow exports are inactive templates with reserved fictional addres
 
 ## Demo accounts
 
-Sign in on the dashboard as Employee, Administrator or Owner. Employee opens Communications, Feedback, and Website & releases. Administrator adds Deployments and Storage & recovery. Owner opens every section. On the Owner’s **Teams** page, choose a member and open their dashboard in another tab. Grant or revoke access while they are signed in, then use the ordinary controls in that tab. You can also sign out to switch the primary account. [Account policy and OWASP test mapping](docs/security/accounts.md)
+**Mira Chen (Employee)** starts with Communications, Feedback, and Website & releases. **Theo Reed (Administrator)** also has Deployments and Storage & recovery. **Inez Park (Owner)** can manage the team and approve or deliver refunds. Each exercise adds its own dashboard actions. **Sign out** lets you change roles and keep the same records. To test two active identities, use **Teams** as Inez and open Mira’s session in a second tab. Choosing another exercise starts a fresh workspace. [Account policy and OWASP test mapping](docs/security/accounts.md)
 
 ## Verification
 
-Run `npm ci` and `npm run test:providers` for contract, replay and isolation checks. With the demo running, `npm run test:providers:http` exercises the public UI's backend using two new test sessions, including simulated backup completion and denied cross-workspace reads.
+The optional manual review page describes all 19 exercises, the expected server decisions, and the evidence to inspect. For a local check, run `npm ci` and `npm run test:providers`. With the demo running, `npm run test:providers:http` checks provider behavior and isolation across two visitors, and `npm run verify:campaign` runs the campaign’s server tests.
 
-With the demo running, `npm run verify:accounts` reruns the account exercise and generates its report. The report links each result to its ASVS requirement and test method. [Verification report](docs/security/evidence/accounts/report.md) · [Findings](docs/security/findings.md)
+With the demo running, `npm run verify:accounts` generates the account report and maps the results to their OWASP ASVS requirements and verification methods. The manual review worksheet covers all 70 ASVS 5.0.0 Level 1 requirements, including scope decisions that require a reviewer. [Account verification report](docs/security/evidence/accounts/report.md) · [Findings](docs/security/findings.md)
 
-Run `npm run verify:tools` with Docker Compose and Python 3 for the security campaign baseline. It starts a disposable copy with fictional providers and writes the results to `artifacts/security-tools/`. [Tool setup, standards and evidence](docs/security/toolchain.md)
+`npm run verify:tools` uses Docker Compose and Python 3 to run the security tools against a disposable demo and write results to `artifacts/security-tools/`. The hosted dashboard links its scanner, browser, and deployment evidence to the commit that produced it. [Tool setup, standards, and evidence](docs/security/toolchain.md)
 
 [![Security tools workflow status](https://github.com/k-mc-martin/example-dashboard/actions/workflows/security-tools.yml/badge.svg?branch=main)](https://github.com/k-mc-martin/example-dashboard/actions/workflows/security-tools.yml)
