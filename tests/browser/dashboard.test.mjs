@@ -363,7 +363,31 @@ scenario(
     await read(p, 401);
     await consent(p);
     await action(p, 'Try an unsigned token', 401);
-    await action(p, 'Tamper with the signature', 401);
+    async function mailTokenParts(button, status) {
+      const [response] = await Promise.all([
+        p.waitForResponse('**/api/demo/mcp'),
+        action(p, button, status),
+      ]);
+      assert.equal(response.status(), status);
+      const auth = await response.request().headerValue('authorization');
+      assert.ok(auth?.startsWith('Bearer '));
+      return auth.slice('Bearer '.length).split('.');
+    }
+    const valid = await mailTokenParts('Call mail_read', 200);
+    const tampered = await mailTokenParts('Tamper with the signature', 401);
+    assert.equal(valid.length, 3);
+    assert.equal(tampered.length, 3);
+    assert.ok(tampered[0] === valid[0], 'header is unchanged');
+    assert.ok(tampered[1] === valid[1], 'payload is unchanged');
+    const signature = tampered[2];
+    assert.ok(/^[A-Za-z0-9_-]+$/.test(signature), 'signature uses Base64URL');
+    assert.equal(signature.length, valid[2].length);
+    const changes = [...signature].filter((char, i) => char !== valid[2][i]);
+    assert.equal(changes.length, 1);
+    assert.ok(
+      !Buffer.from(signature, 'base64url').equals(Buffer.from(valid[2], 'base64url')),
+      'decoded signature bytes differ',
+    );
     await action(p, 'Revoke access', 200);
     await read(p, 401);
     await consent(p, 'Consent: five-second token');

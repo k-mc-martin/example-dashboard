@@ -58,6 +58,12 @@ type ExerciseSession = {
   actor?: string;
   revision?: string;
 };
+function tamperSignature(token: string) {
+  const [header, payload, signature] = token.split('.');
+  if (!signature) return token;
+  const first = signature[0] === 'A' ? 'B' : 'A';
+  return `${header}.${payload}.${first}${signature.slice(1)}`;
+}
 function useExerciseSession({ exercise: e, actor, revision }: ExerciseSession) {
   const [pending, busy] = useState(false),
     [obs, setObs] = useState<Observation[]>([]),
@@ -207,7 +213,7 @@ function useExerciseSession({ exercise: e, actor, revision }: ExerciseSession) {
             : action === 'unsigned'
               ? 'eyJhbGciOiJub25lIn0.' + c.access.split('.')[1] + '.AA'
               : action === 'tampered'
-                ? c.access + '.'
+                ? tamperSignature(c.access)
                 : action === 'previousAccess'
                   ? c.previousAccess
                   : c.access;
