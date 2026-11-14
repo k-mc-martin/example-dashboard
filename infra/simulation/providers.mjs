@@ -330,7 +330,7 @@ function recovery(s) {
     'GoDaddyOperational',
     'GoogleDriveStorage',
     'LemonSqueezyOperational',
-    'MailboxContinuityPrepared',
+    'MailContinuityPrepared',
     'MailboxRoutingDrain',
     'RecoveryOperational',
   ];
