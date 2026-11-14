@@ -1,7 +1,7 @@
 import { isAbsolute } from "node:path";
 
-const path = process.env.SECDASH_DATABASE_PATH;
-if (!path || !isAbsolute(path)) throw new Error("SECDASH_DATABASE_PATH must be an absolute path.");
+const path = process.env.OPS_DASHBOARD_DATABASE_PATH;
+if (!path || !isAbsolute(path)) throw new Error("OPS_DASHBOARD_DATABASE_PATH must be an absolute path.");
 const { closeDb, getDb } = await import("../db/index.ts");
 getDb();
 closeDb();

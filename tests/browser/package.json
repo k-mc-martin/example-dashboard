@@ -1,5 +1,5 @@
 {
-  "name": "secdash-browser-checks",
+  "name": "ops-dashboard-browser-checks",
   "private": true,
   "type": "module",
   "scripts": { "test": "node --test --test-reporter=tap dashboard.test.mjs" },

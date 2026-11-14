@@ -1,6 +1,6 @@
 env:
   contexts:
-    - name: secdash
+    - name: ops-dashboard
       urls: [http://127.0.0.1:5286]
   parameters:
     failOnError: true

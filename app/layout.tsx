@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: "SecDash",
-  description: "An interactive security dashboard with demo accounts and fictional business activity.",
+  title: "Operations Dashboard Demo",
+  description: "Explore how a business controls access, approves refunds, deploys changes, and recovers from failures.",
   robots: { index: false, follow: false },
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
 };

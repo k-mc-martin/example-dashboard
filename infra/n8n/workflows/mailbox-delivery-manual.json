@@ -1,6 +1,6 @@
 {
-  "id": "SecDashMailDelivery",
-  "name": "SecDash — mailbox delivery test (manual)",
+  "id": "OpsDashboardMailDelivery",
+  "name": "Operations Dashboard Demo — mailbox delivery test (manual)",
   "active": false,
   "nodes": [
     {
@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "url": "https://mail.secdash.invalid/v1.0/me/messages",
+        "url": "https://mail.ops-dashboard.invalid/v1.0/me/messages",
         "authentication": "genericCredentialType",
         "sendQuery": true,
         "queryParameters": {
@@ -61,7 +61,7 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashMailRead",
+          "id": "OpsDashboardMailRead",
           "name": "Demo mailbox"
         }
       }
@@ -73,7 +73,7 @@
             {
               "id": "da4d46bb-0140-471a-a421-c70c513f3eb0",
               "name": "source",
-              "value": "secdash-mail",
+              "value": "ops-dashboard-mail",
               "type": "string"
             },
             {
@@ -153,8 +153,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashDashboardIngest",
-          "name": "SecDash dashboard intake"
+          "id": "OpsDashboardDashboardIngest",
+          "name": "Operations Dashboard Demo dashboard intake"
         }
       }
     },
@@ -180,8 +180,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashDashboardIngest",
-          "name": "SecDash dashboard intake"
+          "id": "OpsDashboardDashboardIngest",
+          "name": "Operations Dashboard Demo dashboard intake"
         }
       }
     },

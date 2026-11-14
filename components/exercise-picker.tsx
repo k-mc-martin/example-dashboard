@@ -17,7 +17,7 @@ export function ExercisePicker({
   return (
     <main className="exercise-picker">
       <header>
-        <p className="eyebrow">SECDASH / SECURITY LAB</p>
+        <p className="eyebrow">OPERATIONS DASHBOARD DEMO</p>
         <h1>Choose an exercise</h1>
         <p>
           Explore a security question in a fictional business. Every exercise

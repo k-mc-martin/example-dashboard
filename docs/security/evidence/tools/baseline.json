@@ -3,7 +3,7 @@
   "inspector": {
     "negotiated": {
       "serverInfo": {
-        "name": "secdash-stdio-fixture",
+        "name": "ops-dashboard-stdio-fixture",
         "version": "1"
       },
       "protocolVersion": "2026-07-28",

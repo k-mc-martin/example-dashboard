@@ -1,6 +1,6 @@
 {
-  "id": "SecDashCloudflareConnectionCheck",
-  "name": "SecDash — Cloudflare connection check (manual)",
+  "id": "OpsDashboardCloudflareCheck",
+  "name": "Operations Dashboard Demo — Cloudflare connection check (manual)",
   "active": false,
   "nodes": [
     {
@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "url": "https://edge.secdash.invalid/client/v4/accounts/00000000000000000000000000000001/pages/projects/secdash-public",
+        "url": "https://edge.ops-dashboard.invalid/client/v4/accounts/00000000000000000000000000000001/pages/projects/ops-dashboard-public",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendHeaders": true,
@@ -46,14 +46,14 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashCloudflareRead",
-          "name": "SecDash Cloudflare read"
+          "id": "OpsDashboardCloudflareRead",
+          "name": "Operations Dashboard Demo Cloudflare read"
         }
       }
     },
     {
       "parameters": {
-        "url": "https://edge.secdash.invalid/client/v4/accounts/00000000000000000000000000000001/pages/projects/secdash-beta",
+        "url": "https://edge.ops-dashboard.invalid/client/v4/accounts/00000000000000000000000000000001/pages/projects/ops-dashboard-beta",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendHeaders": true,
@@ -83,14 +83,14 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashCloudflareRead",
-          "name": "SecDash Cloudflare read"
+          "id": "OpsDashboardCloudflareRead",
+          "name": "Operations Dashboard Demo Cloudflare read"
         }
       }
     },
     {
       "parameters": {
-        "url": "https://edge.secdash.invalid/client/v4/accounts/00000000000000000000000000000001/r2/buckets/secdash-downloads",
+        "url": "https://edge.ops-dashboard.invalid/client/v4/accounts/00000000000000000000000000000001/r2/buckets/ops-dashboard-downloads",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendHeaders": true,
@@ -120,14 +120,14 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashCloudflareRead",
-          "name": "SecDash Cloudflare read"
+          "id": "OpsDashboardCloudflareRead",
+          "name": "Operations Dashboard Demo Cloudflare read"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "const accountId = '00000000000000000000000000000001';\nconst publicBody = $('Read public Pages project').first().json;\nconst betaBody = $('Read beta Pages project').first().json;\nconst bucketBody = $('Read downloads R2 bucket').first().json;\nconst publicProject = publicBody?.success === true ? publicBody.result : null;\nconst betaProject = betaBody?.success === true ? betaBody.result : null;\nconst bucket = bucketBody?.success === true ? bucketBody.result : null;\nif (publicProject?.name !== 'secdash-public') throw new Error('Cloudflare did not return the expected secdash-public Pages project');\nif (betaProject?.name !== 'secdash-beta') throw new Error('Cloudflare did not return the expected secdash-beta Pages project');\nif (bucket?.name !== 'secdash-downloads') throw new Error('Cloudflare did not return the expected secdash-downloads R2 bucket');\nreturn [{ json: { provider: 'cloudflare', status: 'verified', identity: { accountId, pagesProjects: [publicProject.name, betaProject.name], r2Bucket: bucket.name }, checkedAt: new Date().toISOString() } }];"
+        "jsCode": "const accountId = '00000000000000000000000000000001';\nconst publicBody = $('Read public Pages project').first().json;\nconst betaBody = $('Read beta Pages project').first().json;\nconst bucketBody = $('Read downloads R2 bucket').first().json;\nconst publicProject = publicBody?.success === true ? publicBody.result : null;\nconst betaProject = betaBody?.success === true ? betaBody.result : null;\nconst bucket = bucketBody?.success === true ? bucketBody.result : null;\nif (publicProject?.name !== 'ops-dashboard-public') throw new Error('Cloudflare did not return the expected ops-dashboard-public Pages project');\nif (betaProject?.name !== 'ops-dashboard-beta') throw new Error('Cloudflare did not return the expected ops-dashboard-beta Pages project');\nif (bucket?.name !== 'ops-dashboard-downloads') throw new Error('Cloudflare did not return the expected ops-dashboard-downloads R2 bucket');\nreturn [{ json: { provider: 'cloudflare', status: 'verified', identity: { accountId, pagesProjects: [publicProject.name, betaProject.name], r2Bucket: bucket.name }, checkedAt: new Date().toISOString() } }];"
       },
       "id": "d36c7c2b-bbe7-4a72-833a-49613906f61f",
       "name": "Validate and whitelist identity",
@@ -166,8 +166,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashDashboardIngest",
-          "name": "SecDash dashboard intake"
+          "id": "OpsDashboardDashboardIngest",
+          "name": "Operations Dashboard Demo dashboard intake"
         }
       }
     }

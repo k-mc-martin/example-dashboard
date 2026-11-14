@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="335" height="42" viewBox="0 0 335 42" role="img" aria-label="Launch Operations Dashboard Demo">
+  <rect x=".5" y=".5" width="334" height="41" rx="7" fill="#184b50" stroke="#54b3ae"/>
+  <path d="M17 14v14l11-7z" fill="#acede5"/>
+  <text x="40" y="27" fill="white" font-family="system-ui,sans-serif" font-size="16" font-weight="600">Launch Operations Dashboard Demo</text>
+</svg>

@@ -3,15 +3,15 @@ import assert from 'node:assert/strict';
 import { createHmac, randomBytes } from 'node:crypto';
 import { issueAccess, verifyAccess } from '../lib/security-lab/access-token.ts';
 test('Access token checks enforce algorithm, trusted key, issuer, audience, signature and both time boundaries', () => {
-  process.env.SECDASH_SESSION_SECRET = randomBytes(40).toString('hex');
+  process.env.OPS_DASHBOARD_SESSION_SECRET = randomBytes(40).toString('hex');
   const origin = 'https://work.example',
     t = issueAccess(origin, 'inez', 'mail.read', 120);
   const [h, b, s] = t.split('.');
   assert.equal(verifyAccess(t, origin).sub, 'inez');
   const pack = (x) => Buffer.from(JSON.stringify(x)).toString('base64url'),
     original = JSON.parse(Buffer.from(b, 'base64url'));
-  const key = createHmac('sha256', process.env.SECDASH_SESSION_SECRET)
-    .update('secdash:connector')
+  const key = createHmac('sha256', process.env.OPS_DASHBOARD_SESSION_SECRET)
+    .update('ops-dashboard:connector')
     .digest();
   function sign(header, claims) {
     const payload = pack(header) + '.' + pack(claims);

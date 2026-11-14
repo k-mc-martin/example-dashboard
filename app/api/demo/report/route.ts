@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     return Response.json(
       {
         exercise: ex.n,
-        revision: process.env.SECDASH_REVISION || 'local',
+        revision: process.env.OPS_DASHBOARD_REVISION || 'local',
         receipts: receipts(
           w,
           account?.id || 'reviewer',
@@ -39,8 +39,8 @@ export async function GET(req: Request) {
       w,
       account?.id || 'reviewer',
       account?.role || 'Reviewer',
-      process.env.SECDASH_REVISION || 'local',
+      process.env.OPS_DASHBOARD_REVISION || 'local',
     ),
-    'SecDash-exercise-' + ex.n + '-report.pdf',
+    'operations-dashboard-demo-exercise-' + ex.n + '-report.pdf',
   );
 }

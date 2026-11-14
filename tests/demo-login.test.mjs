@@ -10,12 +10,12 @@ import { demoAccounts } from '../lib/demo-permissions.ts';
 import { currentAccount, demoPass, hasActiveLogin, issueLogin, loginCookie } from '../lib/demo-login.ts';
 
 test(cases.expiry.test, t => {
-  const dir = mkdtempSync(join(tmpdir(), 'secdash-login-test-'));
-  process.env.SECDASH_WORKSPACES = dir;
-  process.env.SECDASH_SESSION_SECRET = randomBytes(32).toString('hex');
+  const dir = mkdtempSync(join(tmpdir(), 'ops-dashboard-login-test-'));
+  process.env.OPS_DASHBOARD_WORKSPACES = dir;
+  process.env.OPS_DASHBOARD_SESSION_SECRET = randomBytes(32).toString('hex');
   t.after(() => {
-    delete process.env.SECDASH_WORKSPACES;
-    delete process.env.SECDASH_SESSION_SECRET;
+    delete process.env.OPS_DASHBOARD_WORKSPACES;
+    delete process.env.OPS_DASHBOARD_SESSION_SECRET;
     rmSync(dir, { recursive: true, force: true });
   });
   const start = Date.now();

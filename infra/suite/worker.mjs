@@ -6,9 +6,9 @@ import { createServer, connect } from 'node:net';
 import { setTimeout as delay } from 'node:timers/promises';
 import { claim, suiteDb } from '../../lib/review/queue.ts';
 
-const revision = process.env.SECDASH_REVISION || 'local';
-const port = Number(process.env.SECDASH_DEMO_PORT || 5286);
-if (!process.env.SECDASH_BROWSER_TARGET) {
+const revision = process.env.OPS_DASHBOARD_REVISION || 'local';
+const port = Number(process.env.OPS_DASHBOARD_DEMO_PORT || 5286);
+if (!process.env.OPS_DASHBOARD_BROWSER_TARGET) {
   // Preserve the browser origins used by the normal local dashboard and its member tabs.
   createServer((socket) => {
     const upstream = connect(3000, 'dashboard');
@@ -18,7 +18,7 @@ if (!process.env.SECDASH_BROWSER_TARGET) {
   }).listen(port, '127.0.0.1');
 }
 async function run(id) {
-  const dir = await mkdtemp(join(tmpdir(), 'secdash-review-')),
+  const dir = await mkdtemp(join(tmpdir(), 'ops-dashboard-review-')),
     file = join(dir, 'evidence.json');
   const child = spawn(
     process.execPath,
@@ -28,8 +28,8 @@ async function run(id) {
       detached: true,
       env: {
         ...process.env,
-        SECDASH_SUITE_OUTPUT: file,
-        SECDASH_EXPECT_REVISION: revision,
+        OPS_DASHBOARD_SUITE_OUTPUT: file,
+        OPS_DASHBOARD_EXPECT_REVISION: revision,
       },
     },
   );

@@ -3,7 +3,7 @@ import { aggregateAzure } from '../n8n/workflows/providers/operational-azure.mjs
 import { projectGoDaddy } from '../n8n/workflows/providers/operational-godaddy.mjs';
 import { aggregateLemonSqueezy } from '../n8n/workflows/providers/operational-lemonsqueezy.mjs';
 
-const projectNames = ['secdash-public', 'secdash-beta'];
+const projectNames = ['ops-dashboard-public', 'ops-dashboard-beta'];
 const subscriptionId = '00000000-0000-4000-8000-000000000001';
 const signingId =
   '/subscriptions/' +
@@ -13,7 +13,7 @@ const identities = {
   cloudflare: {
     accountId: '00000000000000000000000000000001',
     pagesProjects: projectNames,
-    r2Bucket: 'secdash-downloads',
+    r2Bucket: 'ops-dashboard-downloads',
   },
   azure: {
     subscriptionId,
@@ -125,7 +125,7 @@ function mail(s) {
     const body = text + ' Reference ' + caseNumber + ', build ' + build + '.';
 
     const message = {
-      source: 'secdash-mail',
+      source: 'ops-dashboard-mail',
       messageId: [s.seed, sequence, index].join('-'),
       sender: sender + ' <desk' + index + '@example.invalid>',
       category,
@@ -338,7 +338,7 @@ function recovery(s) {
     schemaVersion: 1,
     generatedAt: s.at,
     backupFolder: {
-      name: 'SecDash Backups',
+      name: 'Operations Dashboard Demo Backups',
       bytes: libraries.reduce((a, l) => a + l.sourceLogicalBytes, 0),
       objects: 4 + s.step,
       measuredAt: s.at,
@@ -358,7 +358,7 @@ function recovery(s) {
     automation: {
       measuredAt: s.at,
       workflows: names.map((name, i) => ({
-        id: 'SecDash' + name,
+        id: 'OpsDashboard' + name,
         name: [
           'Signing inventory',
           'Edge deployments',
@@ -373,7 +373,7 @@ function recovery(s) {
       })),
       executionHistoryAvailable: true,
       lastExecution: {
-        workflowId: 'SecDashRecoveryOperational',
+        workflowId: 'OpsDashboardRecoveryOperational',
         status: 'success',
         startedAt: iso(s.time - 180),
         finishedAt: s.at,

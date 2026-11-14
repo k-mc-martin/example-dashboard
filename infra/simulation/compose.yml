@@ -1,11 +1,11 @@
-name: secdash-simulation
+name: ops-dashboard-simulation
 services:
   suite-runner:
     build:
       context: ../..
       dockerfile: infra/suite/Dockerfile
     environment:
-      SECDASH_DEMO_PORT: "${SECDASH_DEMO_PORT:-5286}"
+      OPS_DASHBOARD_DEMO_PORT: "${OPS_DASHBOARD_DEMO_PORT:-5286}"
     read_only: true
     init: true
     tmpfs: ['/tmp:mode=1777,size=192m']
@@ -21,7 +21,7 @@ services:
       context: ../..
       dockerfile: infra/simulation/Dockerfile
     environment:
-      SECDASH_PROVIDER_BIND: 0.0.0.0
+      OPS_DASHBOARD_PROVIDER_BIND: 0.0.0.0
     networks: [simulation]
     read_only: true
     cap_drop: [ALL]
@@ -32,12 +32,12 @@ services:
     entrypoint: ["/bin/sh", "-ec"]
     command:
       - |
-        n8n import:workflow --input=/opt/secdash-events.json
-        n8n publish:workflow --id=SecDashSimulation
+        n8n import:workflow --input=/opt/ops-dashboard-events.json
+        n8n publish:workflow --id=OpsDashboardSimulation
         exec n8n start
     configs:
       - source: workflow
-        target: /opt/secdash-events.json
+        target: /opt/ops-dashboard-events.json
     tmpfs:
       - /home/node/.n8n:uid=1000,gid=1000,mode=0700
     environment:
@@ -60,18 +60,18 @@ services:
     build:
       context: ../..
       dockerfile: infra/dashboard/Dockerfile
-    command: ["sh","-ec","export SECDASH_SESSION_SECRET=$$(node -e \"process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))\"); exec node server.js"]
+    command: ["sh","-ec","export OPS_DASHBOARD_SESSION_SECRET=$$(node -e \"process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))\"); exec node server.js"]
     environment:
-      SECDASH_DEMO_PORT: "${SECDASH_DEMO_PORT:-5286}"
-      SECDASH_DEMO_MODE: "1"
-      SECDASH_WORKSPACES: /demo/workspaces
-      SECDASH_N8N_WEBHOOK: http://n8n:5678/webhook/secdash-events
+      OPS_DASHBOARD_DEMO_PORT: "${OPS_DASHBOARD_DEMO_PORT:-5286}"
+      OPS_DASHBOARD_DEMO_MODE: "1"
+      OPS_DASHBOARD_WORKSPACES: /demo/workspaces
+      OPS_DASHBOARD_N8N_WEBHOOK: http://n8n:5678/webhook/ops-dashboard-events
     tmpfs:
       - /demo:uid=1000,gid=1000,mode=0700,size=192m
       - /tmp:mode=1777,size=64m
     read_only: true
     volumes: [suite-jobs:/suite-jobs]
-    ports: ["127.0.0.1:${SECDASH_DEMO_PORT:-5286}:3000"]
+    ports: ["127.0.0.1:${OPS_DASHBOARD_DEMO_PORT:-5286}:3000"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     networks: [entry, simulation]

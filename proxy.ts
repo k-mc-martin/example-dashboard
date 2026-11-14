@@ -10,7 +10,7 @@ export function proxy(request: NextRequest) {
   const site = request.headers.get('sec-fetch-site');
   if (path === '/version' && demoEnabled() && primaryHost(request.headers.get('host')) &&
       ['GET', 'HEAD'].includes(request.method)) {
-    const commit = process.env.SECDASH_REVISION ?? '';
+    const commit = process.env.OPS_DASHBOARD_REVISION ?? '';
     if (!/^[a-f0-9]{40}$/.test(commit)) return new NextResponse(null, { status: 404 });
     return NextResponse.json({ commit, source: 'https://github.com/k-mc-martin/example-dashboard/tree/' + commit },
       { headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' } });
@@ -20,8 +20,8 @@ export function proxy(request: NextRequest) {
     // Commit a first-party page before reading Strict cookies. Returning visitors
     // retain their existing workspace when they follow an external link.
     const nonce = randomBytes(16).toString('base64');
-    const launchResponse=new NextResponse(request.method === 'HEAD' ? null : `<!doctype html><html lang="en"><meta charset="utf-8"><title>Launch SecDash</title>
-      <a href="/">Open SecDash</a><script nonce="${nonce}">location.replace('/')</script></html>`, {headers: {
+    const launchResponse=new NextResponse(request.method === 'HEAD' ? null : `<!doctype html><html lang="en"><meta charset="utf-8"><title>Launch Operations Dashboard Demo</title>
+      <a href="/">Open Operations Dashboard Demo</a><script nonce="${nonce}">location.replace('/')</script></html>`, {headers: {
       'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store',
       'Content-Security-Policy': `default-src 'none'; script-src 'nonce-${nonce}'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'`,
       'Referrer-Policy': 'no-referrer', 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY',
@@ -74,11 +74,11 @@ export function proxy(request: NextRequest) {
   }
   if (entering) {
     // Preserve a signed, pre-login workspace from the earlier loopback preview.
-    const previous = !workspace && workspaceId(request, "secdash_workspace");
-    const reusable = previous && !hasActiveLogin(previous) && request.cookies.get("secdash_workspace");
+    const previous = !workspace && workspaceId(request, "ops_dashboard_workspace");
+    const reusable = previous && !hasActiveLogin(previous) && request.cookies.get("ops_dashboard_workspace");
     response.cookies.set(demoCookie, reusable ? reusable.value : newDemoCookie(),
       {httpOnly:true, secure:true, sameSite:"strict", path:"/", maxAge:lifetimeSeconds});
-    if (previous) response.cookies.delete("secdash_workspace");
+    if (previous) response.cookies.delete("ops_dashboard_workspace");
   }
   response.headers.set("Cache-Control", "no-store");
   response.headers.set("X-Content-Type-Options", "nosniff");

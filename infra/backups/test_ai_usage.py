@@ -31,8 +31,8 @@ LIMITS = {
     "maxCostUsdPerMonth": 2,
 }
 CONFIG = {
-    "deployment_dir": "/opt/secdash/n8n",
-    "compose_file": "/opt/secdash/n8n/compose.yml",
+    "deployment_dir": "/opt/ops-dashboard/n8n",
+    "compose_file": "/opt/ops-dashboard/n8n/compose.yml",
     "postgres_service": "postgres",
 }
 

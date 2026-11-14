@@ -7,9 +7,9 @@ COPY . .
 RUN npm run build:node
 
 FROM node:24.21.0-bookworm-slim AS runtime
-ARG SECDASH_REVISION=local
-ENV SECDASH_REVISION=$SECDASH_REVISION
-LABEL org.opencontainers.image.revision=$SECDASH_REVISION
+ARG OPS_DASHBOARD_REVISION=local
+ENV OPS_DASHBOARD_REVISION=$OPS_DASHBOARD_REVISION
+LABEL org.opencontainers.image.revision=$OPS_DASHBOARD_REVISION
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000
 COPY --from=build --chown=node:node /app/.next/standalone ./

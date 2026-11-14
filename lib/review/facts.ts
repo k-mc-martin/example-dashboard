@@ -1,4 +1,4 @@
-// Only project fields returned by known SecDash routes. Submitted content, cookie values,
+// Only project fields returned by known Operations Dashboard Demo routes. Submitted content, cookie values,
 // authorization codes, session identifiers and bearer credentials never enter a report.
 type Json = Record<string, unknown>;
 const object = (value: unknown): Json =>

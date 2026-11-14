@@ -4,7 +4,7 @@ import { labDb, runFor, hash, token, fail, log } from './store.ts';
 import { boundIdentity } from '../demo-login.ts';
 import type { DemoAccount } from '../demo-permissions.ts';
 
-export const clientId = 'secdash-reviewer';
+export const clientId = 'ops-dashboard-reviewer';
 const scopeRead = 'mail.read',
   scopeWrite = 'refund.request';
 export function authorize(
@@ -161,7 +161,7 @@ export function callTool(
     result = {
       protocolVersion: '2025-11-25',
       capabilities: { tools: {} },
-      serverInfo: { name: 'secdash', version: '1' },
+      serverInfo: { name: 'ops-dashboard', version: '1' },
     };
   else if (body.method === 'server/discover')
     result = {
@@ -171,7 +171,7 @@ export function callTool(
       cacheScope: 'private',
       capabilities: { tools: {} },
       _meta: {
-        'io.modelcontextprotocol/serverInfo': { name: 'secdash', version: '1' },
+        'io.modelcontextprotocol/serverInfo': { name: 'ops-dashboard', version: '1' },
       },
     };
   else if (body.method === 'tools/list')

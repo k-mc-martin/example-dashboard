@@ -14,7 +14,7 @@ export async function reportPdf(report: ReviewReport) {
   const regular = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   doc.setTitle(report.title);
-  doc.setAuthor('SecDash');
+  doc.setAuthor('Operations Dashboard Demo');
   const ink = rgb(0.07, 0.12, 0.19),
     accent = rgb(0.05, 0.33, 0.36);
   const paper: [number, number] = [612, 792],
@@ -23,7 +23,7 @@ export async function reportPdf(report: ReviewReport) {
   let page = doc.addPage(paper),
     y = 0;
   function header() {
-    page.drawText('SecDash  /  Verification report', {
+    page.drawText('Operations Dashboard Demo  /  Verification report', {
       x: margin,
       y: 747,
       size: 11,
@@ -97,7 +97,7 @@ export async function reportPdf(report: ReviewReport) {
   }
   const pages = doc.getPages();
   pages.forEach((p, i) =>
-    p.drawText('SecDash   |   ' + (i + 1) + ' / ' + pages.length, {
+    p.drawText('Operations Dashboard Demo   |   ' + (i + 1) + ' / ' + pages.length, {
       x: margin,
       y: 32,
       size: 9,

@@ -1,6 +1,6 @@
 {
-  "id": "SecDashMailBudgetBootstrap",
-  "name": "SecDash — routing budget bootstrap (one-time, inactive)",
+  "id": "OpsDashboardMailBudgetBootstrap",
+  "name": "Operations Dashboard Demo — routing budget bootstrap (one-time, inactive)",
   "active": false,
   "nodes": [
     {
@@ -18,7 +18,7 @@
       "parameters": {
         "resource": "table",
         "operation": "create",
-        "tableName": "secdash_mail_routing_budget",
+        "tableName": "ops_dashboard_mail_routing_budget",
         "columns": {
           "column": [
             {
@@ -87,7 +87,7 @@
         "dataTableId": {
           "__rl": true,
           "mode": "name",
-          "value": "secdash_mail_routing_budget"
+          "value": "ops_dashboard_mail_routing_budget"
         },
         "matchType": "allConditions",
         "filters": {
@@ -133,7 +133,7 @@
         "dataTableId": {
           "__rl": true,
           "mode": "name",
-          "value": "secdash_mail_routing_budget"
+          "value": "ops_dashboard_mail_routing_budget"
         },
         "columns": {
           "mappingMode": "defineBelow",

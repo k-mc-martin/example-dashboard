@@ -150,7 +150,7 @@ function useExerciseSession({ exercise: e, actor, revision }: ExerciseSession) {
             ),
           );
         r = await lab({
-          client: 'secdash-reviewer',
+          client: 'ops-dashboard-reviewer',
           responseType: 'code',
           redirect:
             action === 'badredirect' ? 'https://outside.invalid/' : base + '/',
@@ -174,7 +174,7 @@ function useExerciseSession({ exercise: e, actor, revision }: ExerciseSession) {
       } else if (['exchange', 'rotate', 'replayRefresh'].includes(action)) {
         const refresh = action !== 'exchange';
         r = await lab({
-          client: 'secdash-reviewer',
+          client: 'ops-dashboard-reviewer',
           redirect: base + '/',
           grantType: refresh ? 'refresh_token' : 'authorization_code',
           credential: !refresh
@@ -355,7 +355,7 @@ function useExerciseSession({ exercise: e, actor, revision }: ExerciseSession) {
         ),
       );
     a.href = u;
-    a.download = 'secdash-exercise-' + e.n + '.json';
+    a.download = 'operations-dashboard-demo-exercise-' + e.n + '.json';
     a.click();
     setTimeout(() => URL.revokeObjectURL(u), 1000);
   }

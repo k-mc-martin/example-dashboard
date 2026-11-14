@@ -24,7 +24,7 @@ async function run(n) {
   const old = await visitor(),
     r = await post(old, '/api/demo/exercise', { exercise: n });
   assert.equal(r.status, 200);
-  return cookie(r, '__Host-secdash_workspace');
+  return cookie(r, '__Host-ops_dashboard_workspace');
 }
 async function lab(s, action, fields = {}, expected = 200) {
   const r = await post(s, '/api/demo/lab', { action, ...fields });
@@ -60,7 +60,7 @@ test('Independent exercise runs enforce row and field access; reject valid privi
   );
   assert.equal((await request(w, '/api/demo/session')).status, 401);
   const fresh = await signIn(
-    cookie(switched, '__Host-secdash_workspace'),
+    cookie(switched, '__Host-ops_dashboard_workspace'),
     'Owner',
   );
   assert.equal((await lab(fresh, 'ledger')).state, 'open');
@@ -236,7 +236,7 @@ test('Staff activation, exact password handling, blocklist, rotation, throttling
   );
   const r = await exec(s, 'login', { password: cred });
   assert.equal(r.status, 200);
-  const authed = s + '; ' + cookie(r, '__Host-secdash_staff');
+  const authed = s + '; ' + cookie(r, '__Host-ops_dashboard_staff');
   assert.equal((await exec(authed, 'record')).status, 200);
   assert.equal(
     (await exec(authed, 'change', { password: 'wrong', next: cred + 'a' }))
@@ -255,7 +255,7 @@ test('Staff activation, exact password handling, blocklist, rotation, throttling
 test('Connector enforces PKCE, audience, scope, lifetime, grant reuse, refresh replay and logout', async () => {
   const { s } = await role(4);
   const verifier = randomBytes(32).toString('base64url'),
-    client = 'secdash-reviewer',
+    client = 'ops-dashboard-reviewer',
     redirect = base + '/',
     params = {
       client,

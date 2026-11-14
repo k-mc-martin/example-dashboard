@@ -1,6 +1,6 @@
-# SecDash
+# Operations Dashboard Demo
 
-[![Launch SecDash](docs/launch-secdash.svg)](https://vps-ca027b84.vps.ovh.us/launch)
+[![Launch Operations Dashboard Demo](docs/launch-ops-dashboard.svg)](https://vps-ca027b84.vps.ovh.us/launch)
 
 [Repeat the security checks (optional)](docs/security/campaign/README.md) · [Hosted results by exercise](https://github.com/k-mc-martin/example-dashboard/actions/workflows/hosted-exercises.yml) · [Campaign checks](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml)
 
@@ -10,15 +10,15 @@ Under **Automated security review**, select **Run all 19 exercises**. The hosted
 
 Under **Explore an exercise yourself**, pick a card. For an interactive exercise, select **Start exercise**, choose a fictional role, and try the actions in the dashboard. Expand **Latest server response** to inspect a decision. On an evidence card, select **Inspect evidence** to open **Verification results**. Select **Download exercise report (PDF)** before choosing another exercise. For example, the report can show that the server refused Mira’s refund approval with HTTP 403, the ledger stayed at `submitted`, and the provider issued zero refunds. As Owner, you can download receipts for both roles after approving the same refund as Inez.
 
-SecDash lets you test how a business dashboard enforces security. You can try to approve a refund as an employee, revoke a team member’s access while they are signed in, or give a connector permission to read mail and then ask it to issue a refund. Each visitor gets a separate workspace with fictional accounts, records, and providers. Workspaces expire after eight hours. The optional manual review page gives the starting role, controls, and expected outcome for each exercise.
+Explore how a business controls access, approves refunds, deploys changes, and recovers from failures. You can try to approve a refund as an employee, revoke a team member’s access while they are signed in, or give a connector permission to read mail and then ask it to issue a refund. Each visitor gets a separate workspace with fictional accounts, records, and providers. Workspaces expire after eight hours. The optional manual review page gives the starting role, controls, and expected outcome for each exercise.
 
-[![SecDash exercise picker showing independent security exercises](docs/security/campaign/exercise-picker.png)](https://vps-ca027b84.vps.ovh.us/launch)
+[![Operations Dashboard Demo exercise picker showing independent security exercises](docs/security/campaign/exercise-picker.png)](https://vps-ca027b84.vps.ovh.us/launch)
 
 ## Run locally
 
 From a checkout with npm and Docker Compose available, run `npm run demo:up`, then open [the local dashboard](http://127.0.0.1:5286). Compose starts the dashboard, the automated runner, n8n, and the fictional providers. Only the dashboard publishes a port, bound to loopback. The demo supplies its own data and credentials. Run `npm run demo:down` to stop it.
 
-If the default port is occupied, run `SECDASH_DEMO_PORT=5287 npm run demo:up` and open [the demo on port 5287](http://127.0.0.1:5287). Use the same environment variable when running HTTP verification. Member tabs use separate `*.localhost` hosts on the same loopback port.
+If the default port is occupied, run `OPS_DASHBOARD_DEMO_PORT=5287 npm run demo:up` and open [the demo on port 5287](http://127.0.0.1:5287). Use the same environment variable when running HTTP verification. Member tabs use separate `*.localhost` hosts on the same loopback port.
 
 ## Data flow
 

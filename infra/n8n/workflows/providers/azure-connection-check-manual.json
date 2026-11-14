@@ -1,6 +1,6 @@
 {
-  "id": "SecDashAzureConnectionCheck",
-  "name": "SecDash — Azure Artifact Signing connection check (manual)",
+  "id": "OpsDashboardAzureCheck",
+  "name": "Operations Dashboard Demo — Azure Artifact Signing connection check (manual)",
   "active": false,
   "nodes": [
     {
@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "url": "https://signing.secdash.invalid/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing",
+        "url": "https://signing.ops-dashboard.invalid/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/demo-signing-rg/providers/Microsoft.CodeSigning/codeSigningAccounts/demo-signing",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
@@ -55,8 +55,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashAzureInventory",
-          "name": "SecDash Azure inventory"
+          "id": "OpsDashboardAzureInventory",
+          "name": "Operations Dashboard Demo Azure inventory"
         }
       }
     },
@@ -101,8 +101,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashDashboardIngest",
-          "name": "SecDash dashboard intake"
+          "id": "OpsDashboardDashboardIngest",
+          "name": "Operations Dashboard Demo dashboard intake"
         }
       }
     }

@@ -1,7 +1,7 @@
 import { writeFileSync, renameSync } from 'node:fs';
 import { responseFacts } from '../../lib/review/facts.ts';
 
-const output = process.env.SECDASH_SUITE_OUTPUT;
+const output = process.env.OPS_DASHBOARD_SUITE_OUTPUT;
 const cases = [],
   pending = new Set(),
   seen = new WeakSet();
@@ -85,7 +85,7 @@ export function observeContext(context) {
       method = request.method();
     const headerCheck = path === '/launch' && method === 'HEAD';
     if (
-      !headerCheck && !response.headers()['x-secdash-receipt'] &&
+      !headerCheck && !response.headers()['x-ops-dashboard-receipt'] &&
       ![
         '/api/demo/session',
         '/api/demo/lab',
@@ -146,12 +146,12 @@ export function observeContext(context) {
       .filter(Boolean)
       .join(' ');
     const facts = responseFacts(path, data, exercise.n);
-    if (response.headers()['x-secdash-ledger'])
+    if (response.headers()['x-ops-dashboard-ledger'])
       facts.push(
         'Backend ledger after request: ' +
-          response.headers()['x-secdash-ledger'],
+          response.headers()['x-ops-dashboard-ledger'],
       );
-    const principal = response.headers()['x-secdash-principal'];
+    const principal = response.headers()['x-ops-dashboard-principal'];
     if (principal) actor = principal;
     else if (path.endsWith('/enter')) actor = 'Member session handoff';
     else if (
@@ -185,7 +185,7 @@ export function observeContext(context) {
       operation,
       identity: actor,
       status,
-      receipt: response.headers()['x-secdash-receipt'],
+      receipt: response.headers()['x-ops-dashboard-receipt'],
       facts,
     });
   }

@@ -3,15 +3,15 @@ on: workflow_dispatch
 permissions:
   contents: read
 concurrency:
-  group: secdash-hosted-browser
+  group: ops-dashboard-hosted-browser
   cancel-in-progress: false
 jobs:
   visitor:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      SECDASH_BROWSER_TARGET: https://vps-ca027b84.vps.ovh.us
-      SECDASH_EXPECT_REVISION: ${{ github.sha }}
+      OPS_DASHBOARD_BROWSER_TARGET: https://vps-ca027b84.vps.ovh.us
+      OPS_DASHBOARD_EXPECT_REVISION: ${{ github.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -21,7 +21,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Check the selected revision is deployed
-        run: curl --fail --silent "$SECDASH_BROWSER_TARGET/version" | jq -e --arg rev "$GITHUB_SHA" '.commit == $rev'
+        run: curl --fail --silent "$OPS_DASHBOARD_BROWSER_TARGET/version" | jq -e --arg rev "$GITHUB_SHA" '.commit == $rev'
       - name: Install browser test dependencies
         run: npm ci --prefix tests/browser --ignore-scripts --no-audit --no-fund
       - name: Perform each exercise on the hosted dashboard
@@ -32,7 +32,7 @@ jobs:
           npm test --prefix tests/browser | tee artifacts/hosted/dashboard-browser.tap
       - name: Confirm the same revision finished the walkthrough
         if: always()
-        run: curl --fail --silent "$SECDASH_BROWSER_TARGET/version" | jq -e --arg rev "$GITHUB_SHA" '.commit == $rev'
+        run: curl --fail --silent "$OPS_DASHBOARD_BROWSER_TARGET/version" | jq -e --arg rev "$GITHUB_SHA" '.commit == $rev'
       - name: Publish results by exercise
         if: always()
         run: python3 scripts/security/dashboard_browser_results.py artifacts/hosted/dashboard-browser.tap >> "$GITHUB_STEP_SUMMARY"

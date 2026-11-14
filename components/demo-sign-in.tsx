@@ -67,7 +67,7 @@ export function DemoSignIn() {
   }, []);
   useEffect(() => {
     const initial = window.setTimeout(() => void load(), 0);
-    const updates = new BroadcastChannel('secdash-login');
+    const updates = new BroadcastChannel('ops-dashboard-login');
     channel.current = updates;
     updates.onmessage = () => {
       setSession(null);
@@ -227,7 +227,7 @@ export function DemoSignIn() {
   return (
     <main className="demo-entry">
       <header>
-        <p className="eyebrow">SecDash / SECURITY DASHBOARD</p>
+        <p className="eyebrow">Operations Dashboard Demo</p>
         {exercise && (
           <>
             <ExerciseHeading exercise={exercise} />

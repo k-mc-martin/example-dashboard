@@ -14,7 +14,7 @@ import {
   type CaseResult,
 } from '@/lib/review/queue';
 import { pdfDownload } from '@/lib/review/report';
-const cookie = '__Host-secdash_review';
+const cookie = '__Host-ops_dashboard_review';
 function visitor(request: Request) {
   const w = workspaceId(request);
   if (
@@ -25,7 +25,7 @@ function visitor(request: Request) {
   )
     return null;
   const mac = (input: string) =>
-    createHmac('sha256', process.env.SECDASH_SESSION_SECRET!)
+    createHmac('sha256', process.env.OPS_DASHBOARD_SESSION_SECRET!)
       .update(input)
       .digest('hex');
   const token = request.headers
@@ -63,7 +63,7 @@ export function POST(req: Request) {
   if (!who) return new Response(null, { status: 403 });
   const job = enqueue(
     who.owner,
-    process.env.SECDASH_REVISION || 'local',
+    process.env.OPS_DASHBOARD_REVISION || 'local',
     new URL(req.url).searchParams.get('again') === '1',
   );
   if (!job)
@@ -99,7 +99,7 @@ export async function GET(req: Request) {
       revision: job.revision,
       generated: new Date().toISOString(),
       introduction:
-        'Automated verification against the fictional SecDash backend. Each exercise used an isolated visitor workspace. Status codes, receipt IDs and redacted field values below were collected from actual HTTP responses.',
+        'Automated verification against the fictional Operations Dashboard Demo backend. Each exercise used an isolated visitor workspace. Status codes, receipt IDs and redacted field values below were collected from actual HTTP responses.',
       sections: [
         {
           title: 'Run ' + job.id,
@@ -175,6 +175,6 @@ export async function GET(req: Request) {
         }),
       ],
     },
-    'SecDash-19-exercise-results.pdf',
+    'operations-dashboard-demo-19-exercise-results.pdf',
   );
 }

@@ -1,6 +1,6 @@
 {
-  "id": "SecDashLemonSqueezyOperational",
-  "name": "SecDash — Lemon Squeezy operations (15 min)",
+  "id": "OpsDashboardLemonSqueezyOperational",
+  "name": "Operations Dashboard Demo — Lemon Squeezy operations (15 min)",
   "active": false,
   "nodes": [
     {
@@ -36,7 +36,7 @@
     },
     {
       "parameters": {
-        "url": "https://sales.secdash.invalid/v1/orders",
+        "url": "https://sales.ops-dashboard.invalid/v1/orders",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
@@ -76,7 +76,7 @@
           "pagination": {
             "pagination": {
               "paginationMode": "responseContainsNextURL",
-              "nextURL": "={{ (() => { const raw = $response.body?.links?.next; const initial = 'https://sales.secdash.invalid/v1/orders'; if (!raw) return initial; const url = new URL(raw); if (url.protocol !== 'https:' || url.hostname !== 'sales.secdash.invalid' || url.pathname !== '/v1/orders') throw Error('Lemon Squeezy returned an unexpected pagination URL'); if (url.searchParams.get('filter[store_id]') !== '100001') throw Error('Lemon Squeezy pagination dropped the store filter'); return url.toString(); })() }}",
+              "nextURL": "={{ (() => { const raw = $response.body?.links?.next; const initial = 'https://sales.ops-dashboard.invalid/v1/orders'; if (!raw) return initial; const url = new URL(raw); if (url.protocol !== 'https:' || url.hostname !== 'sales.ops-dashboard.invalid' || url.pathname !== '/v1/orders') throw Error('Lemon Squeezy returned an unexpected pagination URL'); if (url.searchParams.get('filter[store_id]') !== '100001') throw Error('Lemon Squeezy pagination dropped the store filter'); return url.toString(); })() }}",
               "paginationCompleteWhen": "other",
               "completeExpression": "={{ !$response.body?.links?.next }}",
               "limitPagesFetched": true,
@@ -97,8 +97,8 @@
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashLemonSqueezy",
-          "name": "SecDash Lemon Squeezy"
+          "id": "OpsDashboardLemonSqueezy",
+          "name": "Operations Dashboard Demo Lemon Squeezy"
         }
       }
     },
@@ -144,8 +144,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashDashboardIngest",
-          "name": "SecDash dashboard intake"
+          "id": "OpsDashboardDashboardIngest",
+          "name": "Operations Dashboard Demo dashboard intake"
         }
       },
       "retryOnFail": true,

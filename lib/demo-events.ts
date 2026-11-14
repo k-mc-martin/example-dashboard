@@ -56,9 +56,9 @@ export async function advance(db: SQLiteDatabase, id: string, expected: number) 
   const start = Number(id.slice(0, 13));
   const seed = createHash('sha256').update(id).digest().readUInt32BE();
   const step = current + 1;
-  const url = process.env.SECDASH_N8N_WEBHOOK;
+  const url = process.env.OPS_DASHBOARD_N8N_WEBHOOK;
   if (
-    !['http://127.0.0.1:5790/webhook/secdash-events', 'http://n8n:5678/webhook/secdash-events'].includes(
+    !['http://127.0.0.1:5790/webhook/ops-dashboard-events', 'http://n8n:5678/webhook/ops-dashboard-events'].includes(
       url ?? '',
     )
   )

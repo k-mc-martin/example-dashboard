@@ -6,7 +6,7 @@ import { lifetimeSeconds } from '../demo-session.ts';
 let db: DatabaseSync | undefined;
 export function labDb() {
   if (db) return db;
-  const dir = process.env.SECDASH_WORKSPACES;
+  const dir = process.env.OPS_DASHBOARD_WORKSPACES;
   if (!dir || !isAbsolute(dir)) throw Error('Exercise storage missing');
   mkdirSync(dir, { recursive: true, mode: 0o700 });
   db = new DatabaseSync(join(dir, 'security-lab.sqlite'));

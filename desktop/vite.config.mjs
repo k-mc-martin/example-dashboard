@@ -11,7 +11,7 @@ export default defineConfig({
   root: path.join(desktopDirectory, "ui"),
   publicDir: path.join(projectRoot, "public"),
   envDir: false,
-  envPrefix: "SECDASH_DESKTOP_PUBLIC_",
+  envPrefix: "OPS_DASHBOARD_DESKTOP_PUBLIC_",
   plugins: [react()],
   resolve: {
     alias: { "@": projectRoot },

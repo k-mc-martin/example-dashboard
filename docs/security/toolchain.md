@@ -1,4 +1,4 @@
-# SecDash security verification
+# Operations Dashboard Demo security verification
 
 From the demo checkout, run `npm run verify:tools`. You need Docker with Compose v2.24.4 or newer, Git, curl, Python 3.9+ and npm. The Python entry point also works directly. On GitHub, open **Actions → Security tools** to inspect a run or run the suite in your fork. Each run records the commit when available, a digest of the checkout it scanned, tool image digests and the outcome of each check.
 
@@ -32,7 +32,7 @@ On November 10, 2026, the account and provider harness passed 29 tests, the simu
 
 OSV reported 80 distinct advisories across 22 of the 849 resolved package versions it scanned, including Next.js. Semgrep reported five SQL interpolation sites. The feedback queries build clauses from fixed fragments and bind the search values. The drive queries interpolate a fixed column list and a numeric constant. The five matches remain visible for review. ZAP reported a missing Content Security Policy on the landing page and disclosure of the framework through the X-Powered-By header. [Generated baseline and advisory IDs](evidence/tools/baseline.json)
 
-The Inspector entry in the published baseline was reproduced on November 11, 2026 with the `secdash-stdio-fixture` server.
+The Inspector entry was reproduced on November 11, 2026. The bundled baseline displays the fixture under its current name, `ops-dashboard-stdio-fixture`. [Original baseline](https://github.com/k-mc-martin/example-dashboard/blob/0c5baea/docs/security/evidence/tools/baseline.json)
 
 ## Remediation of the first published findings
 
@@ -57,12 +57,12 @@ The account report and its manual checks cover the account exercise. Overall ASV
 
 ## Evidence in the visitor dashboard
 
-Exercises 8, 13 and 15 read a public summary of GitHub Actions runs for the deployed Git commit. The server mounts `/opt/secdash-evidence` read-only. Each result links to its source run. After the campaign, scanner and hosted-boundary runs finish, run the following from an authenticated maintainer checkout, using the full deployed commit for `REVISION`. Publish the completed file with a rename so visitors always read a complete snapshot.
+Exercises 8, 13 and 15 read a public summary of GitHub Actions runs for the deployed Git commit. The server mounts `/opt/ops-dashboard-evidence` read-only. Each result links to its source run. After the campaign, scanner and hosted-boundary runs finish, run the following from an authenticated maintainer checkout, using the full deployed commit for `REVISION`. Publish the completed file with a rename so visitors always read a complete snapshot.
 
 ```sh
 python3 scripts/security/dashboard-evidence.py "$REVISION" > "$REVISION.json"
-scp "$REVISION.json" "$DEMO_SSH:/opt/secdash-evidence/$REVISION.json.tmp"
-ssh "$DEMO_SSH" "mv /opt/secdash-evidence/$REVISION.json.tmp /opt/secdash-evidence/$REVISION.json"
+scp "$REVISION.json" "$DEMO_SSH:/opt/ops-dashboard-evidence/$REVISION.json.tmp"
+ssh "$DEMO_SSH" "mv /opt/ops-dashboard-evidence/$REVISION.json.tmp /opt/ops-dashboard-evidence/$REVISION.json"
 ```
 
 A fresh deployment displays its revision and the pending-evidence message until its summary is available. Local builds can inspect live headers and open the public workflow sources.

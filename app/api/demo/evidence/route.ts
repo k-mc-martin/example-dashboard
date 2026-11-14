@@ -22,7 +22,7 @@ async function handleGET(request: Request) {
   ) {
     return new Response(null, { status: 403 });
   }
-  const commit = process.env.SECDASH_REVISION || 'local';
+  const commit = process.env.OPS_DASHBOARD_REVISION || 'local';
   if (/^[a-f0-9]{40}$/.test(commit)) {
     try {
       const report = JSON.parse(

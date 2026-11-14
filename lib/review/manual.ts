@@ -49,7 +49,7 @@ export function observedOperations(req: Request, handler: (req: Request) => Resp
   const url = new URL(req.url);
   const deployment = url.pathname === '/api/operations' && url.search === '?surface=cloudflare';
   const storage = url.pathname === '/api/backups' || url.pathname === '/api/backup-catalog';
-  const explicitRead = req.method === 'GET' && req.headers.get('X-SecDash-Review') === '1';
+  const explicitRead = req.method === 'GET' && req.headers.get('X-Ops-Dashboard-Review') === '1';
   const preview = url.pathname === '/api/demo/deployments';
   if (((deployment || storage || preview) && explicitRead) || ((storage || preview) && req.method === 'POST'))
     return observed(req, handler, true);
@@ -161,12 +161,12 @@ export async function observed(
     paymentActions.includes(action)
   )
     response.headers.set(
-      'X-SecDash-Ledger',
+      'X-Ops-Dashboard-Ledger',
       String(after.payment) + '; provider refunds=' + after.receipt,
     );
   if (account)
     response.headers.set(
-      'X-SecDash-Principal',
+      'X-Ops-Dashboard-Principal',
       account.id + ' / ' + account.role,
     );
   const receipt: Receipt = {
@@ -179,7 +179,7 @@ export async function observed(
     facts,
   };
   storeReceipt(w, receipt);
-  response.headers.set('X-SecDash-Receipt', receipt.id);
+  response.headers.set('X-Ops-Dashboard-Receipt', receipt.id);
   return response;
 }
 function storeReceipt(w: string, receipt: Receipt) {
@@ -237,7 +237,7 @@ export function recordOutsideDenial(req: Request, response: Response) {
     ],
   };
   storeReceipt(String(row.w), receipt);
-  response.headers.set('X-SecDash-Receipt', receipt.id);
+  response.headers.set('X-Ops-Dashboard-Receipt', receipt.id);
 }
 // A disabled member can still ask its own host for session status. Preserve the
 // first signed-out response for the Owner without filling the log on every poll.
@@ -262,7 +262,7 @@ export function memberEnded(w: string, response: Response) {
     facts: ['account=null; memberTab=true; sign-in choices=0'],
   };
   storeReceipt(w, receipt);
-  response.headers.set('X-SecDash-Receipt', receipt.id);
+  response.headers.set('X-Ops-Dashboard-Receipt', receipt.id);
   return response;
 }
 export function launchHeaderReceipt(req: Request, response: Response) {
@@ -292,7 +292,7 @@ export function launchHeaderReceipt(req: Request, response: Response) {
     ),
   };
   storeReceipt(w, receipt);
-  response.headers.set('X-SecDash-Receipt', receipt.id);
+  response.headers.set('X-Ops-Dashboard-Receipt', receipt.id);
   return response;
 }
 export function manualReport(

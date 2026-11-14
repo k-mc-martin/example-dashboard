@@ -3,7 +3,7 @@ import hashes from './common-passwords.json' with { type: 'json' };
 import { fail, hash, labDb, token } from './store.ts';
 const deny = new Set(hashes);
 const salt = () => randomBytes(16).toString('hex');
-export const staffCookie = '__Host-secdash_staff';
+export const staffCookie = '__Host-ops_dashboard_staff';
 function allowed(p: unknown): p is string {
   return (
     typeof p === 'string' &&

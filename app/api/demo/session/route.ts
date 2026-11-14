@@ -43,7 +43,7 @@ export function GET(request: Request) {
   if (!id) return refused();
   const account = currentAccount(request);
   const exercise = Number(runFor(id)?.n) || null;
-  const revision = process.env.SECDASH_REVISION || 'local';
+  const revision = process.env.OPS_DASHBOARD_REVISION || 'local';
   if (account)
     return NextResponse.json({
       account,

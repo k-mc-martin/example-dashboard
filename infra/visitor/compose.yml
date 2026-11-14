@@ -6,18 +6,18 @@ services:
     extra_hosts:
       - "vps-ca027b84.vps.ovh.us:15.204.123.246"
     environment:
-      SECDASH_REVISION: ${SECDASH_REVISION:?Set the deployed revision}
-      SECDASH_BROWSER_TARGET: https://vps-ca027b84.vps.ovh.us
+      OPS_DASHBOARD_REVISION: ${OPS_DASHBOARD_REVISION:?Set the deployed revision}
+      OPS_DASHBOARD_BROWSER_TARGET: https://vps-ca027b84.vps.ovh.us
   dashboard:
     build:
       args:
-        SECDASH_REVISION: ${SECDASH_REVISION:?Set the commit used to build the visitor image}
+        OPS_DASHBOARD_REVISION: ${OPS_DASHBOARD_REVISION:?Set the commit used to build the visitor image}
     restart: unless-stopped
     volumes:
-      - /opt/secdash-evidence:/demo-evidence:ro
+      - /opt/ops-dashboard-evidence:/demo-evidence:ro
     environment:
-      SECDASH_PUBLIC_HOST: vps-ca027b84.vps.ovh.us
-      SECDASH_MEMBER_DOMAIN: 15-204-123-246.sslip.io
+      OPS_DASHBOARD_PUBLIC_HOST: vps-ca027b84.vps.ovh.us
+      OPS_DASHBOARD_MEMBER_DOMAIN: 15-204-123-246.sslip.io
   n8n:
     restart: unless-stopped
   providers:

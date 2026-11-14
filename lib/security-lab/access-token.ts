@@ -1,10 +1,10 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { fail } from './store.ts';
 function mac(input: string, context: string) {
-  const root = process.env.SECDASH_SESSION_SECRET;
+  const root = process.env.OPS_DASHBOARD_SESSION_SECRET;
   if (!root || root.length < 32) throw Error('Signing key unavailable');
   const key = createHmac('sha256', root)
-    .update('secdash:' + context)
+    .update('ops-dashboard:' + context)
     .digest();
   return createHmac('sha256', key).update(input).digest();
 }

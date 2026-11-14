@@ -61,7 +61,7 @@ export function PreviewDeployment({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ version }),
           }
-        : { cache: 'no-store', headers: { 'X-SecDash-Review': '1' } },
+        : { cache: 'no-store', headers: { 'X-Ops-Dashboard-Review': '1' } },
     );
     const data: Result = await response.json();
     const record = data.deployment ?? data.current;

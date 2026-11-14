@@ -1,6 +1,6 @@
 {
-  "id": "SecDashLemonSqueezyConnectionCheck",
-  "name": "SecDash — Lemon Squeezy connection check (manual)",
+  "id": "OpsDashboardLemonSqueezyCheck",
+  "name": "Operations Dashboard Demo — Lemon Squeezy connection check (manual)",
   "active": false,
   "nodes": [
     {
@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "url": "https://sales.secdash.invalid/v1/stores",
+        "url": "https://sales.ops-dashboard.invalid/v1/stores",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
@@ -59,8 +59,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashLemonSqueezy",
-          "name": "SecDash Lemon Squeezy"
+          "id": "OpsDashboardLemonSqueezy",
+          "name": "Operations Dashboard Demo Lemon Squeezy"
         }
       }
     },
@@ -105,8 +105,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashDashboardIngest",
-          "name": "SecDash dashboard intake"
+          "id": "OpsDashboardDashboardIngest",
+          "name": "Operations Dashboard Demo dashboard intake"
         }
       }
     }

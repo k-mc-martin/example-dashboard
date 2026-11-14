@@ -27,6 +27,6 @@ http
     }
   })
   .listen(
-    Number(process.env.SECDASH_PROVIDER_PORT || 5791),
-    process.env.SECDASH_PROVIDER_BIND || '127.0.0.1',
+    Number(process.env.OPS_DASHBOARD_PROVIDER_PORT || 5791),
+    process.env.OPS_DASHBOARD_PROVIDER_BIND || '127.0.0.1',
   );

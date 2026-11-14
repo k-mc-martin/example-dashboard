@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the campaign tools against a disposable, fictional SecDash target."""
+"""Run the campaign tools against a disposable, fictional Operations Dashboard Demo target."""
 import hashlib
 import json
 import os
@@ -300,12 +300,12 @@ def main():
         checks[name] = {"status": status, "detail": detail}
         print(f"  {status}: {detail}", flush=True)
 
-    with tempfile.TemporaryDirectory(prefix="secdash-security-") as temp:
+    with tempfile.TemporaryDirectory(prefix="ops-dashboard-security-") as temp:
         work = Path(temp)
         source = work / "source"
         source.mkdir()
         fingerprint = snapshot(source)
-        compose = ["docker", "compose", "-p", "secdash-check-" + uuid.uuid4().hex[:12],
+        compose = ["docker", "compose", "-p", "ops-dashboard-check-" + uuid.uuid4().hex[:12],
                    "-f", source / "infra/simulation/compose.yml", "-f", source / HERE.relative_to(ROOT) / "compose.yml"]
         # Each tool sees only its own writable scratch directory.
         def scratch(name):
@@ -369,7 +369,7 @@ def main():
         destination.write_text(json.dumps(saved, indent=2) + "\n")
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as report:
-            report.write("## SecDash security tool results\n\n")
+            report.write("## Operations Dashboard Demo security tool results\n\n")
             for name, row in checks.items():
                 report.write(f"- **{name}** · {row['status']} · {row['detail']}\n")
     return int(any(c["status"] != "passed" for c in checks.values()))

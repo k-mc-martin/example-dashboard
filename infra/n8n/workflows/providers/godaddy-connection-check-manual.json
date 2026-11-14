@@ -1,6 +1,6 @@
 {
-  "id": "SecDashGoDaddyConnectionCheck",
-  "name": "SecDash — GoDaddy connection check (manual)",
+  "id": "OpsDashboardGoDaddyCheck",
+  "name": "Operations Dashboard Demo — GoDaddy connection check (manual)",
   "active": false,
   "nodes": [
     {
@@ -16,7 +16,7 @@
     },
     {
       "parameters": {
-        "url": "https://domains.secdash.invalid/v3/domains/domain-names/example.invalid",
+        "url": "https://domains.ops-dashboard.invalid/v3/domains/domain-names/example.invalid",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendHeaders": true,
@@ -46,8 +46,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashGoDaddyRead",
-          "name": "SecDash GoDaddy read"
+          "id": "OpsDashboardGoDaddyRead",
+          "name": "Operations Dashboard Demo GoDaddy read"
         }
       }
     },
@@ -92,8 +92,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashDashboardIngest",
-          "name": "SecDash dashboard intake"
+          "id": "OpsDashboardDashboardIngest",
+          "name": "Operations Dashboard Demo dashboard intake"
         }
       }
     }

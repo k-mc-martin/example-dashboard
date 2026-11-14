@@ -7,15 +7,15 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const base =
-  process.env.SECDASH_BROWSER_TARGET ||
-  'http://127.0.0.1:' + (process.env.SECDASH_DEMO_PORT || '5286');
+  process.env.OPS_DASHBOARD_BROWSER_TARGET ||
+  'http://127.0.0.1:' + (process.env.OPS_DASHBOARD_DEMO_PORT || '5286');
 test(
   'both visitor paths export actual decisions and keep reports isolated',
   { timeout: 18 * 60_000 },
   async (t) => {
     const dir =
-      process.env.SECDASH_REPORT_SAMPLES ||
-      (await mkdtemp(join(tmpdir(), 'secdash-pdfs-')));
+      process.env.OPS_DASHBOARD_REPORT_SAMPLES ||
+      (await mkdtemp(join(tmpdir(), 'ops-dashboard-pdfs-')));
     await mkdir(dir, { recursive: true });
     const browser = await chromium.launch({ channel: 'chrome' });
     try {
@@ -81,7 +81,7 @@ test(
       await act('Submit refund');
       const denied = await act('Approve refund');
       assert.equal(denied.status(), 403);
-      const receipt = denied.headers()['x-secdash-receipt'];
+      const receipt = denied.headers()['x-ops-dashboard-receipt'];
       assert.ok(receipt);
       assert.match(
         await download(other, 'Download exercise report (PDF)', 'employee.pdf'),
@@ -95,7 +95,7 @@ test(
         other.waitForResponse(r => r.url().endsWith('/api/demo/deployments') && r.request().method() === 'POST'),
         other.getByRole('button', { name: 'Launch preview deployment', exact: true }).click(),
       ]);
-      const deployReceipt = deployed.headers()['x-secdash-receipt'];
+      const deployReceipt = deployed.headers()['x-ops-dashboard-receipt'];
       assert.equal(deployed.status(), 201);
       assert.ok(deployReceipt);
       const admin = await download(other, 'Download exercise report (PDF)', 'administrator.pdf');
@@ -166,7 +166,7 @@ test(
       t.diagnostic('One click completed all 19 and downloaded all results.');
     } finally {
       await browser.close();
-      if (!process.env.SECDASH_REPORT_SAMPLES)
+      if (!process.env.OPS_DASHBOARD_REPORT_SAMPLES)
         await rm(dir, { recursive: true, force: true });
     }
   },

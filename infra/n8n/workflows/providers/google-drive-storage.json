@@ -1,6 +1,6 @@
 {
-  "id": "SecDashGoogleDriveStorage",
-  "name": "SecDash — Google Drive storage",
+  "id": "OpsDashboardGoogleDriveStorage",
+  "name": "Operations Dashboard Demo — Google Drive storage",
   "active": false,
   "nodes": [
     {
@@ -36,7 +36,7 @@
     },
     {
       "parameters": {
-        "url": "https://drive.secdash.invalid/drive/v3/about",
+        "url": "https://drive.ops-dashboard.invalid/drive/v3/about",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
@@ -79,8 +79,8 @@
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashGoogleDriveStorage",
-          "name": "SecDash Google Drive storage"
+          "id": "OpsDashboardGoogleDriveStorage",
+          "name": "Operations Dashboard Demo Google Drive storage"
         }
       }
     },
@@ -126,8 +126,8 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SecDashDashboardIngest",
-          "name": "SecDash dashboard intake"
+          "id": "OpsDashboardDashboardIngest",
+          "name": "Operations Dashboard Demo dashboard intake"
         }
       },
       "retryOnFail": true,

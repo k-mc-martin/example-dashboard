@@ -6,7 +6,7 @@ const accountId = "00000000000000000000000000000001";
 export function aggregateCloudflare(input, observedAt = new Date().toISOString()) {
   const deployments = [];
   const pages = [];
-  for (const projectName of ["secdash-public", "secdash-beta"]) {
+  for (const projectName of ["ops-dashboard-public", "ops-dashboard-beta"]) {
     const bodies = [["production", input[`${projectName}:production`]], ["preview", input[`${projectName}:preview`]]];
     let complete = true;
     for (const [requestedEnvironment, body] of bodies) {
@@ -57,17 +57,17 @@ export function aggregateCloudflare(input, observedAt = new Date().toISOString()
   const complete = pages.every(page => page.complete) && r2Complete;
   return {
     surface: "cloudflare", observedAt: new Date(observedAt).toISOString(), status: complete ? "ok" : "partial", ...(complete ? {} : { errorCode: "incomplete_collection" }),
-    data: { accountId, pages, r2: { bucketName: "secdash-downloads", complete: r2Complete, objectsTruncated: objects.length > 75, pageCount: r2Pages.length, objectCount: allObjects.length, totalBytes, ...(oldestModifiedAt ? { oldestModifiedAt, newestModifiedAt } : {}), byPrefix: toGroups(prefix), byExtension: toGroups(extension), objects: objects.sort((a, b) => b.lastModifiedAt.localeCompare(a.lastModifiedAt)).slice(0, 75) } },
+    data: { accountId, pages, r2: { bucketName: "ops-dashboard-downloads", complete: r2Complete, objectsTruncated: objects.length > 75, pageCount: r2Pages.length, objectCount: allObjects.length, totalBytes, ...(oldestModifiedAt ? { oldestModifiedAt, newestModifiedAt } : {}), byPrefix: toGroups(prefix), byExtension: toGroups(extension), objects: objects.sort((a, b) => b.lastModifiedAt.localeCompare(a.lastModifiedAt)).slice(0, 75) } },
   };
 }
 
 export function aggregateCloudflareResponses(input, observedAt = new Date().toISOString()) {
-  const groups = [input["secdash-public:production"], input["secdash-public:preview"], input["secdash-beta:production"], input["secdash-beta:preview"]].map(value => Array.isArray(value) ? value : [value]);
+  const groups = [input["ops-dashboard-public:production"], input["ops-dashboard-public:preview"], input["ops-dashboard-beta:production"], input["ops-dashboard-beta:preview"]].map(value => Array.isArray(value) ? value : [value]);
   const named = groups.flat();
   const r2Responses = Array.isArray(input.r2) ? input.r2 : [];
   const pagesError = safeUpstreamError(named);
   const r2Error = safeUpstreamError(r2Responses);
-  const empty = { accountId, pages: [{ projectName: "secdash-public", complete: false, deploymentsTruncated: false, deployments: [] }, { projectName: "secdash-beta", complete: false, deploymentsTruncated: false, deployments: [] }], r2: { bucketName: "secdash-downloads", complete: false, objectsTruncated: false, pageCount: 0, objectCount: 0, totalBytes: 0, byPrefix: [], byExtension: [], objects: [] } };
+  const empty = { accountId, pages: [{ projectName: "ops-dashboard-public", complete: false, deploymentsTruncated: false, deployments: [] }, { projectName: "ops-dashboard-beta", complete: false, deploymentsTruncated: false, deployments: [] }], r2: { bucketName: "ops-dashboard-downloads", complete: false, objectsTruncated: false, pageCount: 0, objectCount: 0, totalBytes: 0, byPrefix: [], byExtension: [], objects: [] } };
   const bodies = groups.map(group => {
     const pages = group.map(response => unwrapResponse(response).body);
     if (!pages.length || pages.some(page => page?.success !== true || !Array.isArray(page.result))) return null;
@@ -78,14 +78,14 @@ export function aggregateCloudflareResponses(input, observedAt = new Date().toIS
   let pages = empty.pages, r2 = empty.r2, pagesParsed = false, r2Parsed = false;
   try { if (pagesError) throw new Error("pages_unavailable");
     pages = aggregateCloudflare({
-      "secdash-public:production": bodies[0], "secdash-public:preview": bodies[1],
-      "secdash-beta:production": bodies[2], "secdash-beta:preview": bodies[3], r2: [blankR2],
+      "ops-dashboard-public:production": bodies[0], "ops-dashboard-public:preview": bodies[1],
+      "ops-dashboard-beta:production": bodies[2], "ops-dashboard-beta:preview": bodies[3], r2: [blankR2],
     }, observedAt).data.pages; pagesParsed = true;
   } catch { /* preserve explicit incomplete pages */ }
   try { if (r2Error) throw new Error("r2_unavailable");
     r2 = aggregateCloudflare({
-      "secdash-public:production": blankPage, "secdash-public:preview": blankPage,
-      "secdash-beta:production": blankPage, "secdash-beta:preview": blankPage,
+      "ops-dashboard-public:production": blankPage, "ops-dashboard-public:preview": blankPage,
+      "ops-dashboard-beta:production": blankPage, "ops-dashboard-beta:preview": blankPage,
       r2: r2Responses.map(response => unwrapResponse(response).body),
     }, observedAt).data.r2; r2Parsed = true;
   } catch { /* preserve explicit incomplete inventory */ }
@@ -96,20 +96,20 @@ export function aggregateCloudflareResponses(input, observedAt = new Date().toIS
 
 const r2Pagination = { pagination: { paginationMode: "updateAParameterInEachRequest", parameters: { parameters: [{ type: "qs", name: "cursor", value: "={{ $response.body.result_info.cursor }}" }] }, paginationCompleteWhen: "other", completeExpression: "={{ $response.body.result_info.is_truncated !== true }}", limitPagesFetched: true, maxRequests: 100 } };
 const pagesPagination = { pagination: { paginationMode: "updateAParameterInEachRequest", parameters: { parameters: [{ type: "qs", name: "page", value: "={{ $pageCount + 2 }}" }] }, paginationCompleteWhen: "other", completeExpression: "={{ Number($response.body.result_info.page) >= Number($response.body.result_info.total_pages) }}", limitPagesFetched: true, maxRequests: 100 } };
-const base = `https://edge.secdash.invalid/client/v4/accounts/${accountId}`;
-const pageNode = (project, env, x) => httpNode({ id: `${project}-${env}`, name: `Read ${project} ${env}`, url: `${base}/pages/projects/${project}/deployments`, credentialId: "SecDashCloudflareRead", credentialName: "SecDash Cloudflare read", position: [x, 40], query: [{ name: "env", value: env }], pagination: pagesPagination });
-const projection = `const accountId = ${JSON.stringify(accountId)};\n${unwrapResponse.toString()}\n${safeUpstreamError.toString()}\n${aggregateCloudflare.toString()}\n${aggregateCloudflareResponses.toString()}\nconst many = name => $(name).all().map(item => item.json);\nreturn [{json: aggregateCloudflareResponses({\n  'secdash-public:production': many('Read secdash-public production'),\n  'secdash-public:preview': many('Read secdash-public preview'),\n  'secdash-beta:production': many('Read secdash-beta production'),\n  'secdash-beta:preview': many('Read secdash-beta preview'),\n  r2: $input.all().map(item => item.json),\n})}];`;
-export const definition = workflow("SecDashCloudflareOperational", "SecDash — Cloudflare operations (15 min)", [
+const base = `https://edge.ops-dashboard.invalid/client/v4/accounts/${accountId}`;
+const pageNode = (project, env, x) => httpNode({ id: `${project}-${env}`, name: `Read ${project} ${env}`, url: `${base}/pages/projects/${project}/deployments`, credentialId: "OpsDashboardCloudflareRead", credentialName: "Operations Dashboard Demo Cloudflare read", position: [x, 40], query: [{ name: "env", value: env }], pagination: pagesPagination });
+const projection = `const accountId = ${JSON.stringify(accountId)};\n${unwrapResponse.toString()}\n${safeUpstreamError.toString()}\n${aggregateCloudflare.toString()}\n${aggregateCloudflareResponses.toString()}\nconst many = name => $(name).all().map(item => item.json);\nreturn [{json: aggregateCloudflareResponses({\n  'ops-dashboard-public:production': many('Read ops-dashboard-public production'),\n  'ops-dashboard-public:preview': many('Read ops-dashboard-public preview'),\n  'ops-dashboard-beta:production': many('Read ops-dashboard-beta production'),\n  'ops-dashboard-beta:preview': many('Read ops-dashboard-beta preview'),\n  r2: $input.all().map(item => item.json),\n})}];`;
+export const definition = workflow("OpsDashboardCloudflareOperational", "Operations Dashboard Demo — Cloudflare operations (15 min)", [
   scheduleNode, manualNode,
-  pageNode("secdash-public", "production", -680), pageNode("secdash-public", "preview", -440), pageNode("secdash-beta", "production", -200), pageNode("secdash-beta", "preview", 40),
-  httpNode({ id: "r2", name: "Read complete R2 inventory", url: `${base}/r2/buckets/secdash-downloads/objects`, credentialId: "SecDashCloudflareRead", credentialName: "SecDash Cloudflare read", position: [280, 40], query: [{ name: "per_page", value: "1000" }], pagination: r2Pagination }),
+  pageNode("ops-dashboard-public", "production", -680), pageNode("ops-dashboard-public", "preview", -440), pageNode("ops-dashboard-beta", "production", -200), pageNode("ops-dashboard-beta", "preview", 40),
+  httpNode({ id: "r2", name: "Read complete R2 inventory", url: `${base}/r2/buckets/ops-dashboard-downloads/objects`, credentialId: "OpsDashboardCloudflareRead", credentialName: "Operations Dashboard Demo Cloudflare read", position: [280, 40], query: [{ name: "per_page", value: "1000" }], pagination: r2Pagination }),
   codeNode("project", "Whitelist Cloudflare telemetry", projection, [540, 40]), deliveryNode([800, 40]),
 ], {
-  ...connectBoth("Read secdash-public production"),
-  "Read secdash-public production": { main: [[{ node: "Read secdash-public preview", type: "main", index: 0 }]] },
-  "Read secdash-public preview": { main: [[{ node: "Read secdash-beta production", type: "main", index: 0 }]] },
-  "Read secdash-beta production": { main: [[{ node: "Read secdash-beta preview", type: "main", index: 0 }]] },
-  "Read secdash-beta preview": { main: [[{ node: "Read complete R2 inventory", type: "main", index: 0 }]] },
+  ...connectBoth("Read ops-dashboard-public production"),
+  "Read ops-dashboard-public production": { main: [[{ node: "Read ops-dashboard-public preview", type: "main", index: 0 }]] },
+  "Read ops-dashboard-public preview": { main: [[{ node: "Read ops-dashboard-beta production", type: "main", index: 0 }]] },
+  "Read ops-dashboard-beta production": { main: [[{ node: "Read ops-dashboard-beta preview", type: "main", index: 0 }]] },
+  "Read ops-dashboard-beta preview": { main: [[{ node: "Read complete R2 inventory", type: "main", index: 0 }]] },
   "Read complete R2 inventory": { main: [[{ node: "Whitelist Cloudflare telemetry", type: "main", index: 0 }]] },
   "Whitelist Cloudflare telemetry": { main: [[{ node: "Deliver operation observation", type: "main", index: 0 }]] },
 });

@@ -7,6 +7,6 @@ COPY tests/browser/dashboard.test.mjs tests/browser/suite-observer.mjs ./tests/b
 COPY lib/security-lab/catalog.ts ./lib/security-lab/
 COPY lib/review/queue.ts lib/review/facts.ts ./lib/review/
 COPY infra/suite/worker.mjs ./infra/suite/
-ENV SECDASH_CHROME_PATH=/usr/bin/chromium HOME=/tmp
+ENV OPS_DASHBOARD_CHROME_PATH=/usr/bin/chromium HOME=/tmp
 USER node
 CMD ["node","infra/suite/worker.mjs"]

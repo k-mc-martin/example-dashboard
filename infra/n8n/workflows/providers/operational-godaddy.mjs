@@ -23,9 +23,9 @@ export function projectGoDaddyResponse(response, observedAt = new Date().toISOSt
 }
 
 const projectSource = `${unwrapResponse.toString()}\n${safeUpstreamError.toString()}\n${projectGoDaddy.toString()}\n${projectGoDaddyResponse.toString()}\nreturn [{json: projectGoDaddyResponse($json)}];`;
-export const definition = workflow("SecDashGoDaddyOperational", "SecDash — GoDaddy operations (15 min)", [
+export const definition = workflow("OpsDashboardGoDaddyOperational", "Operations Dashboard Demo — GoDaddy operations (15 min)", [
   scheduleNode, manualNode,
-  httpNode({ id: "read-domain", name: "Read example.invalid domain", url: "https://domains.secdash.invalid/v3/domains/domain-names/example.invalid", credentialId: "SecDashGoDaddyRead", credentialName: "SecDash GoDaddy read", position: [-620, 40] }),
+  httpNode({ id: "read-domain", name: "Read example.invalid domain", url: "https://domains.ops-dashboard.invalid/v3/domains/domain-names/example.invalid", credentialId: "OpsDashboardGoDaddyRead", credentialName: "Operations Dashboard Demo GoDaddy read", position: [-620, 40] }),
   codeNode("project", "Whitelist domain telemetry", projectSource, [-320, 40]), deliveryNode([-40, 40]),
 ], {
   ...connectBoth("Read example.invalid domain"),

@@ -42,7 +42,7 @@ const walkthroughs = {
   14: "As Mira, select **Open my client** and copy its `id` from **Latest server response**. Paste it into **Client record ID** and select **Open record by ID** (`200`). Open the demo in a private window, start exercise 14 again as Mira, and open her local client. Its ID should differ. Looking up the first window’s ID here should return `404`. **Inspect my environment** should identify the fictional workspace.",
   15: "Select **Inspect this build’s runs**. Compare the **Deployed revision** with the commit in **Exercise campaign** and **Hosted dashboard exercises**. Inspect the server checks and individual browser results, including any failures or skips. Follow **View workflow source** to see the steps GitHub ran at that revision. If results are missing for that commit, record them as unavailable.",
   16: "As Mira in **Communications**, select **Load markup**, then **Preview message as text**. The markup should remain visible as text. In **Client records**, run **Search client records** after **Load normal search** (one match), then after **Load SQL probe** (zero). In **Payments & refunds**, **Submit with a forged amount** should return `400` and leave the ledger `open`. **Submit refund** should then succeed.",
-  17: "As Mira, read the payment ledger and confirm `open`. Select **Prepare outside website**, then **Open the outside website**. On that page try **Send a cross-site form** and **Send a scripted request**. The server should refuse the form and the browser should block the script from reading the response. Back in SecDash, verify the ledger is still `open` with zero refunds. **Submit refund** in the dashboard should succeed.",
+  17: "As Mira, read the payment ledger and confirm `open`. Select **Prepare outside website**, then **Open the outside website**. On that page try **Send a cross-site form** and **Send a scripted request**. The server should refuse the form and the browser should block the script from reading the response. Back in Operations Dashboard Demo, verify the ledger is still `open` with zero refunds. **Submit refund** in the dashboard should succeed.",
   18: "As Mira in **Staff access**, try **Open staff record** (`401`). Select **Get activation code**, enter a demo-only value in **New password**, then select **Set initial password**. Enter it in **Current password**, select **Sign in as staff**, and open the dispatch sheet (`200`). Change the password and confirm the old session and old password are refused. Sign in with the replacement, sign out of staff access, then try five wrong passwords within a minute. The next sign-in should return `429`, even with the correct password.",
   19: "As Mira, open your assigned file and compare it with **Open the other client** (`404`). Your file should omit `billingReference` and your ledger should omit `amountCents`. Try **Deliver refund** (`403`), submit the refund, then try **Approve refund** (`403`). Switch to Inez and inspect the other file and payment amount. Delivery before approval should return `409`. Approve, deliver, and read the ledger. Expect `settled` and exactly one provider refund.",
 };
@@ -55,7 +55,7 @@ const na = (id) =>
         ? 'No rich-text HTML editor. Verify message previews and mail content are plain text.'
         : 'No XML parser or XML input endpoint. Confirm against the deployed application.';
 const lines = [
-  '# SecDash manual review (optional)',
+  '# Operations Dashboard Demo manual review (optional)',
   '',
   '[Launch the exercise picker](https://vps-ca027b84.vps.ovh.us/launch) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version) · [Campaign CI](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml) · [Scanner evidence](https://github.com/k-mc-martin/example-dashboard/actions/workflows/security-tools.yml) · [Rules and limits](policy.md)',
   '',
@@ -113,7 +113,7 @@ for (const theme of new Set(rows.map((r) => r.theme))) {
 lines.push(
   'Requirement text: [OWASP Application Security Verification Standard 5.0.0](' +
     spec +
-    '), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Groupings and exercise guidance are SecDash adaptations.',
+    '), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Groupings and exercise guidance are Operations Dashboard Demo adaptations.',
   '',
 );
 const quote = (v) => '"' + String(v).replaceAll('"', '""') + '"';

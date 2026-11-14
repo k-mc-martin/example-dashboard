@@ -14,15 +14,15 @@ import {
 } from '../../lib/security-lab/catalog.ts';
 
 const origin =
-  process.env.SECDASH_BROWSER_TARGET ||
-  'http://127.0.0.1:' + (process.env.SECDASH_DEMO_PORT || '5286');
+  process.env.OPS_DASHBOARD_BROWSER_TARGET ||
+  'http://127.0.0.1:' + (process.env.OPS_DASHBOARD_DEMO_PORT || '5286');
 const hosted = new URL(origin).protocol === 'https:';
 const diagnostics = new WeakMap();
 let browser;
 before(async () => {
   browser = await chromium.launch(
-    process.env.SECDASH_CHROME_PATH
-      ? { executablePath: process.env.SECDASH_CHROME_PATH }
+    process.env.OPS_DASHBOARD_CHROME_PATH
+      ? { executablePath: process.env.OPS_DASHBOARD_CHROME_PATH }
       : { channel: 'chrome' },
   );
 });
@@ -42,7 +42,7 @@ async function start(page, number, role = 'Owner') {
   await card.getByRole('button').click();
   if (exercise.category !== 'Evidence')
     await page.getByRole('button', { name: 'Sign in as ' + role }).click();
-  await page.getByRole('tablist', { name: 'SecDash sections' }).waitFor();
+  await page.getByRole('tablist', { name: 'Operations Dashboard Demo sections' }).waitFor();
 }
 async function openScreen(page, name) {
   const tab = page.getByRole('tab', { name, exact: false });
@@ -90,11 +90,11 @@ async function switchRole(page, role) {
 async function nativeAction(page, button, path, method, status) {
   const [response] = await Promise.all([
     page.waitForResponse(r => new URL(r.url()).pathname === path && r.request().method() === method &&
-      (method !== 'GET' || r.request().headers()['x-secdash-review'] === '1')),
+      (method !== 'GET' || r.request().headers()['x-ops-dashboard-review'] === '1')),
     page.getByRole('tabpanel').getByRole('button', { name: button, exact: true }).click(),
   ]);
   assert.equal(response.status(), status, button);
-  assert.ok(response.headers()['x-secdash-receipt'], button + ' backend receipt');
+  assert.ok(response.headers()['x-ops-dashboard-receipt'], button + ' backend receipt');
   diagnostics.get(page.context())?.diagnostic(button + ' → HTTP ' + status);
   return response.ok() ? response.json() : undefined;
 }
@@ -135,8 +135,8 @@ async function inspectEvidence(page, n, label) {
     const deployed = await (await page.request.get(origin + '/version')).json();
     assert.match(deployed.commit, /^[a-f0-9]{40}$/);
     assert.equal(report.commit, deployed.commit);
-    if (process.env.SECDASH_EXPECT_REVISION)
-      assert.equal(report.commit, process.env.SECDASH_EXPECT_REVISION);
+    if (process.env.OPS_DASHBOARD_EXPECT_REVISION)
+      assert.equal(report.commit, process.env.OPS_DASHBOARD_EXPECT_REVISION);
     const check =
       n === 8
         ? 'OSV dependencies'
@@ -570,7 +570,7 @@ scenario(
       p.waitForEvent('download'),
       p.getByRole('button', { name: 'Download observations' }).click(),
     ]);
-    assert.equal(download.suggestedFilename(), 'secdash-exercise-10.json');
+    assert.equal(download.suggestedFilename(), 'operations-dashboard-demo-exercise-10.json');
     const chunks = [];
     for await (const chunk of await download.createReadStream())
       chunks.push(chunk);

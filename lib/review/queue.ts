@@ -31,7 +31,7 @@ let db: DatabaseSync;
 export function suiteDb() {
   if (!db) {
     db = new DatabaseSync(
-      process.env.SECDASH_SUITE_DB || '/suite-jobs/runs.sqlite',
+      process.env.OPS_DASHBOARD_SUITE_DB || '/suite-jobs/runs.sqlite',
     );
     db.exec(
       'PRAGMA busy_timeout=5000; PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY,owner TEXT NOT NULL,revision TEXT NOT NULL,state TEXT NOT NULL,created INTEGER NOT NULL,updated INTEGER NOT NULL,cases TEXT NOT NULL);CREATE INDEX IF NOT EXISTS jobs_owner ON jobs(owner,created);',
