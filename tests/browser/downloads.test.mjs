@@ -32,6 +32,10 @@ test(
           page.waitForEvent('download'),
           page.getByRole('link', { name: label }).click(),
         ]);
+        const expectedFilename = label === 'Download suite results (PDF)'
+          ? 'operations-dashboard-demo-19-exercise-results.pdf'
+          : 'operations-dashboard-demo-exercise-1-report.pdf';
+        assert.equal(download.suggestedFilename(), expectedFilename);
         const path = join(dir, file);
         await download.saveAs(path);
         return execFileSync('pdftotext', ['-layout', path, '-'], {
