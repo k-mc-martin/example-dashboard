@@ -18,15 +18,12 @@ export function ExercisePicker({
     <main className="exercise-picker">
       <header>
         <p className="eyebrow">OPERATIONS DASHBOARD DEMO</p>
-        <h1>Choose an exercise</h1>
+        <h1>Explore an exercise</h1>
         <p>
-          Explore a security question in a fictional business. Every exercise
-          starts a fresh workspace. You decide which actions to try.
+          Choose a scenario to explore access, payments, releases, or recovery.
+          Each exercise opens a fresh workspace with fictional business data.
         </p>
       </header>
-      <SuiteReview />
-      <h2>Explore an exercise yourself</h2>
-      <p>Choose a card below. Each exercise includes a downloadable report of its server responses.</p>
       <nav aria-label="Filter exercises">
         {['All', 'Dashboard', 'Connector', 'Evidence'].map((f) => (
           <button
@@ -59,6 +56,7 @@ export function ExercisePicker({
             </article>
           ))}
       </div>
+      <SuiteReview />
     </main>
   );
 }

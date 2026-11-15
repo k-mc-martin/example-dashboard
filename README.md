@@ -1,20 +1,26 @@
 # Operations Dashboard Demo
 
+Try approving a refund as an employee, open a client record assigned to you, or revoke a team member’s access while they’re signed in. Each of the 19 exercises opens a fresh workspace with fictional accounts and records.
+
 [![Launch Operations Dashboard Demo](docs/launch-ops-dashboard.svg)](https://vps-ca027b84.vps.ovh.us/launch)
 
-To try an exercise, open the demo and choose a card under **Explore an exercise yourself**. Select **Start exercise** to try the actions in the dashboard or **Inspect evidence** to view published results. The guide lists the roles, steps, and expected responses for each card. [Step-by-step guide to all 19 exercises](docs/security/campaign/README.md)
+## Explore an exercise
 
-During an interactive exercise, expand **Latest server response** to inspect a decision. Select **Download exercise report (PDF)** before choosing another exercise. For example, the report can show that the server refused Mira’s refund approval with HTTP 403, the ledger stayed at `submitted`, and the provider issued zero refunds. As Owner, you can download receipts for both roles after approving the same refund as Inez.
+Choose a card and select **Start exercise**. Pick a role, try an action, and open **Latest server response** to see how the dashboard handled it. On evidence cards, select **Inspect evidence** to see the published checks for the deployed build. [Step-by-step guide to all 19 exercises](docs/security/campaign/README.md)
 
-Under **Automated security review**, select **Run all 19 exercises**. The hosted runner opens the dashboard in Chromium, performs each scenario in a fresh workspace, and checks the server responses and their effects. When it finishes, select **Download suite results (PDF)**. The report identifies the tested build and shows which exercises passed, failed, or were incomplete, with the operations and evidence for each. Exercises 8, 13, and 15 inspect published checks for that build. You can refresh the picker to check progress and retrieve the report in the same browser for up to eight hours from the start of your run.
+For example, in **Account permissions**, sign in as Mira (Employee), submit a refund, and try to approve it. The server returns HTTP 403 and the refund stays submitted. Switch to Inez (Owner) in the same workspace to approve it, then check the payment ledger.
+
+Select **Download exercise report (PDF)** to save your results before choosing another exercise. As Owner, you can download receipts for both roles. Workspaces expire after eight hours.
+
+[![Operations Dashboard Demo exercise cards](docs/security/campaign/exercise-picker.png)](https://vps-ca027b84.vps.ovh.us/launch)
+
+## Automated security review
+
+Select **Run all 19 exercises** on the exercise selection page for a single PDF covering the full set. The hosted runner opens each scenario in Chromium and records the server responses and their effects. When the run finishes, select **Download suite results (PDF)**. The report identifies the tested build and shows which exercises passed, failed, or were incomplete. You can return to the same browser for up to eight hours from the start of the run to download it.
 
 [Hosted results by exercise](https://github.com/k-mc-martin/example-dashboard/actions/workflows/hosted-exercises.yml) · [Campaign checks](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml) · [Earlier account review results](docs/security/accounts.md#hosted-account-review-november-10-2026) · [Account controls worksheet](docs/security/manual-review.md)
 
 [Browse the source in VS Code](https://github.dev/k-mc-martin/example-dashboard) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version)
-
-Explore how a business controls access, approves refunds, deploys changes, and recovers from failures. You can try to approve a refund as an employee, revoke a team member’s access while they are signed in, or give a connector permission to read mail and then ask it to issue a refund. Each visitor gets a separate workspace with fictional accounts, records, and providers. Workspaces expire after eight hours.
-
-[![Operations Dashboard Demo exercise picker showing independent security exercises](docs/security/campaign/exercise-picker.png)](https://vps-ca027b84.vps.ovh.us/launch)
 
 ## Run locally
 

@@ -23,7 +23,7 @@ test(
         const page = await browser.newPage();
         await page.goto(base + '/launch');
         await page
-          .getByRole('heading', { name: 'Choose an exercise' })
+          .getByRole('heading', { name: 'Explore an exercise', level: 1 })
           .waitFor();
         return page;
       }
