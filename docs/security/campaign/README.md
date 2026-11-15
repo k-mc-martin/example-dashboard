@@ -1,6 +1,6 @@
-# Operations Dashboard Demo manual review (optional)
+# Operations Dashboard Demo exercise guide
 
-[Launch the exercise picker](https://vps-ca027b84.vps.ovh.us/launch) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version) · [Campaign CI](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml) · [Scanner evidence](https://github.com/k-mc-martin/example-dashboard/actions/workflows/security-tools.yml) · [Rules and limits](policy.md)
+[Choose an exercise in the live demo](https://vps-ca027b84.vps.ovh.us/launch) · [Deployed commit](https://vps-ca027b84.vps.ovh.us/version) · [Campaign CI](https://github.com/k-mc-martin/example-dashboard/actions/workflows/campaign.yml) · [Scanner evidence](https://github.com/k-mc-martin/example-dashboard/actions/workflows/security-tools.yml) · [Rules and limits](policy.md)
 
 Under **Explore an exercise yourself**, choose a card and select **Start exercise**. Sign in as Mira (Employee), Theo (Administrator), or Inez (Owner). For Theo’s Administrator checks, follow exercises **1, 2, 5, and 6** in the [exercise directory](#exercise-directory). The exercise opens on its first dashboard screen. For exercises 8, 13, and 15, select **Inspect evidence** to open **Verification results** directly. **Sign out** changes identity within the same exercise. **Teams** lets the Owner open a member in another tab of that workspace. A private browser window represents an independent visitor. Selecting a card under **Choose another exercise** starts a fresh workspace.
 
