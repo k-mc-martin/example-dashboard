@@ -6,7 +6,7 @@ Try approving a refund as an employee, open a client record assigned to you, or 
 
 ## Explore an exercise
 
-Choose a card and select **Start exercise**. Pick a role, try an action, and open **Latest server response** to see how the dashboard handled it. On evidence cards, select **Inspect evidence** to see the published checks for the deployed build. [Step-by-step guide to all 19 exercises](docs/security/campaign/README.md)
+Choose a card and select **Start exercise**. Pick a role, try an action, and open **Latest server response** to see how the dashboard handled it. On evidence cards, select **Inspect evidence** to see the published checks for the deployed build. [Step-by-step guide to all 19 exercises](docs/security/campaign/README.md) · [Completed manual review](docs/security/evidence/campaign/2026-11-14-manual-review.md)
 
 For example, in **Account permissions**, sign in as Mira (Employee), submit a refund, and try to approve it. The server returns HTTP 403 and the refund stays submitted. Switch to Inez (Owner) in the same workspace to approve it, then check the payment ledger.
 
